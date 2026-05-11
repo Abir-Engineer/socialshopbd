@@ -21,7 +21,10 @@ export type Order = {
   id: string;
   orderNumber: string;
   customer: string;
+  /** Created date (formatted). */
   date: string;
+  /** Last updated (formatted). */
+  updatedAt: string;
   amount: string;
   amountBdt: number;
   status: OrderStatus;

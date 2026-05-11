@@ -1,8 +1,8 @@
 import type { Database } from "@/types/supabase";
 import type { Order, OrderStatus } from "@/types/orders";
+import { ORDER_STATUSES } from "@/types/orders";
 
 type OrderRow = Database["public"]["Tables"]["orders"]["Row"];
-import { ORDER_STATUSES } from "@/types/orders";
 
 function assertOrderStatus(value: string): OrderStatus {
   if ((ORDER_STATUSES as readonly string[]).includes(value)) {
@@ -31,6 +31,7 @@ export function orderRowToListItem(row: OrderRow): Order {
     orderNumber: row.order_number,
     customer: row.customer_name,
     date: formatOrderDate(row.created_at),
+    updatedAt: formatOrderDate(row.updated_at),
     amount: `BDT ${row.amount_bdt.toLocaleString("en-BD")}`,
     amountBdt: row.amount_bdt,
     status: assertOrderStatus(row.status),
