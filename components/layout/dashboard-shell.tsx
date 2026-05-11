@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { LogoutButton } from "@/components/auth/logout-button";
 import { DASHBOARD_NAVIGATION } from "@/lib/constants/navigation";
 import { Icon } from "@/components/ui/icon";
 import { ThemeToggle } from "@/components/dashboard/theme-toggle";
@@ -108,6 +109,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 <div className="hidden rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground sm:block">
                   admin@socialshopbd.com
                 </div>
+                <LogoutButton />
               </div>
             </div>
           </header>
