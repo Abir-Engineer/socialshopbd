@@ -6,8 +6,9 @@ export function filterOrders(orders: Order[], query: string, selectedStatus: Ord
   return orders.filter((order) => {
     const matchesSearch =
       normalizedQuery.length === 0 ||
-      order.id.toLowerCase().includes(normalizedQuery) ||
-      order.customer.toLowerCase().includes(normalizedQuery);
+      order.orderNumber.toLowerCase().includes(normalizedQuery) ||
+      order.customer.toLowerCase().includes(normalizedQuery) ||
+      order.id.toLowerCase().includes(normalizedQuery);
     const matchesStatus = selectedStatus === "All" || order.status === selectedStatus;
     return matchesSearch && matchesStatus;
   });
