@@ -21,6 +21,8 @@ export type Order = {
   id: string;
   orderNumber: string;
   customer: string;
+  /** Linked CRM customer (optional). */
+  customerId: string | null;
   /** Created date (formatted). */
   date: string;
   /** Last updated (formatted). */

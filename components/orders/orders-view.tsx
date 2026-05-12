@@ -14,13 +14,16 @@ import type { Order, OrderStatus } from "@/types/orders";
 import { ORDER_STATUSES, ORDER_STATUS_FILTER_OPTIONS } from "@/types/orders";
 import { getOrderStatusBadgeClass } from "@/utils/order-status";
 
+export type OrderCustomerLinkOption = { id: string; label: string };
+
 type OrdersViewProps = {
   initialOrders: Order[];
+  linkCustomers?: OrderCustomerLinkOption[];
 };
 
 type ToastItem = { id: number; message: string; variant: "success" | "error" };
 
-export function OrdersView({ initialOrders }: OrdersViewProps) {
+export function OrdersView({ initialOrders, linkCustomers = [] }: OrdersViewProps) {
   const router = useRouter();
   const searchFieldId = useId();
   const statusFilterId = useId();
@@ -329,6 +332,7 @@ export function OrdersView({ initialOrders }: OrdersViewProps) {
         <OrderModal
           title="Add order"
           submitLabel="Create order"
+          linkCustomers={linkCustomers}
           onClose={closeModals}
           onSubmit={handleCreate}
           error={formError}
@@ -342,6 +346,7 @@ export function OrdersView({ initialOrders }: OrdersViewProps) {
           title="Edit order"
           submitLabel="Save changes"
           initial={editing}
+          linkCustomers={linkCustomers}
           onClose={closeModals}
           onSubmit={handleUpdate}
           error={formError}
@@ -544,13 +549,23 @@ type OrderModalProps = {
   title: string;
   submitLabel: string;
   initial?: Order;
+  linkCustomers: OrderCustomerLinkOption[];
   onClose: () => void;
   onSubmit: (formData: FormData) => void;
   error: string | null;
   disabled: boolean;
 };
 
-function OrderModal({ title, submitLabel, initial, onClose, onSubmit, error, disabled }: OrderModalProps) {
+function OrderModal({
+  title,
+  submitLabel,
+  initial,
+  linkCustomers,
+  onClose,
+  onSubmit,
+  error,
+  disabled,
+}: OrderModalProps) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-8"
@@ -594,6 +609,24 @@ function OrderModal({ title, submitLabel, initial, onClose, onSubmit, error, dis
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
             />
           </label>
+          {linkCustomers.length > 0 && (
+            <label className="block space-y-2">
+              <span className="text-sm font-medium text-card-foreground">Link CRM customer (optional)</span>
+              <select
+                name="customer_id"
+                defaultValue={initial?.customerId ?? ""}
+                disabled={disabled}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <option value="">Not linked</option>
+                {linkCustomers.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <label className="block space-y-2">
             <span className="text-sm font-medium text-card-foreground">Amount (BDT)</span>
             <input

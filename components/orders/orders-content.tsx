@@ -5,6 +5,15 @@ import { OrdersView } from "@/components/orders/orders-view";
 export async function OrdersContent() {
   const supabase = await getSupabaseServerClient();
   const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
+  const linkRes = await supabase.from("customers").select("id, full_name, phone").order("full_name");
+
+  const linkCustomers =
+    linkRes.error || !linkRes.data
+      ? []
+      : linkRes.data.map((c) => ({
+          id: c.id,
+          label: `${c.full_name} (${c.phone})`,
+        }));
 
   if (error) {
     return (
@@ -29,5 +38,5 @@ export async function OrdersContent() {
   }
 
   const initialOrders = (data ?? []).map(orderRowToListItem);
-  return <OrdersView initialOrders={initialOrders} />;
+  return <OrdersView initialOrders={initialOrders} linkCustomers={linkCustomers} />;
 }

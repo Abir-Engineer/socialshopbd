@@ -30,6 +30,7 @@ export function orderRowToListItem(row: OrderRow): Order {
     id: row.id,
     orderNumber: row.order_number,
     customer: row.customer_name,
+    customerId: row.customer_id ?? null,
     date: formatOrderDate(row.created_at),
     updatedAt: formatOrderDate(row.updated_at),
     amount: `BDT ${row.amount_bdt.toLocaleString("en-BD")}`,

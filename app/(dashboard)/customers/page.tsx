@@ -1,10 +1,13 @@
+import { Suspense } from "react";
+import { CustomersContent } from "@/components/customers/customers-content";
+import { CustomersSkeleton } from "@/components/customers/customers-skeleton";
+
+export const dynamic = "force-dynamic";
+
 export default function CustomersPage() {
   return (
-    <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
-      <h1 className="text-2xl font-semibold text-foreground">Customers</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Customer management module is ready for your data and workflows.
-      </p>
-    </section>
+    <Suspense fallback={<CustomersSkeleton />}>
+      <CustomersContent />
+    </Suspense>
   );
 }

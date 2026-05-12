@@ -14,6 +14,11 @@ function isOrderStatus(value: string): value is OrderStatus {
   return (ORDER_STATUSES as readonly string[]).includes(value);
 }
 
+function parseOptionalCustomerId(formData: FormData): string | null {
+  const raw = String(formData.get("customer_id") ?? "").trim();
+  return raw || null;
+}
+
 function parseAmount(value: unknown): { ok: true; n: number } | { ok: false; error: string } {
   const raw = typeof value === "string" ? value.trim() : String(value ?? "");
   const n = Number.parseInt(raw, 10);
@@ -43,6 +48,10 @@ export async function createOrder(formData: FormData): Promise<OrderActionResult
     updated_at: new Date().toISOString(),
   };
 
+  if (formData.has("customer_id")) {
+    row.customer_id = parseOptionalCustomerId(formData);
+  }
+
   const supabase = await getSupabaseServerClient();
   const { error } = await supabase.from("orders").insert(row);
 
@@ -54,6 +63,7 @@ export async function createOrder(formData: FormData): Promise<OrderActionResult
   }
 
   revalidatePath("/orders");
+  revalidatePath("/customers");
   return { ok: true };
 }
 
@@ -80,6 +90,10 @@ export async function updateOrder(formData: FormData): Promise<OrderActionResult
     updated_at: new Date().toISOString(),
   };
 
+  if (formData.has("customer_id")) {
+    patch.customer_id = parseOptionalCustomerId(formData);
+  }
+
   const supabase = await getSupabaseServerClient();
   const { error } = await supabase.from("orders").update(patch).eq("id", id);
 
@@ -91,6 +105,7 @@ export async function updateOrder(formData: FormData): Promise<OrderActionResult
   }
 
   revalidatePath("/orders");
+  revalidatePath("/customers");
   return { ok: true };
 }
 
@@ -110,6 +125,7 @@ export async function updateOrderStatus(id: string, status: string): Promise<Ord
   }
 
   revalidatePath("/orders");
+  revalidatePath("/customers");
   return { ok: true };
 }
 
@@ -124,5 +140,6 @@ export async function deleteOrder(id: string): Promise<OrderActionResult> {
   }
 
   revalidatePath("/orders");
+  revalidatePath("/customers");
   return { ok: true };
 }
