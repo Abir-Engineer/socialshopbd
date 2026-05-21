@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSupabaseSession } from "@/lib/supabase/middleware";
 
-const publicRoutes = ["/login", "/signup"];
+const publicRoutes = ["/", "/login", "/signup"];
 
 export async function middleware(request: NextRequest) {
   const { response, user } = await updateSupabaseSession(request);
@@ -12,6 +12,9 @@ export async function middleware(request: NextRequest) {
   if (!user && !isPublicRoute) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
+    // Preserve any existing query string so Supabase callback parameters
+    // like access_token / type / error are not lost during middleware redirect.
+    redirectUrl.search = request.nextUrl.search;
     redirectUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(redirectUrl);
   }
