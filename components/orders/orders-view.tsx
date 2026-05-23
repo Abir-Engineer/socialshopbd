@@ -1,13 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useId, useRef, useState, useTransition } from "react";
+import { useCallback, useId, useState, useTransition } from "react";
+import { useToast } from "@/components/ui/toast";
 import {
   createOrder,
   deleteOrder,
   updateOrder,
   updateOrderStatus,
 } from "@/app/(dashboard)/orders/actions";
+import { bookCourierParcel } from "@/app/(dashboard)/orders/courier-actions";
 import { useOrderFilters } from "@/hooks/use-order-filters";
 import { formatOrderStatusLabel } from "@/lib/orders/map-row";
 import type { Order, OrderStatus } from "@/types/orders";
@@ -19,11 +21,12 @@ export type OrderCustomerLinkOption = { id: string; label: string };
 type OrdersViewProps = {
   initialOrders: Order[];
   linkCustomers?: OrderCustomerLinkOption[];
+  role?: string;
 };
 
 type ToastItem = { id: number; message: string; variant: "success" | "error" };
 
-export function OrdersView({ initialOrders, linkCustomers = [] }: OrdersViewProps) {
+export function OrdersView({ initialOrders, linkCustomers = [], role = "viewer" }: OrdersViewProps) {
   const router = useRouter();
   const searchFieldId = useId();
   const statusFilterId = useId();
@@ -38,20 +41,7 @@ export function OrdersView({ initialOrders, linkCustomers = [] }: OrdersViewProp
   const [deleteTarget, setDeleteTarget] = useState<Order | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [pendingRowId, setPendingRowId] = useState<string | null>(null);
-  const [toasts, setToasts] = useState<ToastItem[]>([]);
-  const toastSeq = useRef(0);
-
-  const showToast = useCallback((message: string, variant: ToastItem["variant"]) => {
-    const id = ++toastSeq.current;
-    setToasts((prev) => [...prev, { id, message, variant }]);
-    window.setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4200);
-  }, []);
-
-  const dismissToast = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
+  const toast = useToast();
 
   const closeModals = () => {
     setAddOpen(false);
@@ -69,7 +59,7 @@ export function OrdersView({ initialOrders, linkCustomers = [] }: OrdersViewProp
         return;
       }
       closeModals();
-      showToast("Order created successfully.", "success");
+      toast.success("Order created successfully.");
       router.refresh();
     });
   };
@@ -83,7 +73,7 @@ export function OrdersView({ initialOrders, linkCustomers = [] }: OrdersViewProp
         return;
       }
       closeModals();
-      showToast("Order updated successfully.", "success");
+      toast.success("Order updated successfully.");
       router.refresh();
     });
   };
@@ -95,7 +85,7 @@ export function OrdersView({ initialOrders, linkCustomers = [] }: OrdersViewProp
     startListTransition(async () => {
       const result = await deleteOrder(target.id);
       if (!result.ok) {
-        showToast(result.error, "error");
+        toast.error(result.error);
         return;
       }
       if (editing?.id === target.id) {
@@ -106,7 +96,7 @@ export function OrdersView({ initialOrders, linkCustomers = [] }: OrdersViewProp
       if (detailsOrder?.id === target.id) {
         setDetailsOrder(null);
       }
-      showToast("Order deleted successfully.", "success");
+      toast.success("Order deleted successfully.");
       router.refresh();
     });
   };
@@ -117,10 +107,10 @@ export function OrdersView({ initialOrders, linkCustomers = [] }: OrdersViewProp
       const result = await updateOrderStatus(orderId, next);
       setPendingRowId(null);
       if (!result.ok) {
-        showToast(result.error, "error");
+        toast.error(result.error);
         return;
       }
-      showToast(`Status updated to ${formatOrderStatusLabel(next)}.`, "success");
+      toast.success(`Status updated to ${formatOrderStatusLabel(next)}.`);
       router.refresh();
     });
   };
@@ -138,7 +128,6 @@ export function OrdersView({ initialOrders, linkCustomers = [] }: OrdersViewProp
 
   return (
     <section className="space-y-6" aria-busy={isBusy}>
-      <ToastStack toasts={toasts} onDismiss={dismissToast} />
 
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -150,16 +139,18 @@ export function OrdersView({ initialOrders, linkCustomers = [] }: OrdersViewProp
             </p>
           )}
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            setFormError(null);
-            setAddOpen(true);
-          }}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-        >
-          Add Order
-        </button>
+        {role !== "viewer" && (
+          <button
+            type="button"
+            onClick={() => {
+              setFormError(null);
+              setAddOpen(true);
+            }}
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+          >
+            Add Order
+          </button>
+        )}
       </header>
 
       <div className="rounded-xl border border-border bg-card shadow-sm">
@@ -251,23 +242,29 @@ export function OrdersView({ initialOrders, linkCustomers = [] }: OrdersViewProp
                   <td className="whitespace-nowrap px-3 py-4 text-muted-foreground sm:px-5">{order.date}</td>
                   <td className="whitespace-nowrap px-3 py-4 text-card-foreground sm:px-5">{order.amount}</td>
                   <td className="px-3 py-4 sm:px-5">
-                    <select
-                      value={order.status}
-                      disabled={isListPending && pendingRowId === order.id}
-                      onChange={(event) => {
-                        const next = event.target.value as OrderStatus;
-                        if (next === order.status) return;
-                        handleStatusChange(order.id, next);
-                      }}
-                      className="w-full min-w-[7.5rem] max-w-[12rem] rounded-lg border border-border bg-background px-2 py-1.5 text-xs text-foreground outline-none transition focus:border-blue-500 sm:max-w-[13rem] sm:text-sm"
-                      aria-label={`Status for ${order.orderNumber}`}
-                    >
-                      {ORDER_STATUSES.map((s) => (
-                        <option key={s} value={s}>
-                          {formatOrderStatusLabel(s)}
-                        </option>
-                      ))}
-                    </select>
+                    {role === "viewer" ? (
+                      <span className={`inline-flex ${getOrderStatusBadgeClass(order.status)}`}>
+                        {formatOrderStatusLabel(order.status)}
+                      </span>
+                    ) : (
+                      <select
+                        value={order.status}
+                        disabled={isListPending && pendingRowId === order.id}
+                        onChange={(event) => {
+                          const next = event.target.value as OrderStatus;
+                          if (next === order.status) return;
+                          handleStatusChange(order.id, next);
+                        }}
+                        className="w-full min-w-[7.5rem] max-w-[12rem] rounded-lg border border-border bg-background px-2 py-1.5 text-xs text-foreground outline-none transition focus:border-blue-500 sm:max-w-[13rem] sm:text-sm"
+                        aria-label={`Status for ${order.orderNumber}`}
+                      >
+                        {ORDER_STATUSES.map((s) => (
+                          <option key={s} value={s}>
+                            {formatOrderStatusLabel(s)}
+                          </option>
+                        ))}
+                      </select>
+                    )}
                   </td>
                   <td className="whitespace-nowrap px-3 py-4 sm:px-5">
                     <div className="flex flex-wrap gap-2">
@@ -278,24 +275,28 @@ export function OrdersView({ initialOrders, linkCustomers = [] }: OrdersViewProp
                       >
                         View
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setFormError(null);
-                          setEditing(order);
-                          setEditOpen(true);
-                        }}
-                        className="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setDeleteTarget(order)}
-                        className="text-xs font-medium text-rose-600 hover:underline dark:text-rose-400"
-                      >
-                        Delete
-                      </button>
+                      {role !== "viewer" && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFormError(null);
+                              setEditing(order);
+                              setEditOpen(true);
+                            }}
+                            className="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDeleteTarget(order)}
+                            className="text-xs font-medium text-rose-600 hover:underline dark:text-rose-400"
+                          >
+                            Delete
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -359,6 +360,7 @@ export function OrdersView({ initialOrders, linkCustomers = [] }: OrdersViewProp
           order={detailsOrder}
           onClose={() => setDetailsOrder(null)}
           onEdit={() => openEditFromDetails(detailsOrder)}
+          role={role}
         />
       )}
 
@@ -374,47 +376,41 @@ export function OrdersView({ initialOrders, linkCustomers = [] }: OrdersViewProp
   );
 }
 
-function ToastStack({ toasts, onDismiss }: { toasts: ToastItem[]; onDismiss: (id: number) => void }) {
-  if (toasts.length === 0) return null;
-
-  return (
-    <div
-      className="fixed bottom-4 right-4 z-[60] flex max-w-sm flex-col gap-2 sm:max-w-md"
-      role="region"
-      aria-label="Notifications"
-      aria-live="polite"
-    >
-      {toasts.map((t) => (
-        <div
-          key={t.id}
-          className={
-            t.variant === "success"
-              ? "flex items-start justify-between gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-900 shadow-md dark:border-emerald-900 dark:bg-emerald-950/90 dark:text-emerald-100"
-              : "flex items-start justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm text-rose-900 shadow-md dark:border-rose-900 dark:bg-rose-950/90 dark:text-rose-100"
-          }
-        >
-          <span>{t.message}</span>
-          <button
-            type="button"
-            onClick={() => onDismiss(t.id)}
-            className="shrink-0 rounded p-0.5 opacity-70 hover:opacity-100"
-            aria-label="Dismiss notification"
-          >
-            ×
-          </button>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 type OrderDetailsModalProps = {
   order: Order;
   onClose: () => void;
   onEdit: () => void;
+  role: string;
 };
 
-function OrderDetailsModal({ order, onClose, onEdit }: OrderDetailsModalProps) {
+function OrderDetailsModal({ order, onClose, onEdit, role }: OrderDetailsModalProps) {
+  const router = useRouter();
+  const [courier, setCourier] = useState<"Steadfast" | "Pathao">("Steadfast");
+  const [deliveryZone, setDeliveryZone] = useState("Inside Dhaka");
+  const [shippingCost, setShippingCost] = useState(60);
+  const [weight, setWeight] = useState(0.5);
+  const [isBooking, startBooking] = useTransition();
+  const toast = useToast();
+
+  const handleZoneChange = (zone: string) => {
+    setDeliveryZone(zone);
+    setShippingCost(zone === "Inside Dhaka" ? 60 : 120);
+  };
+
+  const handleBookCourier = () => {
+    startBooking(async () => {
+      const res = await bookCourierParcel(order.id, courier, shippingCost, weight, deliveryZone);
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success(`Successfully booked via ${courier}. Tracking: ${res.trackingCode}. SMS sent!`);
+      onClose();
+      router.refresh();
+    });
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-8"
@@ -422,7 +418,7 @@ function OrderDetailsModal({ order, onClose, onEdit }: OrderDetailsModalProps) {
       aria-modal="true"
       aria-labelledby="order-details-title"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget && !isBooking) onClose();
       }}
     >
       <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl border border-border bg-card p-6 shadow-lg">
@@ -433,7 +429,8 @@ function OrderDetailsModal({ order, onClose, onEdit }: OrderDetailsModalProps) {
           <button
             type="button"
             onClick={onClose}
-            className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+            disabled={isBooking}
+            className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
             aria-label="Close"
           >
             ×
@@ -469,26 +466,114 @@ function OrderDetailsModal({ order, onClose, onEdit }: OrderDetailsModalProps) {
             </div>
           </div>
           <div>
-            <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Internal id</dt>
+            <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Internal ID</dt>
             <dd className="mt-1 break-all font-mono text-xs text-muted-foreground">{order.id}</dd>
           </div>
         </dl>
+
+        {/* Courier dispatch system */}
+        {role !== "viewer" ? (
+          <div className="mt-6 rounded-xl border border-border bg-muted/40 p-4 space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-card-foreground">🚚 Courier Dispatch & SMS</h3>
+            
+            {order.trackingCode ? (
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Courier Service:</span>
+                  <span className="font-semibold text-foreground">{order.courierName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Tracking Code:</span>
+                  <span className="font-mono font-semibold text-blue-600 dark:text-blue-400">{order.trackingCode}</span>
+                </div>
+                <div className="mt-2 text-center text-[10px] text-emerald-500 font-semibold bg-emerald-500/10 py-1.5 rounded-lg">
+                  ✓ Dispatched & SMS notification sent
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-[10px] font-semibold text-muted-foreground uppercase">Service</label>
+                  <select
+                    value={courier}
+                    onChange={(e) => setCourier(e.target.value as any)}
+                    disabled={isBooking}
+                    className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs text-foreground outline-none focus:border-blue-500"
+                  >
+                    <option value="Steadfast">Steadfast Courier</option>
+                    <option value="Pathao">Pathao Courier</option>
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-semibold text-muted-foreground uppercase">Zone</label>
+                    <select
+                      value={deliveryZone}
+                      onChange={(e) => handleZoneChange(e.target.value)}
+                      disabled={isBooking}
+                      className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs text-foreground outline-none focus:border-blue-500"
+                    >
+                      <option value="Inside Dhaka">Inside Dhaka</option>
+                      <option value="Outside Dhaka">Outside Dhaka</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-muted-foreground uppercase">Cost (BDT)</label>
+                    <input
+                      type="number"
+                      value={shippingCost}
+                      onChange={(e) => setShippingCost(Number(e.target.value))}
+                      disabled={isBooking}
+                      className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs text-foreground outline-none focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleBookCourier}
+                  disabled={isBooking}
+                  className="w-full rounded-lg bg-blue-600 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition disabled:opacity-60"
+                >
+                  {isBooking ? "Booking Parcel & Sending SMS..." : "Book Courier & Send SMS Notification"}
+                </button>
+              </div>
+            )}
+          </div>
+        ) : order.trackingCode ? (
+          <div className="mt-6 rounded-xl border border-border bg-muted/40 p-4 space-y-2 text-xs">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-card-foreground">🚚 Courier Dispatch</h3>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Courier Service:</span>
+              <span className="font-semibold text-foreground">{order.courierName}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Tracking Code:</span>
+              <span className="font-mono font-semibold text-blue-600 dark:text-blue-400">{order.trackingCode}</span>
+            </div>
+          </div>
+        ) : null}
 
         <div className="mt-8 flex flex-wrap justify-end gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
+            disabled={isBooking}
+            className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-50"
           >
             Close
           </button>
-          <button
-            type="button"
-            onClick={onEdit}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-          >
-            Edit order
-          </button>
+          {role !== "viewer" && (
+            <button
+              type="button"
+              onClick={onEdit}
+              disabled={isBooking}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+            >
+              Edit order
+            </button>
+          )}
         </div>
       </div>
     </div>

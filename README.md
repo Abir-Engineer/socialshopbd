@@ -20,6 +20,49 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Local setup (Supabase)
+
+1. Copy the environment example and fill values from your Supabase project:
+
+```bash
+cp .env.example .env.local
+# then edit .env.local and set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY
+```
+
+2. Install dependencies and run the dev server:
+
+```bash
+npm install
+npm run dev
+```
+
+3. Apply the SQL migrations in `supabase/migrations` to your Supabase database (use the Supabase CLI or Dashboard).
+
+4. To create an admin user (requires `SUPABASE_SERVICE_ROLE_KEY`):
+
+```bash
+SUPABASE_SERVICE_ROLE_KEY=... NEXT_PUBLIC_SUPABASE_URL=https://xyz.supabase.co node scripts/create_admin_user.mjs hello.marketerabir@gmail.com MySecurePass123
+```
+
+5. Optional: create test users with `scripts/create_test_user.mjs` (also requires service role key).
+
+## GitHub Actions CI
+
+This repository includes a basic CI workflow at `.github/workflows/ci.yml`.
+
+It runs on pushes and pull requests to `main` or `master`, and performs:
+
+- `npm install`
+- `npm run lint`
+- `npm run build`
+
+If you want to enable deployment or migration automation, add GitHub Secrets to the repo:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` (server-only secret)
+
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

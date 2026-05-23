@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/supabase";
-import type { AnalyticsSnapshot, LowStockRow, MonthlyPoint, StatusSlice, TopProductRow } from "@/types/analytics";
+import type { AnalyticsSnapshot, LowStockRow, MonthlyPoint, CustomerMonthlyPoint, StatusSlice, TopProductRow, RecentOrderActivity } from "@/types/analytics";
 
 type OrderRow = Database["public"]["Tables"]["orders"]["Row"];
 
@@ -8,6 +8,7 @@ const MS_DAY = 86_400_000;
 const LOW_STOCK_THRESHOLD = 10;
 const TOP_PRODUCTS_LIMIT = 6;
 const LOW_STOCK_LIMIT = 8;
+const RECENT_ORDERS_LIMIT = 10;
 
 function monthKeyFromIso(iso: string): string {
   const d = new Date(iso);
@@ -49,10 +50,11 @@ export async function buildAnalyticsSnapshot(
   since.setMonth(since.getMonth() - 15);
   const sinceIso = since.toISOString();
 
-  const [ordersRes, productsRes, itemsRes] = await Promise.all([
-    supabase.from("orders").select("id, amount_bdt, status, customer_id, created_at").gte("created_at", sinceIso),
+  // Fetch orders, products, and customers
+  const [ordersRes, productsRes, customersRes] = await Promise.all([
+    supabase.from("orders").select("id, amount_bdt, status, customer_id, customer_name, order_number, created_at").gte("created_at", sinceIso),
     supabase.from("products").select("id, name, sku, stock").order("stock", { ascending: true }),
-    supabase.from("order_items").select("product_id, quantity, line_total_bdt"),
+    supabase.from("customers").select("id, created_at").gte("created_at", sinceIso),
   ]);
 
   const emptyMonthly = (): MonthlyPoint[] =>
@@ -61,6 +63,13 @@ export async function buildAnalyticsSnapshot(
       label: labelForMonthKey(key),
       revenue: 0,
       orders: 0,
+    }));
+
+  const emptyMonthlyCustomers = (): CustomerMonthlyPoint[] =>
+    buildLast12MonthKeys().map((key) => ({
+      key,
+      label: labelForMonthKey(key),
+      count: 0,
     }));
 
   if (ordersRes.error) {
@@ -72,29 +81,62 @@ export async function buildAnalyticsSnapshot(
       orders30d: 0,
       ordersPrev30d: 0,
       ordersGrowthPct: null,
+      aov30d: null,
+      aovPrev30d: null,
+      aovGrowthPct: null,
+      customerGrowth30d: 0,
+      customerGrowthPrev30d: 0,
+      customerGrowthGrowthPct: null,
+      revenue7d: 0,
+      revenuePrev7d: 0,
+      revenue7dGrowthPct: null,
+      orders7d: 0,
+      ordersPrev7d: 0,
+      orders7dGrowthPct: null,
       repeatBuyerCount: 0,
       repeatOrderSharePct: null,
-      aov30d: null,
       monthly: emptyMonthly(),
+      monthlyCustomers: emptyMonthlyCustomers(),
       statusBreakdown: [],
       topProducts: [],
       lowStock: [],
+      recentOrders: [],
     };
   }
 
   const orders = ordersRes.data ?? [];
   const products = productsRes.data ?? [];
+  const customers = customersRes.error ? [] : (customersRes.data ?? []);
+
+  // OPTIMIZED QUERY: Fetch order items only for the recent orders in the snapshot window
+  const orderIds = orders.map((o) => o.id);
+  const itemsRes = orderIds.length > 0
+    ? await supabase.from("order_items").select("product_id, quantity, line_total_bdt").in("order_id", orderIds)
+    : { data: [], error: null };
+  
   const items = itemsRes.error ? [] : (itemsRes.data ?? []);
 
   const now = Date.now();
+  
+  // 30d and 60d thresholds
   const cur30Start = now - 30 * MS_DAY;
   const prev30Start = now - 60 * MS_DAY;
   const prev30End = cur30Start;
+
+  // 7d and 14d thresholds (weekly)
+  const cur7Start = now - 7 * MS_DAY;
+  const prev7Start = now - 14 * MS_DAY;
+  const prev7End = cur7Start;
 
   let revenue30d = 0;
   let revenuePrev30d = 0;
   let orders30d = 0;
   let ordersPrev30d = 0;
+
+  let revenue7d = 0;
+  let revenuePrev7d = 0;
+  let orders7d = 0;
+  let ordersPrev7d = 0;
 
   const monthMap = new Map<string, { revenue: number; orders: number }>();
   for (const key of buildLast12MonthKeys()) {
@@ -108,12 +150,22 @@ export async function buildAnalyticsSnapshot(
     const t = new Date(o.created_at).getTime();
     const rev = revenueForOrder(o);
 
+    // 30 day periods
     if (t >= cur30Start) {
       revenue30d += rev;
       orders30d += 1;
     } else if (t >= prev30Start && t < prev30End) {
       revenuePrev30d += rev;
       ordersPrev30d += 1;
+    }
+
+    // 7 day periods
+    if (t >= cur7Start) {
+      revenue7d += rev;
+      orders7d += 1;
+    } else if (t >= prev7Start && t < prev7End) {
+      revenuePrev7d += rev;
+      ordersPrev7d += 1;
     }
 
     const mk = monthKeyFromIso(o.created_at);
@@ -130,6 +182,28 @@ export async function buildAnalyticsSnapshot(
 
     if (o.customer_id) {
       customerCounts.set(o.customer_id, (customerCounts.get(o.customer_id) ?? 0) + 1);
+    }
+  }
+
+  // Customer Growth metrics
+  let customerGrowth30d = 0;
+  let customerGrowthPrev30d = 0;
+  const customerMonthMap = new Map<string, number>();
+  for (const key of buildLast12MonthKeys()) {
+    customerMonthMap.set(key, 0);
+  }
+
+  for (const c of customers) {
+    const t = new Date(c.created_at).getTime();
+    if (t >= cur30Start) {
+      customerGrowth30d += 1;
+    } else if (t >= prev30Start && t < prev30End) {
+      customerGrowthPrev30d += 1;
+    }
+
+    const mk = monthKeyFromIso(c.created_at);
+    if (mk && customerMonthMap.has(mk)) {
+      customerMonthMap.set(mk, customerMonthMap.get(mk)! + 1);
     }
   }
 
@@ -153,6 +227,11 @@ export async function buildAnalyticsSnapshot(
   const monthly: MonthlyPoint[] = buildLast12MonthKeys().map((key) => {
     const b = monthMap.get(key)!;
     return { key, label: labelForMonthKey(key), revenue: b.revenue, orders: b.orders };
+  });
+
+  const monthlyCustomers: CustomerMonthlyPoint[] = buildLast12MonthKeys().map((key) => {
+    const count = customerMonthMap.get(key) || 0;
+    return { key, label: labelForMonthKey(key), count };
   });
 
   const statusBreakdown: StatusSlice[] = Array.from(statusMap.entries())
@@ -186,7 +265,20 @@ export async function buildAnalyticsSnapshot(
     .slice(0, LOW_STOCK_LIMIT)
     .map((p) => ({ id: p.id, name: p.name, sku: p.sku, stock: p.stock }));
 
+  const recentOrders: RecentOrderActivity[] = [...orders]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, RECENT_ORDERS_LIMIT)
+    .map((o) => ({
+      id: o.id,
+      orderNumber: o.order_number,
+      customerName: o.customer_name,
+      amountBDT: o.amount_bdt,
+      status: o.status,
+      createdAt: o.created_at,
+    }));
+
   const aov30d = orders30d > 0 ? revenue30d / orders30d : null;
+  const aovPrev30d = ordersPrev30d > 0 ? revenuePrev30d / ordersPrev30d : null;
 
   return {
     revenue30d,
@@ -195,12 +287,28 @@ export async function buildAnalyticsSnapshot(
     orders30d,
     ordersPrev30d,
     ordersGrowthPct: pctGrowth(orders30d, ordersPrev30d),
+    aov30d,
+    aovPrev30d,
+    aovGrowthPct: aov30d !== null && aovPrev30d !== null ? pctGrowth(aov30d, aovPrev30d) : null,
+    customerGrowth30d,
+    customerGrowthPrev30d,
+    customerGrowthGrowthPct: pctGrowth(customerGrowth30d, customerGrowthPrev30d),
+    
+    // Weekly comparisons
+    revenue7d,
+    revenuePrev7d,
+    revenue7dGrowthPct: pctGrowth(revenue7d, revenuePrev7d),
+    orders7d,
+    ordersPrev7d,
+    orders7dGrowthPct: pctGrowth(orders7d, ordersPrev7d),
+
     repeatBuyerCount,
     repeatOrderSharePct,
-    aov30d,
     monthly,
+    monthlyCustomers,
     statusBreakdown,
     topProducts,
     lowStock,
+    recentOrders,
   };
 }

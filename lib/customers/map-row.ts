@@ -26,7 +26,7 @@ export function mapCustomerToListItem(
 
   return {
     id: row.id,
-    fullName: row.full_name,
+    fullName: row.name,
     phone: row.phone,
     email: row.email,
     notes: row.notes ?? "",

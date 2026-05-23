@@ -1,17 +1,45 @@
 "use client";
 
-import type { ReactNode } from "react";
-import type { AnalyticsSnapshot, MonthlyPoint, StatusSlice, TopProductRow } from "@/types/analytics";
-import { ORDER_STATUSES, type OrderStatus } from "@/types/orders";
+import { useEffect, useState } from "react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  Cell,
+  PieChart,
+  Pie,
+  Legend,
+} from "recharts";
+import {
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  ShoppingBag,
+  Users,
+  CheckCircle2,
+  Clock,
+  ArrowUpRight,
+  Activity,
+  Package,
+  Calendar,
+} from "lucide-react";
+import type { AnalyticsSnapshot, MonthlyPoint, TopProductRow, StatusSlice } from "@/types/analytics";
 import { formatOrderStatusLabel } from "@/lib/orders/map-row";
 import { getOrderStatusBadgeClass } from "@/utils/order-status";
+import { type OrderStatus } from "@/types/orders";
 
 type AnalyticsDashboardProps = {
   snapshot: AnalyticsSnapshot;
 };
 
 function formatBdt(n: number): string {
-  return `BDT ${Math.round(n).toLocaleString("en-BD")}`;
+  return `৳${Math.round(n).toLocaleString("en-BD")}`;
 }
 
 function formatPct(n: number | null): string {
@@ -21,212 +49,75 @@ function formatPct(n: number | null): string {
 }
 
 function statusBadgeClass(status: string): string {
-  if ((ORDER_STATUSES as readonly string[]).includes(status)) {
+  try {
     return getOrderStatusBadgeClass(status as OrderStatus);
+  } catch {
+    return "rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200";
   }
-  return "rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200";
 }
 
-function StatCard({
-  label,
-  value,
-  sub,
-  trend,
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-  trend?: { pct: number | null; label: string };
-}) {
-  return (
-    <div className="min-w-0">
-      <div className="group relative h-full overflow-hidden rounded-2xl border border-border/80 bg-card p-4 shadow-sm ring-1 ring-black/[0.04] transition hover:shadow-md sm:p-5 dark:ring-white/[0.06]">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent opacity-60" />
-      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="mt-2 text-3xl font-semibold tracking-tight text-card-foreground">{value}</p>
-      {sub && <p className="mt-1 text-xs text-muted-foreground">{sub}</p>}
-      {trend && (
-        <p
-          className={`mt-3 text-xs font-medium ${
-            trend.pct === null
-              ? "text-muted-foreground"
-              : trend.pct >= 0
-                ? "text-emerald-600 dark:text-emerald-400"
-                : "text-rose-600 dark:text-rose-400"
-          }`}
-        >
-          {trend.pct === null ? "—" : formatPct(trend.pct)} <span className="font-normal text-muted-foreground">{trend.label}</span>
-        </p>
-      )}
-      </div>
-    </div>
-  );
-}
-
-function MonthlyGrowthChart({ points }: { points: MonthlyPoint[] }) {
-  const maxRev = Math.max(1, ...points.map((p) => p.revenue));
-  const hasData = points.some((p) => p.revenue > 0 || p.orders > 0);
-
-  if (!hasData) {
+// Custom tooltip for Sales/Revenue AreaChart
+function CustomTooltip({ active, payload, label }: any) {
+  if (active && payload && payload.length) {
     return (
-      <div className="flex h-64 flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-4 text-center">
-        <p className="text-sm font-medium text-foreground">No revenue in the last 12 months</p>
-        <p className="mt-1 max-w-sm text-xs text-muted-foreground">
-          Record orders (excluding returned) to see monthly revenue growth here.
+      <div className="rounded-xl border border-border bg-card/95 p-3 shadow-xl backdrop-blur-sm">
+        <p className="text-xs font-semibold text-foreground mb-1">{label}</p>
+        <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
+          Revenue: <span className="font-mono">{formatBdt(payload[0].value)}</span>
+        </p>
+        {payload[1] && (
+          <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400 mt-0.5">
+            Orders: <span className="font-mono">{payload[1].value}</span>
+          </p>
+        )}
+      </div>
+    );
+  }
+  return null;
+}
+
+// Custom tooltip for Customer Growth BarChart
+function CustomerTooltip({ active, payload, label }: any) {
+  if (active && payload && payload.length) {
+    return (
+      <div className="rounded-xl border border-border bg-card/95 p-3 shadow-xl backdrop-blur-sm">
+        <p className="text-xs font-semibold text-foreground mb-1">{label}</p>
+        <p className="text-xs font-medium text-violet-600 dark:text-violet-400">
+          New Customers: <span className="font-mono">{payload[0].value}</span>
         </p>
       </div>
     );
   }
-
-  return (
-    <div className="w-full">
-      <div className="flex h-56 items-end gap-1.5 sm:gap-2">
-        {points.map((p) => {
-          const h = Math.max(6, (p.revenue / maxRev) * 100);
-          return (
-            <div key={p.key} className="flex min-w-0 flex-1 flex-col items-center justify-end gap-2">
-              <div
-                className="group/bar relative w-full max-w-[3.5rem] rounded-t-lg bg-gradient-to-t from-blue-700 via-blue-500 to-sky-400 shadow-inner shadow-blue-900/20 dark:from-blue-900 dark:via-blue-600 dark:to-sky-500"
-                style={{ height: `${h}%` }}
-                title={`${p.label}: ${formatBdt(p.revenue)} · ${p.orders} orders`}
-              >
-                <span className="pointer-events-none absolute -top-8 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded-md border border-border bg-card px-2 py-1 text-[10px] font-medium text-card-foreground shadow-md group-hover/bar:block">
-                  {formatBdt(p.revenue)}
-                </span>
-              </div>
-              <span className="w-full truncate text-center text-[10px] font-medium text-muted-foreground sm:text-xs">
-                {p.label.split(" ")[0]}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-      <p className="mt-3 text-center text-xs text-muted-foreground">Monthly revenue (excludes returned orders)</p>
-    </div>
-  );
+  return null;
 }
 
-function MonthlyOrdersVolumeChart({ points }: { points: MonthlyPoint[] }) {
-  const maxOrd = Math.max(1, ...points.map((p) => p.orders));
-  const hasData = points.some((p) => p.orders > 0);
-
-  if (!hasData) {
+// Custom tooltip for Top Products BarChart
+function ProductTooltip({ active, payload }: any) {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
     return (
-      <div className="flex h-40 flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/15 px-4 text-center">
-        <p className="text-sm font-medium text-foreground">No orders in the last 12 months</p>
-        <p className="mt-1 max-w-sm text-xs text-muted-foreground">Create orders to see monthly volume here.</p>
+      <div className="rounded-xl border border-border bg-card/95 p-3 shadow-xl backdrop-blur-sm">
+        <p className="text-xs font-semibold text-foreground mb-1">{data.name}</p>
+        <p className="text-xs font-medium text-indigo-600 dark:text-indigo-400">
+          Units Sold: <span className="font-mono">{data.units}</span>
+        </p>
+        <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400 mt-0.5">
+          Revenue: <span className="font-mono">{formatBdt(data.revenue)}</span>
+        </p>
       </div>
     );
   }
-
-  return (
-    <div className="w-full">
-      <div className="flex h-44 items-end gap-1.5 sm:gap-2">
-        {points.map((p) => {
-          const h = Math.max(5, (p.orders / maxOrd) * 100);
-          return (
-            <div key={p.key} className="flex min-w-0 flex-1 flex-col items-center justify-end gap-2">
-              <div
-                className="group/bar-o relative w-full max-w-[3.5rem] rounded-t-lg bg-gradient-to-t from-emerald-800 via-emerald-500 to-teal-400 shadow-inner shadow-emerald-900/25 dark:from-emerald-950 dark:via-emerald-600 dark:to-teal-500"
-                style={{ height: `${h}%` }}
-                title={`${p.label}: ${p.orders} orders`}
-              >
-                <span className="pointer-events-none absolute -top-8 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded-md border border-border bg-card px-2 py-1 text-[10px] font-medium text-card-foreground shadow-md group-hover/bar-o:block">
-                  {p.orders} orders
-                </span>
-              </div>
-              <span className="w-full truncate text-center text-[10px] font-medium text-muted-foreground sm:text-xs">
-                {p.label.split(" ")[0]}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-      <p className="mt-3 text-center text-xs text-muted-foreground">Monthly order count (all statuses)</p>
-    </div>
-  );
-}
-
-function StatusBreakdown({ slices }: { slices: StatusSlice[] }) {
-  const total = slices.reduce((a, s) => a + s.count, 0) || 1;
-  const maxCount = Math.max(1, ...slices.map((s) => s.count));
-
-  if (slices.length === 0) {
-    return (
-      <div className="flex h-48 items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 text-sm text-muted-foreground">
-        No order status data
-      </div>
-    );
-  }
-
-  return (
-    <ul className="space-y-3">
-      {slices.map((s) => (
-        <li key={s.status} className="space-y-1.5">
-          <div className="flex items-center justify-between gap-2 text-xs">
-            <span className={`inline-flex items-center gap-1.5 ${statusBadgeClass(s.status)}`}>
-              {formatOrderStatusLabel(s.status as OrderStatus)}
-            </span>
-            <span className="text-muted-foreground">
-              {s.count} <span className="text-[10px]">({Math.round((s.count / total) * 100)}%)</span>
-            </span>
-          </div>
-          <div className="h-2 overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-slate-500 to-slate-400 dark:from-slate-400 dark:to-slate-500"
-              style={{ width: `${(s.count / maxCount) * 100}%` }}
-            />
-          </div>
-          <p className="text-[10px] text-muted-foreground">Revenue (incl. returned): {formatBdt(s.revenue)}</p>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function HorizontalMetricBars({
-  rows,
-  valueKey,
-  maxValue,
-  empty,
-}: {
-  rows: TopProductRow[];
-  valueKey: "revenue" | "units";
-  maxValue: number;
-  empty: ReactNode;
-}) {
-  if (rows.length === 0) {
-    return <div className="rounded-xl border border-dashed border-border bg-muted/20 p-6 text-center text-sm text-muted-foreground">{empty}</div>;
-  }
-
-  const max = Math.max(1, maxValue);
-
-  return (
-    <ul className="space-y-3">
-      {rows.map((row) => {
-        const v = valueKey === "revenue" ? row.revenue : row.units;
-        const w = (v / max) * 100;
-        return (
-          <li key={row.productId} className="space-y-1">
-            <div className="flex items-baseline justify-between gap-2 text-xs">
-              <span className="truncate font-medium text-card-foreground">{row.name}</span>
-              <span className="shrink-0 text-muted-foreground">{valueKey === "revenue" ? formatBdt(row.revenue) : `${row.units} units`}</span>
-            </div>
-            <div className="h-2 overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-violet-600 to-indigo-400 dark:from-violet-500 dark:to-indigo-400"
-                style={{ width: `${w}%` }}
-              />
-            </div>
-            <p className="text-[10px] text-muted-foreground">SKU {row.sku}</p>
-          </li>
-        );
-      })}
-    </ul>
-  );
+  return null;
 }
 
 export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
+  const [mounted, setMounted] = useState(false);
+  const [timeframe, setTimeframe] = useState<"30d" | "7d">("30d");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const {
     loadError,
     revenue30d,
@@ -235,237 +126,539 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
     orders30d,
     ordersPrev30d,
     ordersGrowthPct,
+    aov30d,
+    aovPrev30d,
+    aovGrowthPct,
+    customerGrowth30d,
+    customerGrowthPrev30d,
+    customerGrowthGrowthPct,
+    revenue7d,
+    revenuePrev7d,
+    revenue7dGrowthPct,
+    orders7d,
+    ordersPrev7d,
+    orders7dGrowthPct,
     repeatBuyerCount,
     repeatOrderSharePct,
-    aov30d,
     monthly,
+    monthlyCustomers,
     statusBreakdown,
     topProducts,
     lowStock,
+    recentOrders,
   } = snapshot;
 
-  const maxTopRev = topProducts.length ? Math.max(...topProducts.map((p) => p.revenue)) : 0;
+  if (loadError) {
+    return (
+      <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900 shadow-sm dark:border-rose-900/30 dark:bg-rose-950/20 dark:text-rose-100">
+        <h3 className="font-semibold">Error Loading Analytics</h3>
+        <p className="mt-1 opacity-90">{loadError}</p>
+      </div>
+    );
+  }
+
+  // Active metrics based on timeframe
+  const displayRevenue = timeframe === "30d" ? revenue30d : revenue7d;
+  const displayRevenuePrev = timeframe === "30d" ? revenuePrev30d : revenuePrev7d;
+  const displayRevenueGrowth = timeframe === "30d" ? revenueGrowthPct : revenue7dGrowthPct;
+
+  const displayOrders = timeframe === "30d" ? orders30d : orders7d;
+  const displayOrdersPrev = timeframe === "30d" ? ordersPrev30d : ordersPrev7d;
+  const displayOrdersGrowth = timeframe === "30d" ? ordersGrowthPct : orders7dGrowthPct;
+
+  // Pie chart calculation for Pending vs Delivered
+  const deliveredCount = statusBreakdown.find((s) => s.status === "delivered")?.count || 0;
+  const pendingCount = statusBreakdown
+    .filter((s) => s.status !== "delivered" && s.status !== "returned" && s.status !== "cancelled")
+    .reduce((acc, s) => acc + s.count, 0);
+  const returnedCount = statusBreakdown.find((s) => s.status === "returned")?.count || 0;
+  const otherCount = statusBreakdown
+    .filter((s) => s.status === "cancelled")
+    .reduce((acc, s) => acc + s.count, 0);
+
+  const statusPieData = [
+    { name: "Delivered", value: deliveredCount, color: "#10b981" },
+    { name: "Pending / Processing", value: pendingCount, color: "#3b82f6" },
+    { name: "Returned", value: returnedCount, color: "#f59e0b" },
+    { name: "Cancelled", value: otherCount, color: "#ef4444" },
+  ].filter((d) => d.value > 0);
 
   return (
-    <section className="space-y-8">
-      <header className="space-y-2">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600/90 dark:text-blue-400/90">Insights</p>
-            <h1 className="mt-1 text-3xl font-semibold tracking-tight text-foreground">Analytics</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Revenue, orders, customers, and inventory in one Stripe-inspired view — powered by your Supabase data.
-            </p>
-          </div>
+    <section className="space-y-8 animate-in fade-in duration-300">
+      {/* Header */}
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">
+            Realtime Analytics
+          </p>
+          <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+            Insights Dashboard
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Monitor real-time sales performance, customer growth, and operational metrics.
+          </p>
+        </div>
+
+        {/* Timeframe selector */}
+        <div className="inline-flex rounded-xl bg-card border border-border p-1 shadow-sm">
+          <button
+            onClick={() => setTimeframe("30d")}
+            className={`rounded-lg px-4 py-1.5 text-xs font-semibold transition cursor-pointer ${
+              timeframe === "30d"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Last 30 Days
+          </button>
+          <button
+            onClick={() => setTimeframe("7d")}
+            className={`rounded-lg px-4 py-1.5 text-xs font-semibold transition cursor-pointer ${
+              timeframe === "7d"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Last 7 Days
+          </button>
         </div>
       </header>
 
-      {loadError && (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900 shadow-sm dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-100">
-          <p className="font-medium">Could not load analytics</p>
-          <p className="mt-1 opacity-90">{loadError}</p>
+      {/* Metric Cards Grid */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {/* Revenue Card */}
+        <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md group">
+          <div className="absolute top-0 right-0 h-24 w-24 -mr-4 -mt-4 rounded-full bg-blue-500/5 dark:bg-blue-500/10 transition-transform duration-300 group-hover:scale-110" />
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Revenue</span>
+            <div className="rounded-xl bg-blue-500/10 p-2.5 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400">
+              <DollarSign className="h-5 w-5" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <h3 className="text-3xl font-bold tracking-tight text-foreground">{formatBdt(displayRevenue)}</h3>
+            <p className="mt-2 flex items-center gap-1.5 text-xs font-medium">
+              {displayRevenueGrowth !== null ? (
+                displayRevenueGrowth >= 0 ? (
+                  <>
+                    <TrendingUp className="h-4 w-4 text-emerald-500 shrink-0" />
+                    <span className="text-emerald-600 dark:text-emerald-400">{formatPct(displayRevenueGrowth)}</span>
+                  </>
+                ) : (
+                  <>
+                    <TrendingDown className="h-4 w-4 text-rose-500 shrink-0" />
+                    <span className="text-rose-600 dark:text-rose-400">{formatPct(displayRevenueGrowth)}</span>
+                  </>
+                )
+              ) : (
+                <span className="text-muted-foreground">—</span>
+              )}
+              <span className="text-muted-foreground">vs previous period</span>
+            </p>
+          </div>
         </div>
-      )}
 
-      <div className="space-y-3">
-        <div>
-          <h2 className="text-lg font-semibold text-card-foreground">Key metrics</h2>
-          <p className="text-xs text-muted-foreground">Revenue, orders, and repeat buyers · last 30 days vs prior period where shown</p>
+        {/* Orders Card */}
+        <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md group">
+          <div className="absolute top-0 right-0 h-24 w-24 -mr-4 -mt-4 rounded-full bg-emerald-500/5 dark:bg-emerald-500/10 transition-transform duration-300 group-hover:scale-110" />
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Orders Overview</span>
+            <div className="rounded-xl bg-emerald-500/10 p-2.5 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
+              <ShoppingBag className="h-5 w-5" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <h3 className="text-3xl font-bold tracking-tight text-foreground">{displayOrders.toLocaleString()}</h3>
+            <p className="mt-2 flex items-center gap-1.5 text-xs font-medium">
+              {displayOrdersGrowth !== null ? (
+                displayOrdersGrowth >= 0 ? (
+                  <>
+                    <TrendingUp className="h-4 w-4 text-emerald-500 shrink-0" />
+                    <span className="text-emerald-600 dark:text-emerald-400">{formatPct(displayOrdersGrowth)}</span>
+                  </>
+                ) : (
+                  <>
+                    <TrendingDown className="h-4 w-4 text-rose-500 shrink-0" />
+                    <span className="text-rose-600 dark:text-rose-400">{formatPct(displayOrdersGrowth)}</span>
+                  </>
+                )
+              ) : (
+                <span className="text-muted-foreground">—</span>
+              )}
+              <span className="text-muted-foreground">vs previous period</span>
+            </p>
+          </div>
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          label="Revenue (30 days)"
-          value={formatBdt(revenue30d)}
-          sub="Excludes returned orders"
-          trend={{ pct: revenueGrowthPct, label: "vs prior 30 days" }}
-        />
-        <StatCard
-          label="Orders (30 days)"
-          value={String(orders30d)}
-          sub="All statuses in period"
-          trend={{ pct: ordersGrowthPct, label: "vs prior 30 days" }}
-        />
-        <StatCard
-          label="Avg. order value"
-          value={aov30d === null ? "—" : formatBdt(aov30d)}
-          sub="Last 30 days · non-returned revenue"
-        />
-        <StatCard
-          label="Repeat buyers"
-          value={String(repeatBuyerCount)}
-          sub="Customers with 2+ orders (15 mo. window)"
-        />
+
+        {/* AOV Card */}
+        <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md group">
+          <div className="absolute top-0 right-0 h-24 w-24 -mr-4 -mt-4 rounded-full bg-indigo-500/5 dark:bg-indigo-500/10 transition-transform duration-300 group-hover:scale-110" />
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Avg. Order Value</span>
+            <div className="rounded-xl bg-indigo-500/10 p-2.5 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+              <Calendar className="h-5 w-5" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <h3 className="text-3xl font-bold tracking-tight text-foreground">{aov30d ? formatBdt(aov30d) : "—"}</h3>
+            <p className="mt-2 flex items-center gap-1.5 text-xs font-medium">
+              {aovGrowthPct !== null ? (
+                aovGrowthPct >= 0 ? (
+                  <>
+                    <TrendingUp className="h-4 w-4 text-emerald-500 shrink-0" />
+                    <span className="text-emerald-600 dark:text-emerald-400">{formatPct(aovGrowthPct)}</span>
+                  </>
+                ) : (
+                  <>
+                    <TrendingDown className="h-4 w-4 text-rose-500 shrink-0" />
+                    <span className="text-rose-600 dark:text-rose-400">{formatPct(aovGrowthPct)}</span>
+                  </>
+                )
+              ) : (
+                <span className="text-muted-foreground">—</span>
+              )}
+              <span className="text-muted-foreground">vs prior period (30d)</span>
+            </p>
+          </div>
+        </div>
+
+        {/* Customer Growth Card */}
+        <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md group">
+          <div className="absolute top-0 right-0 h-24 w-24 -mr-4 -mt-4 rounded-full bg-violet-500/5 dark:bg-violet-500/10 transition-transform duration-300 group-hover:scale-110" />
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Customer Growth</span>
+            <div className="rounded-xl bg-violet-500/10 p-2.5 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400">
+              <Users className="h-5 w-5" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <h3 className="text-3xl font-bold tracking-tight text-foreground">{customerGrowth30d.toLocaleString()}</h3>
+            <p className="mt-2 flex items-center gap-1.5 text-xs font-medium">
+              {customerGrowthGrowthPct !== null ? (
+                customerGrowthGrowthPct >= 0 ? (
+                  <>
+                    <TrendingUp className="h-4 w-4 text-emerald-500 shrink-0" />
+                    <span className="text-emerald-600 dark:text-emerald-400">{formatPct(customerGrowthGrowthPct)}</span>
+                  </>
+                ) : (
+                  <>
+                    <TrendingDown className="h-4 w-4 text-rose-500 shrink-0" />
+                    <span className="text-rose-600 dark:text-rose-400">{formatPct(customerGrowthGrowthPct)}</span>
+                  </>
+                )
+              ) : (
+                <span className="text-muted-foreground">—</span>
+              )}
+              <span className="text-muted-foreground">new signups (30d)</span>
+            </p>
+          </div>
         </div>
       </div>
 
+      {/* Main charts section */}
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm ring-1 ring-black/[0.04] dark:ring-white/[0.06] sm:p-6 lg:col-span-2">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <h2 className="text-lg font-semibold text-card-foreground">Charts</h2>
-              <p className="text-xs text-muted-foreground">Revenue and order volume · last 12 months</p>
-            </div>
-          </div>
-          <div className="mt-8 space-y-10">
-            <div>
-              <h3 className="text-sm font-medium text-foreground">Revenue</h3>
-              <div className="mt-4">
-                <MonthlyGrowthChart points={monthly} />
-              </div>
-            </div>
-            <div className="border-t border-border/60 pt-10">
-              <h3 className="text-sm font-medium text-foreground">Orders</h3>
-              <div className="mt-4">
-                <MonthlyOrdersVolumeChart points={monthly} />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm ring-1 ring-black/[0.04] dark:ring-white/[0.06] sm:p-6">
-          <h2 className="text-lg font-semibold text-card-foreground">Order status</h2>
-          <p className="text-xs text-muted-foreground">Volume mix · loaded window</p>
-          <div className="mt-6">
-            <StatusBreakdown slices={statusBreakdown} />
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm ring-1 ring-black/[0.04] dark:ring-white/[0.06] sm:p-6">
-          <h2 className="text-lg font-semibold text-card-foreground">Repeat customers</h2>
-          <p className="mt-1 text-xs text-muted-foreground">Linked orders (customer_id) in the last 30 days</p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border border-border/60 bg-gradient-to-br from-emerald-500/[0.08] to-transparent p-4 dark:from-emerald-500/10">
-              <p className="text-xs font-medium text-muted-foreground">Repeat buyers</p>
-              <p className="mt-2 text-3xl font-semibold text-card-foreground">{repeatBuyerCount}</p>
-              <p className="mt-1 text-[11px] leading-snug text-muted-foreground">Distinct customers with 2+ orders in window.</p>
-            </div>
-            <div className="rounded-xl border border-border/60 bg-gradient-to-br from-indigo-500/[0.08] to-transparent p-4 dark:from-indigo-500/10">
-              <p className="text-xs font-medium text-muted-foreground">Repeat share (30d)</p>
-              <p className="mt-2 text-3xl font-semibold text-card-foreground">
-                {repeatOrderSharePct === null ? "—" : `${repeatOrderSharePct.toFixed(0)}%`}
-              </p>
-              <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
-                Of recent linked orders, how many are from repeat buyers.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm ring-1 ring-black/[0.04] dark:ring-white/[0.06] sm:p-6">
-          <h2 className="text-lg font-semibold text-card-foreground">Top products</h2>
-          <p className="mt-1 text-xs text-muted-foreground">By line revenue · order_items</p>
-          <div className="mt-6">
-            <HorizontalMetricBars
-              rows={topProducts}
-              valueKey="revenue"
-              maxValue={maxTopRev}
-              empty={
-                <>
-                  <p className="font-medium text-foreground">No line items yet</p>
-                  <p className="mt-2 text-xs">
-                    Add rows to <code className="rounded bg-muted px-1">order_items</code> (see migration) to rank products by
-                    sales.
-                  </p>
-                </>
-              }
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm ring-1 ring-black/[0.04] dark:ring-white/[0.06] sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* Sales Chart (Revenue & Orders) */}
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm lg:col-span-2 space-y-6">
           <div>
-            <h2 className="text-lg font-semibold text-card-foreground">Low stock alerts</h2>
-            <p className="text-xs text-muted-foreground">Products at or below {10} units</p>
+            <h3 className="text-lg font-semibold text-foreground">Sales & Order Volume</h3>
+            <p className="text-xs text-muted-foreground">Monthly breakdown over the last 12 months</p>
+          </div>
+
+          <div className="h-80 w-full">
+            {!mounted ? (
+              <div className="h-full w-full animate-pulse bg-muted rounded-xl" />
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={monthly} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted/40" vertical={false} />
+                  <XAxis
+                    dataKey="label"
+                    tickLine={false}
+                    axisLine={false}
+                    className="text-[10px] font-medium fill-muted-foreground"
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(v) => `৳${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`}
+                    className="text-[10px] font-medium fill-muted-foreground"
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#colorRevenue)"
+                    name="revenue"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="orders"
+                    stroke="#10b981"
+                    strokeWidth={1.5}
+                    fillOpacity={0}
+                    name="orders"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
-        {lowStock.length === 0 ? (
-          <div className="mt-8 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/15 py-12 text-center">
-            <p className="text-sm font-medium text-foreground">All clear</p>
-            <p className="mt-1 max-w-md text-xs text-muted-foreground">No products are currently at or below the low-stock threshold.</p>
+
+        {/* Order Status (Pending vs Delivered Pie Chart) */}
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm flex flex-col justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">Pending vs Delivered</h3>
+            <p className="text-xs text-muted-foreground">Order status allocation</p>
           </div>
-        ) : (
-          <div className="mt-6 overflow-x-auto">
-            <table className="min-w-[520px] w-full text-left text-sm">
-              <thead className="text-xs text-muted-foreground">
-                <tr className="border-b border-border">
-                  <th className="py-3 pr-4 font-medium">Product</th>
-                  <th className="py-3 pr-4 font-medium">SKU</th>
-                  <th className="py-3 font-medium">Stock</th>
+
+          <div className="h-60 w-full my-auto flex items-center justify-center">
+            {!mounted ? (
+              <div className="h-36 w-36 animate-pulse rounded-full bg-muted" />
+            ) : statusPieData.length === 0 ? (
+              <div className="text-sm text-muted-foreground">No data available</div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={statusPieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={55}
+                    outerRadius={80}
+                    paddingAngle={3}
+                    dataKey="value"
+                  >
+                    {statusPieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value) => [`${value} orders`, "Volume"]}
+                    contentStyle={{ borderRadius: "12px", border: "1px solid var(--border)", background: "var(--card)" }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+
+          {/* Status Breakdown Legend */}
+          <div className="grid grid-cols-2 gap-2 text-xs pt-4 border-t border-border/40">
+            {statusPieData.map((s) => (
+              <div key={s.name} className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
+                <span className="truncate text-muted-foreground font-medium">{s.name}</span>
+                <span className="ml-auto font-mono font-semibold text-foreground">{s.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Section */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Top Selling Products */}
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">Top Selling Products</h3>
+              <p className="text-xs text-muted-foreground">Ranked by revenue generated</p>
+            </div>
+            <Package className="h-5 w-5 text-muted-foreground" />
+          </div>
+
+          <div className="h-64 w-full">
+            {!mounted ? (
+              <div className="h-full w-full animate-pulse bg-muted rounded-xl" />
+            ) : topProducts.length === 0 ? (
+              <div className="flex h-full flex-col items-center justify-center text-center">
+                <p className="text-sm font-semibold">No sales yet</p>
+                <p className="text-xs text-muted-foreground mt-1">Products will appear once order items are purchased.</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={topProducts}
+                  layout="vertical"
+                  margin={{ top: 5, right: 10, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.1} horizontal={false} />
+                  <XAxis type="number" hide />
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    tickLine={false}
+                    axisLine={false}
+                    width={90}
+                    className="text-[10px] font-medium fill-foreground"
+                  />
+                  <Tooltip content={<ProductTooltip />} />
+                  <Bar dataKey="revenue" radius={[0, 6, 6, 0]}>
+                    {topProducts.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={index === 0 ? "#4f46e5" : index === 1 ? "#6366f1" : "#818cf8"}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+
+        {/* Customer growth monthly Trend */}
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">New Customers Trend</h3>
+              <p className="text-xs text-muted-foreground">Monthly customer registration volume</p>
+            </div>
+            <Users className="h-5 w-5 text-muted-foreground" />
+          </div>
+
+          <div className="h-64 w-full">
+            {!mounted ? (
+              <div className="h-full w-full animate-pulse bg-muted rounded-xl" />
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyCustomers} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted/40" vertical={false} />
+                  <XAxis
+                    dataKey="label"
+                    tickLine={false}
+                    axisLine={false}
+                    className="text-[10px] font-medium fill-muted-foreground"
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    allowDecimals={false}
+                    className="text-[10px] font-medium fill-muted-foreground"
+                  />
+                  <Tooltip content={<CustomerTooltip />} />
+                  <Bar dataKey="count" fill="#8b5cf6" radius={[6, 6, 0, 0]} name="signups" />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Activity Table */}
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">Recent Orders & Activity</h3>
+            <p className="text-xs text-muted-foreground">Most recent orders received in your shop</p>
+          </div>
+          <Activity className="h-5 w-5 text-muted-foreground animate-pulse" />
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-border/80 text-xs font-semibold text-muted-foreground">
+                <th className="pb-3 font-medium">Order Number</th>
+                <th className="pb-3 font-medium">Customer</th>
+                <th className="pb-3 font-medium">Date</th>
+                <th className="pb-3 font-medium">Amount</th>
+                <th className="pb-3 font-medium">Status</th>
+                <th className="pb-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-sm text-muted-foreground">
+                    No orders registered yet.
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {lowStock.map((p) => (
-                  <tr key={p.id} className="border-b border-border/60 last:border-0">
-                    <td className="py-3 pr-4 font-medium text-card-foreground">{p.name}</td>
-                    <td className="py-3 pr-4 text-muted-foreground">{p.sku}</td>
-                    <td className="py-3">
-                      <span
-                        className={
-                          p.stock === 0
-                            ? "rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-800 dark:bg-rose-950/50 dark:text-rose-200"
-                            : "rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-900 dark:bg-amber-950/50 dark:text-amber-100"
-                        }
-                      >
-                        {p.stock}
+              ) : (
+                recentOrders.map((order) => (
+                  <tr
+                    key={order.id}
+                    className="border-b border-border/40 last:border-0 hover:bg-muted/10 transition duration-150"
+                  >
+                    <td className="py-3.5 font-semibold text-foreground">{order.orderNumber}</td>
+                    <td className="py-3.5 text-muted-foreground font-medium">{order.customerName}</td>
+                    <td className="py-3.5 text-muted-foreground">
+                      {new Date(order.createdAt).toLocaleDateString("en-BD", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </td>
+                    <td className="py-3.5 font-mono font-semibold text-foreground">{formatBdt(order.amountBDT)}</td>
+                    <td className="py-3.5">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusBadgeClass(order.status)}`}>
+                        {formatOrderStatusLabel(order.status as OrderStatus)}
                       </span>
                     </td>
+                    <td className="py-3.5 text-right">
+                      <a
+                        href={`/orders`}
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+                      >
+                        Details
+                        <ArrowUpRight className="h-3 w-3" />
+                      </a>
+                    </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <div className="rounded-2xl border border-border/80 bg-gradient-to-br from-slate-900/[0.03] via-card to-card p-5 shadow-sm ring-1 ring-black/[0.04] dark:from-white/[0.04] dark:via-card dark:to-card dark:ring-white/[0.06] sm:p-6">
-        <h2 className="text-lg font-semibold text-card-foreground">Order stats · comparison</h2>
-        <p className="mt-1 text-xs text-muted-foreground">Last 30 days vs previous 30 days</p>
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="min-w-0 rounded-xl border border-border/60 bg-card/80 p-4 backdrop-blur-sm">
-            <p className="text-xs text-muted-foreground">Orders</p>
-            <p className="mt-1 text-2xl font-semibold tabular-nums">{orders30d}</p>
-            <p className="mt-1 text-xs text-muted-foreground">Prev {ordersPrev30d}</p>
-          </div>
-          <div className="min-w-0 rounded-xl border border-border/60 bg-card/80 p-4 backdrop-blur-sm">
-            <p className="text-xs text-muted-foreground">Revenue</p>
-            <p className="mt-1 text-2xl font-semibold tabular-nums">{formatBdt(revenue30d)}</p>
-            <p className="mt-1 text-xs text-muted-foreground">Prev {formatBdt(revenuePrev30d)}</p>
-          </div>
-          <div className="min-w-0 rounded-xl border border-border/60 bg-card/80 p-4 backdrop-blur-sm">
-            <p className="text-xs text-muted-foreground">Revenue growth</p>
-            <p
-              className={`mt-1 text-2xl font-semibold tabular-nums ${
-                revenueGrowthPct === null
-                  ? "text-muted-foreground"
-                  : revenueGrowthPct >= 0
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-rose-600 dark:text-rose-400"
-              }`}
-            >
-              {formatPct(revenueGrowthPct)}
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">Vs prior 30 days</p>
-          </div>
-          <div className="min-w-0 rounded-xl border border-border/60 bg-card/80 p-4 backdrop-blur-sm">
-            <p className="text-xs text-muted-foreground">Order growth</p>
-            <p
-              className={`mt-1 text-2xl font-semibold tabular-nums ${
-                ordersGrowthPct === null
-                  ? "text-muted-foreground"
-                  : ordersGrowthPct >= 0
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-rose-600 dark:text-rose-400"
-              }`}
-            >
-              {formatPct(ordersGrowthPct)}
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">Count vs prior period</p>
-          </div>
+      {/* Low Stock Alerts */}
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-6">
+        <div>
+          <h3 className="text-lg font-semibold text-foreground">Low Stock Inventory Alerts</h3>
+          <p className="text-xs text-muted-foreground">Products running out of stock (less than 10 units remaining)</p>
         </div>
+
+        {lowStock.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-8 text-center bg-muted/5">
+            <CheckCircle2 className="h-8 w-8 text-emerald-500 mb-2" />
+            <p className="text-sm font-semibold text-foreground">All clear</p>
+            <p className="text-xs text-muted-foreground">No low-stock products currently detected.</p>
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {lowStock.map((prod) => (
+              <div
+                key={prod.id}
+                className="rounded-xl border border-border bg-muted/10 p-4 flex items-center justify-between"
+              >
+                <div className="min-w-0">
+                  <h4 className="font-semibold text-sm truncate text-foreground">{prod.name}</h4>
+                  <p className="text-xs text-muted-foreground truncate">SKU: {prod.sku}</p>
+                </div>
+                <div className="ml-3 shrink-0">
+                  <span
+                    className={`inline-flex h-8 w-12 items-center justify-center rounded-lg text-xs font-extrabold shadow-sm ${
+                      prod.stock === 0
+                        ? "bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400"
+                        : "bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400"
+                    }`}
+                  >
+                    {prod.stock}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

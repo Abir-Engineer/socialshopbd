@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { requireOrgId } from "@/lib/auth/organization";
 import type { Database } from "@/types/supabase";
 
 type ProductInsert = Database["public"]["Tables"]["products"]["Insert"];
@@ -11,7 +12,10 @@ export type ProductActionResult =
   | { ok: true }
   | { ok: false; error: string };
 
-function parsePositiveInt(value: unknown, label: string): { ok: true; n: number } | { ok: false; error: string } {
+function parsePositiveInt(
+  value: unknown,
+  label: string,
+): { ok: true; n: number } | { ok: false; error: string } {
   const raw = typeof value === "string" ? value.trim() : String(value ?? "");
   const n = Number.parseInt(raw, 10);
   if (!Number.isFinite(n) || n < 0) {
@@ -22,10 +26,10 @@ function parsePositiveInt(value: unknown, label: string): { ok: true; n: number 
 
 export async function createProduct(formData: FormData): Promise<ProductActionResult> {
   const name = String(formData.get("name") ?? "").trim();
-  const sku = String(formData.get("sku") ?? "").trim().toUpperCase();
+  const sku  = String(formData.get("sku")  ?? "").trim().toUpperCase();
 
   if (!name) return { ok: false, error: "Name is required." };
-  if (!sku) return { ok: false, error: "SKU is required." };
+  if (!sku)  return { ok: false, error: "SKU is required." };
 
   const stockParsed = parsePositiveInt(formData.get("stock"), "Stock");
   if (!stockParsed.ok) return stockParsed;
@@ -33,15 +37,24 @@ export async function createProduct(formData: FormData): Promise<ProductActionRe
   const priceParsed = parsePositiveInt(formData.get("price_bdt"), "Price (BDT)");
   if (!priceParsed.ok) return priceParsed;
 
+  let organizationId: string;
+  try {
+    organizationId = await requireOrgId();
+  } catch {
+    return { ok: false, error: "Unauthorized. Your workspace could not be found." };
+  }
+
+  const supabase = await getSupabaseServerClient();
+
   const row: ProductInsert = {
+    organization_id: organizationId,
     name,
     sku,
-    stock: stockParsed.n,
+    stock:     stockParsed.n,
     price_bdt: priceParsed.n,
     updated_at: new Date().toISOString(),
   };
 
-  const supabase = await getSupabaseServerClient();
   const { error } = await supabase.from("products").insert(row);
 
   if (error) {
@@ -56,14 +69,14 @@ export async function createProduct(formData: FormData): Promise<ProductActionRe
 }
 
 export async function updateProduct(formData: FormData): Promise<ProductActionResult> {
-  const id = String(formData.get("id") ?? "").trim();
+  const id  = String(formData.get("id")  ?? "").trim();
   if (!id) return { ok: false, error: "Missing product id." };
 
   const name = String(formData.get("name") ?? "").trim();
-  const sku = String(formData.get("sku") ?? "").trim().toUpperCase();
+  const sku  = String(formData.get("sku")  ?? "").trim().toUpperCase();
 
   if (!name) return { ok: false, error: "Name is required." };
-  if (!sku) return { ok: false, error: "SKU is required." };
+  if (!sku)  return { ok: false, error: "SKU is required." };
 
   const stockParsed = parsePositiveInt(formData.get("stock"), "Stock");
   if (!stockParsed.ok) return stockParsed;
@@ -74,12 +87,13 @@ export async function updateProduct(formData: FormData): Promise<ProductActionRe
   const patch: ProductUpdate = {
     name,
     sku,
-    stock: stockParsed.n,
+    stock:     stockParsed.n,
     price_bdt: priceParsed.n,
     updated_at: new Date().toISOString(),
   };
 
   const supabase = await getSupabaseServerClient();
+  // RLS automatically prevents updating rows from another org
   const { error } = await supabase.from("products").update(patch).eq("id", id);
 
   if (error) {
@@ -97,6 +111,7 @@ export async function deleteProduct(id: string): Promise<ProductActionResult> {
   if (!id?.trim()) return { ok: false, error: "Missing product id." };
 
   const supabase = await getSupabaseServerClient();
+  // RLS prevents deleting rows belonging to another org
   const { error } = await supabase.from("products").delete().eq("id", id);
 
   if (error) {

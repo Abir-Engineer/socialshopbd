@@ -31,6 +31,13 @@ function isEmailNotConfirmedError(err: { message?: string; code?: string } | nul
   return /email not confirmed/i.test(err.message ?? "");
 }
 
+const oauthProviders = [
+  { provider: "google", label: "Continue with Google" },
+  { provider: "github", label: "Continue with GitHub" },
+] as const;
+
+type OAuthProvider = (typeof oauthProviders)[number]["provider"];
+
 export function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -39,6 +46,7 @@ export function AuthForm({ mode }: AuthFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const [pendingConfirmEmail, setPendingConfirmEmail] = useState<string | null>(null);
 
   const isLogin = mode === "login";
@@ -87,8 +95,11 @@ export function AuthForm({ mode }: AuthFormProps) {
         return;
       }
 
-      router.replace(redirectTo);
-      router.refresh();
+      setIsRedirecting(true);
+      setTimeout(() => {
+        router.replace(redirectTo);
+        router.refresh();
+      }, 650);
       return;
     }
 
@@ -119,6 +130,25 @@ export function AuthForm({ mode }: AuthFormProps) {
     );
   };
 
+  const handleOAuthSignIn = async (provider: OAuthProvider) => {
+    setError(null);
+    setInfo(null);
+    setIsLoading(true);
+
+    const supabase = getSupabaseBrowserClient();
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/`,
+      },
+    });
+
+    setIsLoading(false);
+    if (error) {
+      setError(error.message);
+    }
+  };
+
   const handleResendConfirmation = async () => {
     const target = pendingConfirmEmail ?? email.trim();
     if (!target) return;
@@ -145,11 +175,44 @@ export function AuthForm({ mode }: AuthFormProps) {
   };
 
   return (
-    <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
+    <div className="relative w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
+      {isRedirecting ? (
+        <div className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-slate-950/95 px-6 py-8 text-center">
+          <div className="space-y-4">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-100">
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-600 border-t-sky-400" />
+            </div>
+            <p className="text-lg font-semibold text-white">Signing you in…</p>
+            <p className="max-w-xs text-sm leading-6 text-slate-400">
+              Finishing secure login and redirecting you to your dashboard.
+            </p>
+          </div>
+        </div>
+      ) : null}
+
       <div className="mb-6">
         <p className="text-xs uppercase tracking-widest text-muted-foreground">Social Shop BD</p>
         <h1 className="mt-2 text-2xl font-semibold text-card-foreground">{title}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
+      </div>
+
+      <div className="space-y-3">
+        {oauthProviders.map(({ provider, label }) => (
+          <button
+            key={provider}
+            type="button"
+            disabled={isLoading}
+            onClick={() => handleOAuthSignIn(provider)}
+            className="w-full rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {label}
+          </button>
+        ))}
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="h-px flex-1 bg-border" />
+          <span>Or sign up with email and password</span>
+          <span className="h-px flex-1 bg-border" />
+        </div>
       </div>
 
       <form className="space-y-4" onSubmit={handleSubmit}>

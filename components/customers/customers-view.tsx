@@ -1,18 +1,20 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useId, useMemo, useRef, useState, useTransition } from "react";
+import { useId, useMemo, useState, useTransition } from "react";
+import { useToast } from "@/components/ui/toast";
 import { createCustomer, updateCustomer } from "@/app/(dashboard)/customers/actions";
 import { digitsOnly } from "@/lib/customers/phone";
 import type { CustomerListItem } from "@/types/customers";
 
 type CustomersViewProps = {
   initialCustomers: CustomerListItem[];
+  role?: string;
 };
 
 type ToastItem = { id: number; message: string; variant: "success" | "error" };
 
-export function CustomersView({ initialCustomers }: CustomersViewProps) {
+export function CustomersView({ initialCustomers, role = "viewer" }: CustomersViewProps) {
   const router = useRouter();
   const phoneSearchId = useId();
   const [phoneQuery, setPhoneQuery] = useState("");
@@ -21,20 +23,7 @@ export function CustomersView({ initialCustomers }: CustomersViewProps) {
   const [profileCustomer, setProfileCustomer] = useState<CustomerListItem | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
   const [profileError, setProfileError] = useState<string | null>(null);
-  const [toasts, setToasts] = useState<ToastItem[]>([]);
-  const toastSeq = useRef(0);
-
-  const showToast = useCallback((message: string, variant: ToastItem["variant"]) => {
-    const id = ++toastSeq.current;
-    setToasts((prev) => [...prev, { id, message, variant }]);
-    window.setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4200);
-  }, []);
-
-  const dismissToast = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
+  const toast = useToast();
 
   const filteredCustomers = useMemo(() => {
     const q = digitsOnly(phoneQuery);
@@ -56,7 +45,7 @@ export function CustomersView({ initialCustomers }: CustomersViewProps) {
         return;
       }
       setCreateOpen(false);
-      showToast("Customer created successfully.", "success");
+      toast.success("Customer created successfully.");
       router.refresh();
     });
   };
@@ -70,14 +59,13 @@ export function CustomersView({ initialCustomers }: CustomersViewProps) {
         return;
       }
       setProfileCustomer(null);
-      showToast("Customer profile saved.", "success");
+      toast.success("Customer profile saved.");
       router.refresh();
     });
   };
 
   return (
     <section className="space-y-6" aria-busy={isPending}>
-      <ToastStack toasts={toasts} onDismiss={dismissToast} />
 
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -89,16 +77,18 @@ export function CustomersView({ initialCustomers }: CustomersViewProps) {
             </p>
           )}
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            setCreateError(null);
-            setCreateOpen(true);
-          }}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-        >
-          Add Customer
-        </button>
+        {role !== "viewer" && (
+          <button
+            type="button"
+            onClick={() => {
+              setCreateError(null);
+              setCreateOpen(true);
+            }}
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+          >
+            Add Customer
+          </button>
+        )}
       </header>
 
       <div className="rounded-xl border border-border bg-card shadow-sm">
@@ -235,45 +225,13 @@ export function CustomersView({ initialCustomers }: CustomersViewProps) {
           onSubmit={handleProfileUpdate}
           error={profileError}
           disabled={isPending}
+          role={role}
         />
       )}
     </section>
   );
 }
 
-function ToastStack({ toasts, onDismiss }: { toasts: ToastItem[]; onDismiss: (id: number) => void }) {
-  if (toasts.length === 0) return null;
-
-  return (
-    <div
-      className="fixed bottom-4 right-4 z-[60] flex max-w-sm flex-col gap-2 sm:max-w-md"
-      role="region"
-      aria-label="Notifications"
-      aria-live="polite"
-    >
-      {toasts.map((t) => (
-        <div
-          key={t.id}
-          className={
-            t.variant === "success"
-              ? "flex items-start justify-between gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-900 shadow-md dark:border-emerald-900 dark:bg-emerald-950/90 dark:text-emerald-100"
-              : "flex items-start justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm text-rose-900 shadow-md dark:border-rose-900 dark:bg-rose-950/90 dark:text-rose-100"
-          }
-        >
-          <span>{t.message}</span>
-          <button
-            type="button"
-            onClick={() => onDismiss(t.id)}
-            className="shrink-0 rounded p-0.5 opacity-70 hover:opacity-100"
-            aria-label="Dismiss notification"
-          >
-            ×
-          </button>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 type CustomerFormModalProps = {
   title: string;
@@ -311,7 +269,7 @@ function CustomerFormModal({ title, submitLabel, initial, onClose, onSubmit, err
           <label className="block space-y-2">
             <span className="text-sm font-medium text-card-foreground">Full name</span>
             <input
-              name="full_name"
+              name="name"
               required
               defaultValue={initial?.fullName}
               disabled={disabled}
@@ -380,9 +338,10 @@ type CustomerProfileModalProps = {
   onSubmit: (formData: FormData) => void;
   error: string | null;
   disabled: boolean;
+  role: string;
 };
 
-function CustomerProfileModal({ customer, onClose, onSubmit, error, disabled }: CustomerProfileModalProps) {
+function CustomerProfileModal({ customer, onClose, onSubmit, error, disabled, role }: CustomerProfileModalProps) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-8"
@@ -444,10 +403,10 @@ function CustomerProfileModal({ customer, onClose, onSubmit, error, disabled }: 
           <label className="block space-y-2">
             <span className="text-sm font-medium text-card-foreground">Full name</span>
             <input
-              name="full_name"
+              name="name"
               required
               defaultValue={customer.fullName}
-              disabled={disabled}
+              disabled={disabled || role === "viewer"}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500 disabled:opacity-60"
             />
           </label>
@@ -458,7 +417,7 @@ function CustomerProfileModal({ customer, onClose, onSubmit, error, disabled }: 
               type="tel"
               required
               defaultValue={customer.phone}
-              disabled={disabled}
+              disabled={disabled || role === "viewer"}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500 disabled:opacity-60"
             />
           </label>
@@ -468,7 +427,7 @@ function CustomerProfileModal({ customer, onClose, onSubmit, error, disabled }: 
               name="email"
               type="email"
               defaultValue={customer.email ?? ""}
-              disabled={disabled}
+              disabled={disabled || role === "viewer"}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500 disabled:opacity-60"
             />
           </label>
@@ -478,7 +437,7 @@ function CustomerProfileModal({ customer, onClose, onSubmit, error, disabled }: 
               name="notes"
               rows={5}
               defaultValue={customer.notes}
-              disabled={disabled}
+              disabled={disabled || role === "viewer"}
               placeholder="CRM notes…"
               className="w-full resize-y rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500 disabled:opacity-60"
             />
@@ -493,13 +452,15 @@ function CustomerProfileModal({ customer, onClose, onSubmit, error, disabled }: 
             >
               Close
             </button>
-            <button
-              type="submit"
-              disabled={disabled}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-70"
-            >
-              {disabled ? "Saving…" : "Save profile"}
-            </button>
+            {role !== "viewer" && (
+              <button
+                type="submit"
+                disabled={disabled}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-70"
+              >
+                {disabled ? "Saving…" : "Save profile"}
+              </button>
+            )}
           </div>
         </form>
       </div>

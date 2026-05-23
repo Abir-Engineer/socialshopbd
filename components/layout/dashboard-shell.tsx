@@ -2,18 +2,24 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { DASHBOARD_NAVIGATION } from "@/lib/constants/navigation";
 import { Icon } from "@/components/ui/icon";
 import { ThemeToggle } from "@/components/dashboard/theme-toggle";
 
-function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
+function NavLinks({ onNavigate, userRole }: { onNavigate?: () => void; userRole: string | null }) {
   const pathname = usePathname();
 
   return (
     <nav className="mt-8 space-y-1 px-3">
-      {DASHBOARD_NAVIGATION.map((item) => {
+      {DASHBOARD_NAVIGATION.filter((item) => {
+        if (userRole === "staff" || userRole === "viewer") {
+          return item.href !== "/staff" && item.href !== "/settings";
+        }
+        return true;
+      }).map((item) => {
         const isActive = pathname === item.href;
         return (
           <Link
@@ -39,6 +45,32 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = getSupabaseBrowserClient();
+
+    supabase.auth.getUser().then(async ({ data, error }) => {
+      if (!error && data.user) {
+        setUserEmail(data.user.email || null);
+        setUserName(data.user.user_metadata?.full_name || null);
+
+        // Fetch current workspace role
+        const { data: membership } = await supabase
+          .from("organization_members")
+          .select("role")
+          .eq("user_id", data.user.id)
+          .limit(1)
+          .maybeSingle();
+
+        if (membership) {
+          setUserRole(membership.role);
+        }
+      }
+    });
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -48,7 +80,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <p className="text-xs uppercase tracking-widest text-muted-foreground">Social Shop BD</p>
             <h1 className="mt-1 text-xl font-semibold text-card-foreground">SaaS Panel</h1>
           </div>
-          <NavLinks />
+          <NavLinks userRole={userRole} />
         </aside>
 
         {sidebarOpen && (
@@ -75,7 +107,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               Close
             </button>
           </div>
-          <NavLinks onNavigate={() => setSidebarOpen(false)} />
+          <NavLinks onNavigate={() => setSidebarOpen(false)} userRole={userRole} />
         </aside>
 
         <div className="flex min-h-screen flex-1 flex-col">
@@ -100,14 +132,16 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                   </svg>
                 </button>
                 <div>
-                  <p className="text-sm font-medium text-foreground">Welcome back, Admin</p>
+                  <p className="text-sm font-medium text-foreground">
+                    Welcome back, {userName ?? "Admin"}
+                  </p>
                   <p className="text-xs text-muted-foreground">Manage orders, products, and growth</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <ThemeToggle />
                 <div className="hidden rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground sm:block">
-                  admin@socialshopbd.com
+                  {userEmail ?? "admin@socialshopbd.com"}
                 </div>
                 <LogoutButton />
               </div>

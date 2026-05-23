@@ -1,7 +1,11 @@
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getWorkspaceContext } from "@/lib/auth/organization";
 import { ProductsView } from "@/components/products/products-view";
 
 export async function ProductsContent() {
+  const context = await getWorkspaceContext();
+  const role = context?.role ?? "viewer";
+
   const supabase = await getSupabaseServerClient();
   const { data, error } = await supabase.from("products").select("*").order("created_at", { ascending: false });
 
@@ -27,5 +31,5 @@ export async function ProductsContent() {
     );
   }
 
-  return <ProductsView initialProducts={data ?? []} />;
+  return <ProductsView initialProducts={data ?? []} role={role} />;
 }

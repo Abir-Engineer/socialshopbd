@@ -1,18 +1,22 @@
 import { orderRowToListItem } from "@/lib/orders/map-row";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getWorkspaceContext } from "@/lib/auth/organization";
 import { OrdersView } from "@/components/orders/orders-view";
 
 export async function OrdersContent() {
+  const context = await getWorkspaceContext();
+  const role = context?.role ?? "viewer";
+
   const supabase = await getSupabaseServerClient();
   const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
-  const linkRes = await supabase.from("customers").select("id, full_name, phone").order("full_name");
+  const linkRes = await supabase.from("customers").select("id, name, phone").order("name");
 
   const linkCustomers =
     linkRes.error || !linkRes.data
       ? []
       : linkRes.data.map((c) => ({
           id: c.id,
-          label: `${c.full_name} (${c.phone})`,
+          label: `${c.name} (${c.phone})`,
         }));
 
   if (error) {
@@ -38,5 +42,5 @@ export async function OrdersContent() {
   }
 
   const initialOrders = (data ?? []).map(orderRowToListItem);
-  return <OrdersView initialOrders={initialOrders} linkCustomers={linkCustomers} />;
+  return <OrdersView initialOrders={initialOrders} linkCustomers={linkCustomers} role={role} />;
 }

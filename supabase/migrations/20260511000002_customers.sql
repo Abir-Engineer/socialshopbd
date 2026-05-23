@@ -2,7 +2,7 @@
 
 create table if not exists public.customers (
   id uuid primary key default gen_random_uuid(),
-  full_name text not null,
+  name text not null,
   phone text not null,
   email text,
   notes text not null default '',

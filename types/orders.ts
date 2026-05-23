@@ -30,4 +30,6 @@ export type Order = {
   amount: string;
   amountBdt: number;
   status: OrderStatus;
+  courierName?: string | null;
+  trackingCode?: string | null;
 };

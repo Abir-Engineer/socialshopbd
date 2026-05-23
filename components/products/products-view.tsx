@@ -8,9 +8,10 @@ import type { ProductRow } from "@/types/products";
 
 type ProductsViewProps = {
   initialProducts: ProductRow[];
+  role: string;
 };
 
-export function ProductsView({ initialProducts }: ProductsViewProps) {
+export function ProductsView({ initialProducts, role }: ProductsViewProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [addOpen, setAddOpen] = useState(false);
@@ -82,16 +83,18 @@ export function ProductsView({ initialProducts }: ProductsViewProps) {
           <p className="text-sm text-muted-foreground">Monitor product inventory and listing health.</p>
           {isPending && <p className="mt-1 text-xs text-muted-foreground">Saving…</p>}
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            setFormError(null);
-            setAddOpen(true);
-          }}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-        >
-          Add New Product
-        </button>
+        {role !== "viewer" && (
+          <button
+            type="button"
+            onClick={() => {
+              setFormError(null);
+              setAddOpen(true);
+            }}
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+          >
+            Add New Product
+          </button>
+        )}
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -130,7 +133,7 @@ export function ProductsView({ initialProducts }: ProductsViewProps) {
                 <th className="px-5 py-3 font-medium">Stock</th>
                 <th className="px-5 py-3 font-medium">Price</th>
                 <th className="px-5 py-3 font-medium">Status</th>
-                <th className="px-5 py-3 font-medium">Actions</th>
+                {role !== "viewer" && <th className="px-5 py-3 font-medium">Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -153,28 +156,30 @@ export function ProductsView({ initialProducts }: ProductsViewProps) {
                       <td className="px-5 py-4">
                         <span className={statusBadgeClass(status)}>{status}</span>
                       </td>
-                      <td className="px-5 py-4">
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setFormError(null);
-                              setEditing(product);
-                              setEditOpen(true);
-                            }}
-                            className="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(product)}
-                            className="text-xs font-medium text-rose-600 hover:underline dark:text-rose-400"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
+                      {role !== "viewer" && (
+                        <td className="px-5 py-4">
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setFormError(null);
+                                setEditing(product);
+                                setEditOpen(true);
+                              }}
+                              className="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(product)}
+                              className="text-xs font-medium text-rose-600 hover:underline dark:text-rose-400"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   );
                 })

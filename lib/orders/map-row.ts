@@ -36,5 +36,7 @@ export function orderRowToListItem(row: OrderRow): Order {
     amount: `BDT ${row.amount_bdt.toLocaleString("en-BD")}`,
     amountBdt: row.amount_bdt,
     status: assertOrderStatus(row.status),
+    courierName: row.courier_name,
+    trackingCode: row.tracking_code,
   };
 }

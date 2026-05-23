@@ -1,8 +1,12 @@
 import { buildCustomerOrderStats, mapCustomerToListItem } from "@/lib/customers/map-row";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getWorkspaceContext } from "@/lib/auth/organization";
 import { CustomersView } from "@/components/customers/customers-view";
 
 export async function CustomersContent() {
+  const context = await getWorkspaceContext();
+  const role = context?.role ?? "viewer";
+
   const supabase = await getSupabaseServerClient();
   const { data: rows, error: customersError } = await supabase
     .from("customers")
@@ -36,5 +40,5 @@ export async function CustomersContent() {
   const stats = buildCustomerOrderStats(orderRes.error ? [] : (orderRes.data ?? []));
   const initialCustomers = (rows ?? []).map((row) => mapCustomerToListItem(row, stats.get(row.id)));
 
-  return <CustomersView initialCustomers={initialCustomers} />;
+  return <CustomersView initialCustomers={initialCustomers} role={role} />;
 }
