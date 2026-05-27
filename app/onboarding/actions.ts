@@ -2,8 +2,26 @@
 
 import { revalidatePath } from "next/cache";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export type OnboardingResult = { ok: true } | { ok: false; error: string };
+
+async function insertMembership(organization_id: string, user_id: string) {
+  let adminClient: ReturnType<typeof getSupabaseAdminClient> | null = null;
+  try {
+    adminClient = getSupabaseAdminClient();
+  } catch {
+    // Service role key not available — fall back to user client (RLS must allow it)
+  }
+
+  const client = adminClient ?? await getSupabaseServerClient();
+
+  const { error } = await client
+    .from("organization_members")
+    .insert({ organization_id, user_id, role: "owner" });
+
+  return error;
+}
 
 export async function createOrganization(formData: FormData): Promise<OnboardingResult> {
   const name = String(formData.get("name") ?? "").trim();
@@ -28,13 +46,8 @@ export async function createOrganization(formData: FormData): Promise<Onboarding
         .eq("id", existingOrg.id);
     }
 
-    const { error: memberError } = await supabase
-      .from("organization_members")
-      .insert({ organization_id: existingOrg.id, user_id: user.id, role: "owner" });
-
-    if (memberError && memberError.code !== "23505") {
-      return { ok: false, error: memberError.message };
-    }
+    const error = await insertMembership(existingOrg.id, user.id);
+    if (error) return { ok: false, error: error.message };
 
     revalidatePath("/");
     return { ok: true };
@@ -78,13 +91,8 @@ export async function createOrganization(formData: FormData): Promise<Onboarding
     return { ok: false, error: orgError.message };
   }
 
-  const { error: memberError } = await supabase
-    .from("organization_members")
-    .insert({ organization_id: org.id, user_id: user.id, role: "owner" });
-
-  if (memberError) {
-    return { ok: false, error: memberError.message };
-  }
+  const error = await insertMembership(org.id, user.id);
+  if (error) return { ok: false, error: error.message };
 
   revalidatePath("/");
   return { ok: true };
