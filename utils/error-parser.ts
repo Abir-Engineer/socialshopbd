@@ -13,7 +13,7 @@ export interface ParsedError {
  * Parses any error (Supabase, Auth, network, API, or standard Error)
  * into a standardized, friendly structure.
  */
-export function parseError(error: any): ParsedError {
+export function parseError(error: unknown): ParsedError {
   if (!error) {
     return {
       message: "An unknown error occurred.",
@@ -21,16 +21,24 @@ export function parseError(error: any): ParsedError {
     };
   }
 
+  if (typeof error !== "object") {
+    return {
+      message: String(error),
+      type: "unknown",
+    };
+  }
+
   // Handle standard ParsedError if already parsed
-  if (typeof error === "object" && "type" in error && "message" in error) {
+  if ("type" in error && "message" in error) {
     return error as ParsedError;
   }
 
-  const message = error.message || error.error_description || "An unexpected error occurred.";
-  const code = error.code || error.errorCode || undefined;
-  let status = error.status || error.statusCode || error.http_status || undefined;
-  const details = error.details || undefined;
-  const hint = error.hint || undefined;
+  const err = error as Record<string, unknown>;
+  const message = String(err.message ?? err.error_description ?? "An unexpected error occurred.");
+  const code = err.code ? String(err.code) : err.errorCode ? String(err.errorCode) : undefined;
+  let status = err.status ? Number(err.status) : err.statusCode ? Number(err.statusCode) : err.http_status ? Number(err.http_status) : undefined;
+  const details = err.details ? String(err.details) : undefined;
+  const hint = err.hint ? String(err.hint) : undefined;
 
   const isNetwork = 
     message.toLowerCase().includes("failed to fetch") ||

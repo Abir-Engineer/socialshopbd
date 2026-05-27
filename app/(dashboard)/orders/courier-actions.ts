@@ -3,6 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
+type OrderRow = {
+  status: string;
+  tracking_code: string | null;
+  customer_name: string;
+  order_number: string;
+  customer: { phone: string } | null;
+};
+
 export type CourierBookingResult = { ok: true; trackingCode: string; smsStatus: string } | { ok: false; error: string };
 
 // Helper to simulate SMS Gateways in Bangladesh (e.g. Greenweb SMS, BulksmsBD)
@@ -39,7 +47,7 @@ export async function bookCourierParcel(
     return { ok: false, error: "Order not found." };
   }
 
-  const order = orderData as any;
+  const order = orderData as unknown as OrderRow;
 
   if (order.status === "shipped" || order.tracking_code) {
     return { ok: false, error: "This order has already been booked to courier." };
@@ -69,7 +77,7 @@ export async function bookCourierParcel(
   }
 
   // 4. Send SMS to Customer
-  const customerPhone = (order.customer as any)?.phone || "";
+  const customerPhone = order.customer?.phone || "";
   let smsStatus = "No customer phone number available";
 
   if (customerPhone) {

@@ -57,7 +57,7 @@ function statusBadgeClass(status: string): string {
 }
 
 // Custom tooltip for Sales/Revenue AreaChart
-function CustomTooltip({ active, payload, label }: any) {
+function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: { value: number }[]; label?: string }) {
   if (active && payload && payload.length) {
     return (
       <div className="rounded-xl border border-border bg-card/95 p-3 shadow-xl backdrop-blur-sm">
@@ -77,7 +77,7 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 // Custom tooltip for Customer Growth BarChart
-function CustomerTooltip({ active, payload, label }: any) {
+function CustomerTooltip({ active, payload, label }: { active?: boolean; payload?: { value: number }[]; label?: string }) {
   if (active && payload && payload.length) {
     return (
       <div className="rounded-xl border border-border bg-card/95 p-3 shadow-xl backdrop-blur-sm">
@@ -92,7 +92,7 @@ function CustomerTooltip({ active, payload, label }: any) {
 }
 
 // Custom tooltip for Top Products BarChart
-function ProductTooltip({ active, payload }: any) {
+function ProductTooltip({ active, payload }: { active?: boolean; payload?: { payload: { name: string; units: number; revenue: number } }[] }) {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
@@ -115,7 +115,8 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
   const [timeframe, setTimeframe] = useState<"30d" | "7d">("30d");
 
   useEffect(() => {
-    setMounted(true);
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const {

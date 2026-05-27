@@ -100,6 +100,7 @@ export function SettingsForm() {
   const [bkashPhone, setBkashPhone] = useState("");
   const [bkashOTP, setBkashOTP] = useState("");
   const [bkashPIN, setBkashPIN] = useState("");
+  const [invoiceNum] = useState(() => Date.now().toString().slice(-4));
 
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
@@ -774,7 +775,7 @@ export function SettingsForm() {
                   ) : (
                     <button
                       onClick={() => {
-                        setPricingModalSelectedPlan(tier.name as any);
+                        setPricingModalSelectedPlan(tier.name as "Growth" | "Enterprise");
                         setShowPricingModal(true);
                       }}
                       className={`mt-6 w-full rounded-2xl py-2.5 text-xs font-semibold transition ${
@@ -939,7 +940,7 @@ export function SettingsForm() {
               <div className="text-xl font-black mt-2">
                 ৳ {pricingModalSelectedPlan === "Growth" ? "1,500.00" : "4,500.00"}
               </div>
-              <div className="absolute top-2 right-2 text-white/50 text-[10px] font-mono">Invoice: INV-SUB-{Date.now().toString().slice(-4)}</div>
+              <div className="absolute top-2 right-2 text-white/50 text-[10px] font-mono">Invoice: INV-SUB-{invoiceNum}</div>
             </div>
 
             {/* bKash Payment Wizard Body */}

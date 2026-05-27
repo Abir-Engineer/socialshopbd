@@ -6,8 +6,21 @@ import { useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { DASHBOARD_NAVIGATION } from "@/lib/constants/navigation";
+import { canAccessModule } from "@/lib/permissions";
+import type { PermissionModule } from "@/lib/permissions";
 import { Icon } from "@/components/ui/icon";
 import { ThemeToggle } from "@/components/dashboard/theme-toggle";
+
+const NAV_MODULE_MAP: Record<string, PermissionModule> = {
+  "/": "dashboard",
+  "/orders": "orders",
+  "/products": "products",
+  "/customers": "customers",
+  "/analytics": "analytics",
+  "/staff": "staff",
+  "/billing": "billing",
+  "/settings": "settings",
+};
 
 function NavLinks({ onNavigate, userRole }: { onNavigate?: () => void; userRole: string | null }) {
   const pathname = usePathname();
@@ -15,10 +28,9 @@ function NavLinks({ onNavigate, userRole }: { onNavigate?: () => void; userRole:
   return (
     <nav className="mt-8 space-y-1 px-3">
       {DASHBOARD_NAVIGATION.filter((item) => {
-        if (userRole === "staff" || userRole === "viewer") {
-          return item.href !== "/staff" && item.href !== "/settings";
-        }
-        return true;
+        const mod = NAV_MODULE_MAP[item.href];
+        if (!mod) return true;
+        return canAccessModule(userRole ?? "viewer", mod);
       }).map((item) => {
         const isActive = pathname === item.href;
         return (

@@ -4,6 +4,10 @@ import { getSupabaseServiceRoleClient } from "@/app/invite/actions";
 import { InviteAcceptForm } from "@/app/invite/[token]/accept-form";
 import { ShieldCheck, UserMinus, AlertTriangle } from "lucide-react";
 
+type InviteOrg = {
+  name: string;
+};
+
 export const dynamic = "force-dynamic";
 
 interface InvitePageProps {
@@ -55,7 +59,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
     );
   }
 
-  const orgName = (invite.organizations as any).name;
+  const orgName = (invite.organizations as InviteOrg).name;
   const roleName = invite.role.charAt(0).toUpperCase() + invite.role.slice(1);
 
   // 4. Render Logged-out state

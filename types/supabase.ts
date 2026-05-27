@@ -151,27 +151,30 @@ export type Database = {
         Row: {
           id: string;
           shop_owner_id: string;
-          name: string;
+          full_name: string;
           email: string;
           role: string;
+          status: string;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id?: string;
           shop_owner_id?: string;
-          name: string;
+          full_name: string;
           email: string;
           role: string;
+          status?: string;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
           shop_owner_id?: string;
-          name?: string;
+          full_name?: string;
           email?: string;
           role?: string;
+          status?: string;
           created_at?: string;
           updated_at?: string;
         };
@@ -218,6 +221,7 @@ export type Database = {
           id: string;
           name: string;
           slug: string;
+          owner_id: string | null;
           plan: string;
           subscription_status: string;
           trial_ends_at: string;
@@ -229,6 +233,7 @@ export type Database = {
           id?: string;
           name: string;
           slug: string;
+          owner_id?: string | null;
           plan?: string;
           subscription_status?: string;
           trial_ends_at?: string;
@@ -240,6 +245,7 @@ export type Database = {
           id?: string;
           name?: string;
           slug?: string;
+          owner_id?: string | null;
           plan?: string;
           subscription_status?: string;
           trial_ends_at?: string;

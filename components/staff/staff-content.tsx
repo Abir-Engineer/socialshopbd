@@ -8,7 +8,7 @@ export async function StaffContent() {
     return (
       <section className="space-y-6">
         <header>
-          <h1 className="text-2xl font-semibold text-foreground">Staff</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Staff Management</h1>
           <p className="text-sm text-muted-foreground">
             Manage your team members and their access roles.
           </p>
@@ -42,7 +42,7 @@ export async function StaffContent() {
     return (
       <section className="space-y-6">
         <header>
-          <h1 className="text-2xl font-semibold text-foreground">Staff</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Staff Management</h1>
           <p className="text-sm text-muted-foreground">
             Manage your team members and their access roles.
           </p>

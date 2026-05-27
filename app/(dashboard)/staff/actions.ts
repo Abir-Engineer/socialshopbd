@@ -7,7 +7,7 @@ import type { OrgRole } from "@/types/organization";
 
 export type StaffActionResult = { ok: true } | { ok: false; error: string };
 
-const VALID_ROLES = ["admin", "staff", "viewer"] as const;
+const VALID_ROLES = ["admin", "manager", "staff", "viewer"] as const;
 
 function isValidRole(value: string): value is (typeof VALID_ROLES)[number] {
   return (VALID_ROLES as readonly string[]).includes(value);

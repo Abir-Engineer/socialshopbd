@@ -1,4 +1,4 @@
-export type OrgRole = "owner" | "admin" | "staff" | "viewer";
+export type OrgRole = "owner" | "admin" | "manager" | "staff" | "viewer";
 export type OrgPlan = "free_trial" | "free" | "pro" | "enterprise";
 export type SubscriptionStatus =
   | "trialing"
@@ -14,6 +14,7 @@ export interface Organization {
   id: string;
   name: string;
   slug: string;
+  owner_id: string | null;
   plan: OrgPlan;
   subscription_status: SubscriptionStatus;
   trial_ends_at: string;

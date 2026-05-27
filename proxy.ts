@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSupabaseSession } from "@/lib/supabase/middleware";
+import { canAccessModule } from "@/lib/permissions";
+import type { PermissionModule } from "@/lib/permissions";
 
 /** Routes that do NOT require auth */
 const PUBLIC_ROUTES = ["/login", "/signup"];
@@ -12,6 +14,17 @@ const SUBSCRIPTION_BYPASS_ROUTES = ["/billing", "/unauthorized"];
 
 /** API & checkout routes — skip org validation entirely */
 const BYPASS_ORG_PREFIXES = ["/api/", "/checkout/", "/_next/", "/favicon", "/invite/"];
+
+/** Map URL path prefixes to permission modules */
+const PATH_MODULE_MAP: [string, PermissionModule][] = [
+  ["/orders", "orders"],
+  ["/products", "products"],
+  ["/customers", "customers"],
+  ["/analytics", "analytics"],
+  ["/staff", "staff"],
+  ["/settings", "settings"],
+  ["/billing", "billing"],
+];
 
 export async function proxy(request: NextRequest) {
   const { response, user, supabase } = await updateSupabaseSession(request);
@@ -64,14 +77,17 @@ export async function proxy(request: NextRequest) {
 
   // ── 6. Enforce Role-Based Access Control (RBAC) ───────────────────
   const role = membership.role;
-  const restrictedPrefixes = ["/staff", "/settings"];
 
-  if (restrictedPrefixes.some((p) => pathname.startsWith(p))) {
-    if (role === "staff" || role === "viewer") {
-      const url = request.nextUrl.clone();
-      url.pathname = "/unauthorized";
-      url.search   = "";
-      return NextResponse.redirect(url);
+  // Check each path prefix against the permission module map
+  for (const [prefix, mod] of PATH_MODULE_MAP) {
+    if (pathname === prefix || pathname.startsWith(prefix + "/")) {
+      if (!canAccessModule(role, mod)) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/unauthorized";
+        url.search   = "";
+        return NextResponse.redirect(url);
+      }
+      break;
     }
   }
 

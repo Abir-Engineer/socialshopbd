@@ -496,7 +496,7 @@ function OrderDetailsModal({ order, onClose, onEdit, role }: OrderDetailsModalPr
                   <label className="block text-[10px] font-semibold text-muted-foreground uppercase">Service</label>
                   <select
                     value={courier}
-                    onChange={(e) => setCourier(e.target.value as any)}
+                    onChange={(e) => setCourier(e.target.value as "Steadfast" | "Pathao")}
                     disabled={isBooking}
                     className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs text-foreground outline-none focus:border-blue-500"
                   >
