@@ -184,37 +184,151 @@ export type Database = {
         Row: {
           id: string;
           user_id: string;
+          organization_id: string | null;
           shop_name: string;
           slug: string;
+          description: string;
           currency: string;
           phone: string;
           address: string;
+          logo_url: string | null;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id?: string;
           user_id: string;
+          organization_id?: string | null;
           shop_name: string;
           slug: string;
+          description?: string;
           currency?: string;
           phone?: string;
           address?: string;
+          logo_url?: string | null;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
           user_id?: string;
+          organization_id?: string | null;
           shop_name?: string;
           slug?: string;
+          description?: string;
           currency?: string;
           phone?: string;
           address?: string;
+          logo_url?: string | null;
           created_at?: string;
           updated_at?: string;
         };
         Relationships: [];
+      };
+      business_info: {
+        Row: {
+          id: string;
+          organization_id: string;
+          legal_name: string;
+          tax_id: string;
+          address: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          legal_name?: string;
+          tax_id?: string;
+          address?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          organization_id?: string;
+          legal_name?: string;
+          tax_id?: string;
+          address?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_info_organization_id_fkey",
+            columns: ["organization_id"],
+            referencedRelation: "organizations",
+            referencedColumns: ["id"],
+          },
+        ];
+      };
+      notifications: {
+        Row: {
+          id: string;
+          organization_id: string;
+          user_id: string;
+          type: string;
+          message: string;
+          read: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          user_id: string;
+          type?: string;
+          message?: string;
+          read?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          organization_id?: string;
+          user_id?: string;
+          type?: string;
+          message?: string;
+          read?: boolean;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notifications_organization_id_fkey",
+            columns: ["organization_id"],
+            referencedRelation: "organizations",
+            referencedColumns: ["id"],
+          },
+        ];
+      };
+      subscriptions: {
+        Row: {
+          id: string;
+          organization_id: string;
+          plan: string;
+          status: string;
+          start_date: string;
+          end_date: string | null;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          plan?: string;
+          status?: string;
+          start_date?: string;
+          end_date?: string | null;
+        };
+        Update: {
+          id?: string;
+          organization_id?: string;
+          plan?: string;
+          status?: string;
+          start_date?: string;
+          end_date?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_organization_id_fkey",
+            columns: ["organization_id"],
+            referencedRelation: "organizations",
+            referencedColumns: ["id"],
+          },
+        ];
       };
       organizations: {
         Row: {

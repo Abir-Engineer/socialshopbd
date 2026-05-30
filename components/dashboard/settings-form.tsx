@@ -70,6 +70,15 @@ export function SettingsForm() {
   const [shopAddress, setShopAddress] = useState("");
   const [shopCurrency, setShopCurrency] = useState("BDT");
   const [shopLogoFile, setShopLogoFile] = useState<File | null>(null);
+  const [orgId, setOrgId] = useState<string | null>(null);
+  const [legalName, setLegalName] = useState("");
+  const [taxId, setTaxId] = useState("");
+  const [businessAddress, setBusinessAddress] = useState("");
+  const [notificationType, setNotificationType] = useState("info");
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [subStatus, setSubStatus] = useState("active");
+  const [subStartDate, setSubStartDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [subEndDate, setSubEndDate] = useState<string | null>(null);
   const [shopLogoPreview, setShopLogoPreview] = useState<string | null>(null);
   const [shopSlug, setShopSlug] = useState("");
 
@@ -153,6 +162,13 @@ export function SettingsForm() {
         supabase.from("organization_members").select("role").eq("user_id", data.user.id).limit(1).maybeSingle().then(({ data: membership }) => {
           if (membership) {
             setUserRole(membership.role);
+          }
+        });
+
+        // Fetch organization ID
+        supabase.from("organization_members").select("organization_id").eq("user_id", data.user.id).limit(1).maybeSingle().then(({ data: membership }) => {
+          if (membership) {
+            setOrgId(membership.organization_id);
           }
         });
       }
@@ -275,9 +291,39 @@ export function SettingsForm() {
       }
 
       const { error: updateError } = await supabase.auth.updateUser(updates);
+
       if (updateError) {
         setError(updateError.message);
         return;
+      }
+
+      if (section === "business" && orgId) {
+        await supabase.from("business_info").upsert({
+          organization_id: orgId,
+          legal_name: legalName,
+          tax_id: taxId,
+          address: businessAddress,
+        });
+      }
+
+      if (section === "notifications" && orgId) {
+        await supabase.from("notifications").upsert({
+          organization_id: orgId,
+          user_id: user!.id,
+          type: notificationType,
+          message: notificationMessage,
+          read: false,
+        });
+      }
+
+      if (section === "subscription" && orgId) {
+        await supabase.from("subscriptions").upsert({
+          organization_id: orgId,
+          plan: currentPlan,
+          status: subStatus,
+          start_date: subStartDate,
+          end_date: subEndDate,
+        });
       }
 
       setInfo("Settings saved successfully.");
