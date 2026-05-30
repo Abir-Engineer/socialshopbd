@@ -60,9 +60,5 @@ export async function updateSupabaseSession(request: NextRequest) {
     }
   }
 
-  // Debug headers (remove after verification)
-  response.headers.set("X-Debug-Cookie-Count", String(finalAuth.length));
-  response.headers.set("X-Debug-Cookie-Purge", finalAuth.length > 3 || (!user && finalAuth.length > 0) ? "1" : "0");
-
   return { response, user: user ?? null, supabase };
 }

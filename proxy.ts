@@ -22,10 +22,6 @@ function applySessionData(source: NextResponse, target: NextResponse) {
   for (const { name, value, ...rest } of source.cookies.getAll()) {
     target.cookies.set(name, value, rest);
   }
-  for (const h of ["X-Debug-Cookie-Count", "X-Debug-Cookie-Purge"]) {
-    const v = source.headers.get(h);
-    if (v) target.headers.set(h, v);
-  }
 }
 
 export async function proxy(request: NextRequest) {
