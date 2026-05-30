@@ -19,9 +19,12 @@ export async function updateSupabaseSession(request: NextRequest) {
     },
   });
 
+  // Use getSession() in middleware for performance — avoids an extra API call.
+  // SSR auto-refreshes expired tokens and cleans up stale cookie chunks
+  // through the setAll callback above.
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  return { response, user, supabase };
+  return { response, user: session?.user ?? null, supabase };
 }

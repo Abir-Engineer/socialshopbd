@@ -26,7 +26,7 @@ const PATH_MODULE_MAP: [string, PermissionModule][] = [
   ["/billing", "billing"],
 ];
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { response, user, supabase } = await updateSupabaseSession(request);
   const { pathname } = request.nextUrl;
 
@@ -78,7 +78,6 @@ export async function proxy(request: NextRequest) {
   // ── 6. Enforce Role-Based Access Control (RBAC) ───────────────────
   const role = membership.role;
 
-  // Check each path prefix against the permission module map
   for (const [prefix, mod] of PATH_MODULE_MAP) {
     if (pathname === prefix || pathname.startsWith(prefix + "/")) {
       if (!canAccessModule(role, mod)) {
@@ -103,13 +102,11 @@ export async function proxy(request: NextRequest) {
   const trialEndsAt        = org?.trial_ends_at       ?? new Date().toISOString();
 
   // ── 8. Subscription paywall enforcement ──────────────────────────
-  // Billing page itself is always accessible (so they can upgrade)
   const isSubscriptionBypass = SUBSCRIPTION_BYPASS_ROUTES.some((r) =>
     pathname === r || pathname.startsWith(r + "/")
   );
 
   if (!isSubscriptionBypass) {
-    // Block if trial expired
     if (plan === "free_trial" && new Date(trialEndsAt) < new Date()) {
       const url = request.nextUrl.clone();
       url.pathname = "/billing";
@@ -118,7 +115,6 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // Block if subscription payment failed (past_due / unpaid) for paid plans
     if (
       (plan === "pro" || plan === "enterprise") &&
       (subscriptionStatus === "past_due" || subscriptionStatus === "unpaid")
