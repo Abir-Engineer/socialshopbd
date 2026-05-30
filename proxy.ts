@@ -3,19 +3,11 @@ import { updateSupabaseSession } from "@/lib/supabase/middleware";
 import { canAccessModule } from "@/lib/permissions";
 import type { PermissionModule } from "@/lib/permissions";
 
-/** Routes that do NOT require auth */
 const PUBLIC_ROUTES = ["/login", "/signup"];
-
-/** Routes that require auth but NOT an organisation (e.g. post-signup onboarding) */
 const AUTH_ONLY_ROUTES = ["/onboarding"];
-
-/** Routes accessible even with an expired trial / past-due subscription */
 const SUBSCRIPTION_BYPASS_ROUTES = ["/billing", "/unauthorized"];
-
-/** API & checkout routes — skip org validation entirely */
 const BYPASS_ORG_PREFIXES = ["/api/", "/checkout/", "/_next/", "/favicon", "/invite/"];
 
-/** Map URL path prefixes to permission modules */
 const PATH_MODULE_MAP: [string, PermissionModule][] = [
   ["/orders", "orders"],
   ["/products", "products"],
@@ -26,41 +18,46 @@ const PATH_MODULE_MAP: [string, PermissionModule][] = [
   ["/billing", "billing"],
 ];
 
-export async function middleware(request: NextRequest) {
+function copyCookies(source: NextResponse, target: NextResponse) {
+  for (const { name, value, ...rest } of source.cookies.getAll()) {
+    target.cookies.set(name, value, rest);
+  }
+}
+
+export async function proxy(request: NextRequest) {
   const { response, user, supabase } = await updateSupabaseSession(request);
   const { pathname } = request.nextUrl;
 
-  // ── 1. Static / API / public checkout bypass ─────────────────────
   if (BYPASS_ORG_PREFIXES.some((p) => pathname.startsWith(p))) {
     return response;
   }
 
-  const isPublicRoute  = PUBLIC_ROUTES.includes(pathname);
-  const isAuthOnly     = AUTH_ONLY_ROUTES.includes(pathname);
+  const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
+  const isAuthOnly = AUTH_ONLY_ROUTES.includes(pathname);
 
-  // ── 2. Unauthenticated user ───────────────────────────────────────
   if (!user) {
     if (isPublicRoute) return response;
 
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    url.search   = "";
+    url.search = "";
     url.searchParams.set("next", pathname);
-    return NextResponse.redirect(url);
+    const redirect = NextResponse.redirect(url);
+    copyCookies(response, redirect);
+    return redirect;
   }
 
-  // ── 3. Authenticated — redirect away from login/signup ───────────
   if (isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
-    url.search   = "";
-    return NextResponse.redirect(url);
+    url.search = "";
+    const redirect = NextResponse.redirect(url);
+    copyCookies(response, redirect);
+    return redirect;
   }
 
-  // ── 4. Skip org check for auth-only routes (onboarding) ──────────
   if (isAuthOnly) return response;
 
-  // ── 5. Validate workspace (organization membership) ──────────────
   const { data: membership } = await supabase
     .from("organization_members")
     .select("organization_id, role")
@@ -71,11 +68,12 @@ export async function middleware(request: NextRequest) {
   if (!membership) {
     const url = request.nextUrl.clone();
     url.pathname = "/onboarding";
-    url.search   = "";
-    return NextResponse.redirect(url);
+    url.search = "";
+    const redirect = NextResponse.redirect(url);
+    copyCookies(response, redirect);
+    return redirect;
   }
 
-  // ── 6. Enforce Role-Based Access Control (RBAC) ───────────────────
   const role = membership.role;
 
   for (const [prefix, mod] of PATH_MODULE_MAP) {
@@ -83,25 +81,25 @@ export async function middleware(request: NextRequest) {
       if (!canAccessModule(role, mod)) {
         const url = request.nextUrl.clone();
         url.pathname = "/unauthorized";
-        url.search   = "";
-        return NextResponse.redirect(url);
+        url.search = "";
+        const redirect = NextResponse.redirect(url);
+        copyCookies(response, redirect);
+        return redirect;
       }
       break;
     }
   }
 
-  // ── 7. Fetch subscription status for enforcement ──────────────────
   const { data: org } = await supabase
     .from("organizations")
     .select("plan, subscription_status, trial_ends_at")
     .eq("id", membership.organization_id)
     .single();
 
-  const plan               = org?.plan               ?? "free";
+  const plan = org?.plan ?? "free";
   const subscriptionStatus = org?.subscription_status ?? "active";
-  const trialEndsAt        = org?.trial_ends_at       ?? new Date().toISOString();
+  const trialEndsAt = org?.trial_ends_at ?? new Date().toISOString();
 
-  // ── 8. Subscription paywall enforcement ──────────────────────────
   const isSubscriptionBypass = SUBSCRIPTION_BYPASS_ROUTES.some((r) =>
     pathname === r || pathname.startsWith(r + "/")
   );
@@ -110,9 +108,11 @@ export async function middleware(request: NextRequest) {
     if (plan === "free_trial" && new Date(trialEndsAt) < new Date()) {
       const url = request.nextUrl.clone();
       url.pathname = "/billing";
-      url.search   = "";
+      url.search = "";
       url.searchParams.set("reason", "trial_expired");
-      return NextResponse.redirect(url);
+      const redirect = NextResponse.redirect(url);
+      copyCookies(response, redirect);
+      return redirect;
     }
 
     if (
@@ -121,23 +121,26 @@ export async function middleware(request: NextRequest) {
     ) {
       const url = request.nextUrl.clone();
       url.pathname = "/billing";
-      url.search   = "";
+      url.search = "";
       url.searchParams.set("reason", "payment_required");
-      return NextResponse.redirect(url);
+      const redirect = NextResponse.redirect(url);
+      copyCookies(response, redirect);
+      return redirect;
     }
   }
 
-  // ── 9. Inject org + subscription headers for server components ────
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-org-id",              membership.organization_id);
-  requestHeaders.set("x-org-role",            membership.role);
-  requestHeaders.set("x-org-plan",            plan);
+  requestHeaders.set("x-org-id", membership.organization_id);
+  requestHeaders.set("x-org-role", membership.role);
+  requestHeaders.set("x-org-plan", plan);
   requestHeaders.set("x-subscription-status", subscriptionStatus);
-  requestHeaders.set("x-trial-ends-at",       trialEndsAt);
+  requestHeaders.set("x-trial-ends-at", trialEndsAt);
 
-  return NextResponse.next({
+  const nextResponse = NextResponse.next({
     request: { headers: requestHeaders },
   });
+  copyCookies(response, nextResponse);
+  return nextResponse;
 }
 
 export const config = {
