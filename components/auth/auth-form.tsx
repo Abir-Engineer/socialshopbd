@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type AuthMode = "login" | "signup";
@@ -48,6 +48,16 @@ export function AuthForm({ mode }: AuthFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [pendingConfirmEmail, setPendingConfirmEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    for (const c of document.cookie.split("; ")) {
+      const [name] = c.split("=");
+      if (/^sb-.+-auth-token/.test(name ?? "")) {
+        document.cookie = `${name}=; Path=/; Max-Age=0; Domain=${location.hostname}`;
+        document.cookie = `${name}=; Path=/; Max-Age=0`;
+      }
+    }
+  }, []);
 
   const isLogin = mode === "login";
   const title = isLogin ? "Welcome back" : "Create your account";
