@@ -5,9 +5,27 @@ import type { Database } from "@/types/supabase";
 
 const AUTH_COOKIE_PATTERN = /^sb-.+-auth-token/;
 
+/** Maximum number of auth-token cookies before we force-purge */
+const MAX_AUTH_COOKIES = 3;
+
 export async function updateSupabaseSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
+  // ── 1. Pre-auth: purge stale/accumulated auth cookies ────────────
+  // Over time, Supabase SSR can accumulate cookie chunks from previous
+  // sessions or build deployments.  If we see more than MAX_AUTH_COOKIES,
+  // delete them all so getUser() starts fresh.
+  const allCookies = request.cookies.getAll();
+  const authCookies = allCookies.filter((c) => AUTH_COOKIE_PATTERN.test(c.name));
+  const needsPurge = authCookies.length > MAX_AUTH_COOKIES;
+
+  if (needsPurge) {
+    for (const { name } of authCookies) {
+      response.cookies.set(name, "", { maxAge: 0, path: "/" });
+    }
+  }
+
+  // ── 2. Create SSR client with self-cleaning setAll ───────────────
   const supabase = createServerClient<Database>(supabaseEnv.url, supabaseEnv.anonKey, {
     cookies: {
       getAll() {
@@ -16,23 +34,16 @@ export async function updateSupabaseSession(request: NextRequest) {
       setAll(cookiesToSet) {
         const newNames = new Set(cookiesToSet.map((c) => c.name));
 
-        // Collect stale auth cookie names before mutating request
-        const staleNames: string[] = [];
+        // Delete any existing auth cookie NOT in the new set
         for (const c of request.cookies.getAll()) {
           if (AUTH_COOKIE_PATTERN.test(c.name) && !newNames.has(c.name)) {
-            staleNames.push(c.name);
+            response.cookies.set(c.name, "", { maxAge: 0, path: "/" });
           }
         }
 
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
         response = NextResponse.next({ request });
 
-        // Delete stale cookies on the new response
-        for (const name of staleNames) {
-          response.cookies.set(name, "", { maxAge: 0, path: "/" });
-        }
-
-        // Set fresh cookies from Supabase
         for (const { name, value, options } of cookiesToSet) {
           response.cookies.set(name, value, options);
         }
@@ -40,12 +51,27 @@ export async function updateSupabaseSession(request: NextRequest) {
     },
   });
 
-  // getUser() validates the token server-side, which guarantees setAll
-  // runs on every request and prunes stale cookie chunks, preventing
-  // the unbounded accumulation that causes 494 REQUEST_HEADER_TOO_LARGE.
+  // ── 3. Always validate token server-side ─────────────────────────
+  // getUser() ensures setAll fires on every request, keeping cookies clean.
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  // ── 4. Post-auth: enforce cookie limit (safety net) ──────────────
+  const finalAuth = request
+    .cookies.getAll()
+    .filter((c) => AUTH_COOKIE_PATTERN.test(c.name));
+
+  if (finalAuth.length > MAX_AUTH_COOKIES) {
+    finalAuth.sort((a, b) => b.name.localeCompare(a.name));
+    for (let i = 0; i < finalAuth.length - MAX_AUTH_COOKIES; i++) {
+      response.cookies.set(finalAuth[i].name, "", { maxAge: 0, path: "/" });
+    }
+  }
+
+  // ── 5. Debug headers (remove after verification) ─────────────────
+  response.headers.set("X-Debug-Cookie-Count", String(finalAuth.length));
+  response.headers.set("X-Debug-Cookie-Purge", needsPurge ? "1" : "0");
 
   return { response, user: user ?? null, supabase };
 }

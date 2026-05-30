@@ -18,9 +18,13 @@ const PATH_MODULE_MAP: [string, PermissionModule][] = [
   ["/billing", "billing"],
 ];
 
-function copyCookies(source: NextResponse, target: NextResponse) {
+function applySessionData(source: NextResponse, target: NextResponse) {
   for (const { name, value, ...rest } of source.cookies.getAll()) {
     target.cookies.set(name, value, rest);
+  }
+  for (const h of ["X-Debug-Cookie-Count", "X-Debug-Cookie-Purge"]) {
+    const v = source.headers.get(h);
+    if (v) target.headers.set(h, v);
   }
 }
 
@@ -43,7 +47,7 @@ export async function proxy(request: NextRequest) {
     url.search = "";
     url.searchParams.set("next", pathname);
     const redirect = NextResponse.redirect(url);
-    copyCookies(response, redirect);
+    applySessionData(response, redirect);
     return redirect;
   }
 
@@ -52,7 +56,7 @@ export async function proxy(request: NextRequest) {
     url.pathname = "/";
     url.search = "";
     const redirect = NextResponse.redirect(url);
-    copyCookies(response, redirect);
+    applySessionData(response, redirect);
     return redirect;
   }
 
@@ -70,7 +74,7 @@ export async function proxy(request: NextRequest) {
     url.pathname = "/onboarding";
     url.search = "";
     const redirect = NextResponse.redirect(url);
-    copyCookies(response, redirect);
+    applySessionData(response, redirect);
     return redirect;
   }
 
@@ -83,7 +87,7 @@ export async function proxy(request: NextRequest) {
         url.pathname = "/unauthorized";
         url.search = "";
         const redirect = NextResponse.redirect(url);
-        copyCookies(response, redirect);
+        applySessionData(response, redirect);
         return redirect;
       }
       break;
@@ -111,7 +115,7 @@ export async function proxy(request: NextRequest) {
       url.search = "";
       url.searchParams.set("reason", "trial_expired");
       const redirect = NextResponse.redirect(url);
-      copyCookies(response, redirect);
+      applySessionData(response, redirect);
       return redirect;
     }
 
@@ -124,7 +128,7 @@ export async function proxy(request: NextRequest) {
       url.search = "";
       url.searchParams.set("reason", "payment_required");
       const redirect = NextResponse.redirect(url);
-      copyCookies(response, redirect);
+      applySessionData(response, redirect);
       return redirect;
     }
   }
@@ -139,7 +143,7 @@ export async function proxy(request: NextRequest) {
   const nextResponse = NextResponse.next({
     request: { headers: requestHeaders },
   });
-  copyCookies(response, nextResponse);
+  applySessionData(response, nextResponse);
   return nextResponse;
 }
 
