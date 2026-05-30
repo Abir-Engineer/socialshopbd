@@ -41,14 +41,19 @@ export async function updateSupabaseSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Safety net: if somehow auth cookies still exceed a reasonable count,
-  // trim the extras from the response.
+  // Safety net: clean up any leftover stale cookies.
   const finalAuth = request
     .cookies.getAll()
     .filter((c) => AUTH_COOKIE_PATTERN.test(c.name));
 
-  if (finalAuth.length > 3) {
-    const sorted = finalAuth.sort((a, b) => a.name.localeCompare(b.name));
+  if (!user && finalAuth.length > 0) {
+    // No valid session — delete all leftover auth cookies
+    for (const { name } of finalAuth) {
+      response.cookies.set(name, "", { maxAge: 0, path: "/" });
+    }
+  } else if (user && finalAuth.length > 3) {
+    // Valid session but too many cookie chunks — trim extras
+    const sorted = [...finalAuth].sort((a, b) => a.name.localeCompare(b.name));
     const extras = sorted.slice(0, sorted.length - 3);
     for (const { name } of extras) {
       response.cookies.set(name, "", { maxAge: 0, path: "/" });
@@ -57,7 +62,7 @@ export async function updateSupabaseSession(request: NextRequest) {
 
   // Debug headers (remove after verification)
   response.headers.set("X-Debug-Cookie-Count", String(finalAuth.length));
-  response.headers.set("X-Debug-Cookie-Purge", finalAuth.length > 3 ? "1" : "0");
+  response.headers.set("X-Debug-Cookie-Purge", finalAuth.length > 3 || (!user && finalAuth.length > 0) ? "1" : "0");
 
   return { response, user: user ?? null, supabase };
 }
