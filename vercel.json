@@ -1,7 +1,5 @@
 {
   "functions": {
-    "api/*.ts": {
-      "maxDuration": 30
-    }
+    "maxHeaderSize": 8192
   }
 }
