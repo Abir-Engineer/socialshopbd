@@ -1,42 +1,78 @@
 const features = [
-  { title: "Product Management", description: "Organize SKUs, stock, pricing and product variants in one place.", icon: "M4 6h16M4 12h16M4 18h16" },
-  { title: "Order Tracking", description: "Track new orders, shipping status and fulfillment updates with ease.", icon: "M5 12h14M12 5v14" },
-  { title: "Customer CRM", description: "Save customer profiles, emails, phones and order history automatically.", icon: "M12 14c3.314 0 6-1.79 6-4v-1c0-2.21-2.686-4-6-4s-6 1.79-6 4v1c0 2.21 2.686 4 6 4zm0 2c-4.418 0-8 1.79-8 4v1h16v-1c0-2.21-3.582-4-8-4z" },
-  { title: "Analytics Dashboard", description: "See revenue, product performance and growth in one elegant view.", icon: "M5 12h14M12 5v14" },
-  { title: "Multi-shop Support", description: "Manage multiple storefronts and seller channels from one dashboard.", icon: "M4 7h16M4 12h10M4 17h7" },
-  { title: "Staff Management", description: "Add team members, assign roles, and control permissions quickly.", icon: "M6 8h12M6 12h8M6 16h6" },
+  {
+    title: "Product Management",
+    description: "Track inventory, pricing and stock.",
+    icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
+  },
+  {
+    title: "Order Management",
+    description: "Manage all orders from one place.",
+    icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4",
+  },
+  {
+    title: "Customer CRM",
+    description: "Track repeat customers and customer history.",
+    icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z",
+  },
+  {
+    title: "Analytics Dashboard",
+    description: "Revenue, sales and business insights.",
+    icon: "M4 19V5m6 14V9m6 10V3m4 16H2",
+  },
+  {
+    title: "Staff Management",
+    description: "Manage teams and permissions.",
+    icon: "M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m8-10a4 4 0 100-8 4 4 0 000 8z",
+  },
+  {
+    title: "Multi Shop Ready",
+    description: "Scale multiple businesses.",
+    icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4",
+  },
 ];
 
-function FeatureCard({ title, description, icon }: { title: string; description: string; icon: string }) {
+function FeatureCard({
+  title,
+  description,
+  icon,
+  index,
+}: {
+  title: string;
+  description: string;
+  icon: string;
+  index: number;
+}) {
   return (
-    <div className="rounded-[2rem] border border-slate-800/80 bg-slate-900/85 p-6 shadow-2xl shadow-slate-950/20 transition hover:border-sky-500/60">
-      <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-slate-800 text-sky-400">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-6 w-6">
+    <div className="group rounded-2xl border border-slate-800/60 bg-slate-900/50 p-6 transition hover:border-violet-500/30 hover:bg-slate-900/80 hover:shadow-lg hover:shadow-violet-500/5">
+      <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 text-violet-400 transition group-hover:from-violet-500/30 group-hover:to-fuchsia-500/30">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-6 w-6">
           <path d={icon} strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
       <h3 className="text-lg font-semibold text-white">{title}</h3>
-      <p className="mt-3 text-sm leading-6 text-slate-400">{description}</p>
+      <p className="mt-2 text-sm leading-6 text-slate-400">{description}</p>
     </div>
   );
 }
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="mt-20">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm uppercase tracking-[0.35em] text-sky-400">Key features</p>
-          <h2 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">Everything your online shop needs</h2>
-        </div>
-        <p className="max-w-xl text-sm leading-7 text-slate-400 sm:text-base">
-          Social Shop BD helps small brands manage inventory, orders, customers and analytics with the speed and clarity of modern SaaS.
+    <section id="features" className="mt-32 scroll-mt-24">
+      <div className="text-center">
+        <p className="text-sm font-medium uppercase tracking-[0.2em] text-violet-400">
+          Features
+        </p>
+        <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+          Everything you need to grow
+        </h2>
+        <p className="mx-auto mt-4 max-w-2xl text-base text-slate-400">
+          Powerful tools designed for Facebook sellers and growing businesses.
         </p>
       </div>
 
-      <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {features.map((feature) => (
-          <FeatureCard key={feature.title} {...feature} />
+      <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {features.map((feature, i) => (
+          <FeatureCard key={feature.title} {...feature} index={i} />
         ))}
       </div>
     </section>

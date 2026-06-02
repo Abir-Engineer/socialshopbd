@@ -1,67 +1,104 @@
-import Link from "next/link";
+"use client";
 
-const bullets = [
-  "F-commerce store and orders in one place",
-  "Customer CRM with fast lookup",
-  "Analytics built for small brands",
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+
+const stats = [
+  { value: "500+", label: "Businesses" },
+  { value: "10K+", label: "Orders Managed" },
+  { value: "99.9%", label: "Uptime" },
 ];
 
 export function HeroSection() {
-  return (
-    <section className="relative overflow-hidden rounded-[2rem] border border-slate-800/70 bg-slate-900/95 px-6 py-12 shadow-2xl shadow-slate-950/30 sm:px-10 lg:flex lg:items-center lg:justify-between lg:px-12 lg:py-16">
-      <div className="max-w-2xl">
-        <p className="text-sm uppercase tracking-[0.3em] text-sky-400">Manage your business smartly</p>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-          Manage Your Online Business Smartly
-        </h1>
-        <p className="mt-6 max-w-xl text-base leading-8 text-slate-300">
-          All-in-one platform for F-commerce, orders, products & customers — built to help growing merchants
-          manage every sale with confidence.
-        </p>
+  const [dashboardHref, setDashboardHref] = useState("/signup");
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <Link
-            href="/signup"
-            className="inline-flex items-center justify-center rounded-full bg-sky-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:bg-sky-400"
-          >
-            Get Started
-          </Link>
-          <Link
-            href="/login"
-            className="inline-flex items-center justify-center rounded-full border border-slate-700 bg-slate-950 px-6 py-3 text-sm font-semibold text-slate-100 transition hover:border-slate-500"
-          >
-            Login
-          </Link>
+  useEffect(() => {
+    getSupabaseBrowserClient()
+      .auth.getSession()
+      .then(({ data }) => {
+        if (data.session) setDashboardHref("/dashboard");
+      });
+  }, []);
+
+  return (
+    <section className="relative mt-8 overflow-hidden rounded-3xl border border-slate-800/60 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 px-8 py-16 shadow-2xl shadow-slate-950/50 sm:px-12 sm:py-20 lg:px-16">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(139,92,246,0.12),transparent_50%),radial-gradient(ellipse_at_bottom_left,rgba(236,72,153,0.08),transparent_50%)]" />
+
+      <div className="relative mx-auto max-w-4xl text-center">
+        <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/10 px-4 py-1.5 text-xs font-medium text-violet-300">
+          <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />
+          Smart Commerce Management Platform
         </div>
 
-        <div className="mt-10 grid gap-3 sm:grid-cols-3">
-          {bullets.map((item) => (
-            <div key={item} className="rounded-3xl border border-slate-800/80 bg-slate-950/80 p-4">
-              <p className="text-sm text-slate-300">{item}</p>
+        <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+          Manage Your Business
+          <br />
+          <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
+            From One Powerful Dashboard
+          </span>
+        </h1>
+
+        <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+          Products, Orders, Customers, Analytics and Team Management &mdash;
+          everything in one platform.
+        </p>
+
+        <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <Link
+            href={dashboardHref}
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-violet-500/30 transition hover:opacity-90 hover:shadow-violet-500/40"
+          >
+            Start Free
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+              <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </Link>
+          <a
+            href="#features"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/80 px-8 py-3.5 text-sm font-semibold text-slate-200 transition hover:border-slate-500 hover:text-white"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+              <path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Watch Demo
+          </a>
+        </div>
+
+        <div className="mt-12 grid gap-4 sm:grid-cols-3">
+          {stats.map((stat) => (
+            <div
+              key={stat.label}
+              className="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 backdrop-blur-sm"
+            >
+              <p className="text-2xl font-bold text-white sm:text-3xl">{stat.value}</p>
+              <p className="mt-1 text-sm text-slate-400">{stat.label}</p>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="mt-10 flex justify-center lg:mt-0 lg:w-[45%]">
-        <div className="relative aspect-[4/3] w-full max-w-xl overflow-hidden rounded-[1.75rem] border border-slate-800/80 bg-gradient-to-br from-slate-800 via-slate-900 to-indigo-950 p-6 shadow-2xl shadow-slate-950/40">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.2),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(168,85,247,0.18),_transparent_26%)]" />
-          <div className="relative flex h-full flex-col justify-between rounded-[1.5rem] border border-white/5 bg-slate-950/90 p-6 text-white">
-            <div className="space-y-4">
-              <div className="rounded-3xl bg-slate-800/90 p-4 text-slate-200">Dashboard preview</div>
-              <div className="grid gap-3">
-                <div className="h-4 w-24 rounded-full bg-slate-700/90" />
-                <div className="h-4 w-32 rounded-full bg-slate-700/90" />
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="h-20 rounded-3xl bg-slate-800/80" />
-                  <div className="h-20 rounded-3xl bg-slate-800/80" />
-                </div>
+      <div className="relative mx-auto mt-16 max-w-5xl">
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-violet-500/10 via-fuchsia-500/10 to-pink-500/10 blur-3xl" />
+        <div className="relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-900/90 shadow-2xl">
+          <div className="flex items-center gap-2 border-b border-slate-700/60 px-5 py-3">
+            <div className="h-3 w-3 rounded-full bg-red-500/80" />
+            <div className="h-3 w-3 rounded-full bg-yellow-500/80" />
+            <div className="h-3 w-3 rounded-full bg-green-500/80" />
+            <div className="ml-4 text-xs text-slate-500">Dashboard Preview</div>
+          </div>
+          <div className="grid gap-4 p-6 sm:grid-cols-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="rounded-xl border border-slate-700/50 bg-slate-950/80 p-4">
+                <div className="h-3 w-16 rounded bg-slate-700/50" />
+                <div className="mt-3 h-6 w-24 rounded bg-slate-700/50" />
+                <div className="mt-2 h-2 w-20 rounded bg-slate-700/30" />
               </div>
-            </div>
-            <div className="grid gap-3">
-              <div className="h-14 rounded-3xl bg-slate-800/80" />
-              <div className="h-14 rounded-3xl bg-slate-800/80" />
-            </div>
+            ))}
+          </div>
+          <div className="border-t border-slate-700/60 p-6">
+            <div className="h-32 rounded-xl bg-slate-800/50" />
           </div>
         </div>
       </div>

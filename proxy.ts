@@ -9,6 +9,7 @@ const SUBSCRIPTION_BYPASS_ROUTES = ["/billing", "/unauthorized"];
 const BYPASS_ORG_PREFIXES = ["/api/", "/checkout/", "/_next/", "/favicon", "/invite/"];
 
 const PATH_MODULE_MAP: [string, PermissionModule][] = [
+  ["/dashboard", "dashboard"],
   ["/orders", "orders"],
   ["/products", "products"],
   ["/customers", "customers"],
@@ -27,6 +28,11 @@ function applySessionData(source: NextResponse, target: NextResponse) {
 export async function proxy(request: NextRequest) {
   const { response, user, supabase } = await updateSupabaseSession(request);
   const { pathname } = request.nextUrl;
+
+  // Landing page is always public
+  if (pathname === "/") {
+    return response;
+  }
 
   if (BYPASS_ORG_PREFIXES.some((p) => pathname.startsWith(p))) {
     return response;
@@ -49,7 +55,7 @@ export async function proxy(request: NextRequest) {
 
   if (isPublicRoute) {
     const url = request.nextUrl.clone();
-    url.pathname = "/";
+    url.pathname = "/dashboard";
     url.search = "";
     const redirect = NextResponse.redirect(url);
     applySessionData(response, redirect);

@@ -1,7 +1,7 @@
 import type { NavigationItem } from "@/types/dashboard";
 
 export const DASHBOARD_NAVIGATION: NavigationItem[] = [
-  { name: "Dashboard", href: "/", icon: "M3 12l9-8 9 8M5 10v10h14V10" },
+  { name: "Dashboard", href: "/dashboard", icon: "M3 12l9-8 9 8M5 10v10h14V10" },
   { name: "Orders", href: "/orders", icon: "M3 7h18M6 3h12l1 4H5l1-4zm-1 4v13h14V7" },
   { name: "Products", href: "/products", icon: "M4 7l8-4 8 4-8 4-8-4zm0 0v10l8 4 8-4V7" },
   { name: "Customers", href: "/customers", icon: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" },

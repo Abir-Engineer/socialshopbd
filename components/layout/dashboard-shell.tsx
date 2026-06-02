@@ -12,7 +12,7 @@ import { Icon } from "@/components/ui/icon";
 import { ThemeToggle } from "@/components/dashboard/theme-toggle";
 
 const NAV_MODULE_MAP: Record<string, PermissionModule> = {
-  "/": "dashboard",
+  "/dashboard": "dashboard",
   "/orders": "orders",
   "/products": "products",
   "/customers": "customers",

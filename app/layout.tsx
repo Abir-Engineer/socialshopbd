@@ -3,8 +3,8 @@ import { ToastProvider } from "@/components/ui/toast";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Social Shop BD Dashboard",
-  description: "Modern SaaS dashboard for Social Shop BD",
+  title: "Social Shop BD",
+  description: "Smart Commerce Management Platform for Facebook Sellers, Online Shops & Growing Businesses.",
 };
 
 export default function RootLayout({
