@@ -48,6 +48,7 @@ export async function createCustomer(formData: FormData): Promise<CustomerAction
 
   revalidatePath("/customers");
   revalidatePath("/orders");
+  revalidatePath("/analytics");
   return { ok: true };
 }
 
@@ -84,5 +85,6 @@ export async function updateCustomer(formData: FormData): Promise<CustomerAction
 
   revalidatePath("/customers");
   revalidatePath("/orders");
+  revalidatePath("/analytics");
   return { ok: true };
 }

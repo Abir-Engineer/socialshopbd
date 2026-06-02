@@ -65,6 +65,7 @@ export async function createProduct(formData: FormData): Promise<ProductActionRe
   }
 
   revalidatePath("/products");
+  revalidatePath("/analytics");
   return { ok: true };
 }
 
@@ -104,6 +105,7 @@ export async function updateProduct(formData: FormData): Promise<ProductActionRe
   }
 
   revalidatePath("/products");
+  revalidatePath("/analytics");
   return { ok: true };
 }
 
@@ -119,5 +121,6 @@ export async function deleteProduct(id: string): Promise<ProductActionResult> {
   }
 
   revalidatePath("/products");
+  revalidatePath("/analytics");
   return { ok: true };
 }

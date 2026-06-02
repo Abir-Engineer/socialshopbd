@@ -74,6 +74,7 @@ export async function createOrder(formData: FormData): Promise<OrderActionResult
 
   revalidatePath("/orders");
   revalidatePath("/customers");
+  revalidatePath("/analytics");
   return { ok: true };
 }
 
@@ -117,6 +118,7 @@ export async function updateOrder(formData: FormData): Promise<OrderActionResult
 
   revalidatePath("/orders");
   revalidatePath("/customers");
+  revalidatePath("/analytics");
   return { ok: true };
 }
 
@@ -138,6 +140,7 @@ export async function updateOrderStatus(
 
   revalidatePath("/orders");
   revalidatePath("/customers");
+  revalidatePath("/analytics");
   return { ok: true };
 }
 
@@ -151,5 +154,6 @@ export async function deleteOrder(id: string): Promise<OrderActionResult> {
 
   revalidatePath("/orders");
   revalidatePath("/customers");
+  revalidatePath("/analytics");
   return { ok: true };
 }
