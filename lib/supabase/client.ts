@@ -9,7 +9,14 @@ let browserClient: SupabaseClient<Database> | undefined;
 
 export function getSupabaseBrowserClient(): SupabaseClient<Database> {
   if (!browserClient) {
-    browserClient = createBrowserClient<Database>(supabaseEnv.url, supabaseEnv.anonKey);
+    browserClient = createBrowserClient<Database>(supabaseEnv.url, supabaseEnv.anonKey, {
+      cookieOptions: {
+        maxAge: 60 * 60 * 24 * 7,
+      },
+      cookies: {
+        encode: "tokens-only",
+      },
+    });
   }
 
   return browserClient;

@@ -7,7 +7,11 @@ export async function getSupabaseServerClient() {
   const cookieStore = await cookies();
 
   return createServerClient<Database>(supabaseEnv.url, supabaseEnv.anonKey, {
+    cookieOptions: {
+      maxAge: 60 * 60 * 24 * 7,
+    },
     cookies: {
+      encode: "tokens-only",
       getAll() {
         return cookieStore.getAll();
       },

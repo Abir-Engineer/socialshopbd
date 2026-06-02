@@ -9,7 +9,11 @@ export async function updateSupabaseSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient<Database>(supabaseEnv.url, supabaseEnv.anonKey, {
+    cookieOptions: {
+      maxAge: 60 * 60 * 24 * 7,
+    },
     cookies: {
+      encode: "tokens-only",
       getAll() {
         return request.cookies.getAll();
       },

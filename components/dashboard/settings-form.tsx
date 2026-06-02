@@ -18,18 +18,43 @@ type TabKey = (typeof TABS)[number]["key"];
 
 type ToastItem = { id: number; message: string; variant: "success" | "error" };
 
-function readFileAsDataURL(file: File) {
-  return new Promise<string>((resolve, reject) => {
+function compressAndResizeImage(file: File, maxW = 400, maxH = 400): Promise<string> {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        resolve(reader.result);
-      } else {
-        reject(new Error("Unable to read file"));
-      }
-    };
-    reader.onerror = () => reject(reader.error);
     reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxW) {
+            height = Math.round((height * maxW) / width);
+            width = maxW;
+          }
+        } else {
+          if (height > maxH) {
+            width = Math.round((width * maxH) / height);
+            height = maxH;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("Failed to get canvas context"));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", 0.75));
+      };
+      img.onerror = (err) => reject(err);
+    };
+    reader.onerror = (err) => reject(err);
   });
 }
 
@@ -151,6 +176,7 @@ export function SettingsForm() {
             if (dbShop.shop_name) setShopName(dbShop.shop_name);
             if (dbShop.address) setShopAddress(dbShop.address);
             if (dbShop.currency) setShopCurrency(dbShop.currency);
+            if (dbShop.logo_url) setShopLogoPreview(dbShop.logo_url);
           } else {
             // Auto generate slug from email
             const defaultSlug = (data.user.email || "").split("@")[0].replace(/[^a-z0-9]/gi, "").toLowerCase() || "myshop";
@@ -208,25 +234,37 @@ export function SettingsForm() {
       const supabase = getSupabaseBrowserClient();
       const updates: { data?: Record<string, unknown>; password?: string } = {};
       const metadata = (user?.user_metadata || {}) as Record<string, unknown>;
+      let finalLogoUrl = shopLogoPreview;
+
+      if (shopLogoFile && (section === "shop" || section === "business" || section === "notifications")) {
+        try {
+          finalLogoUrl = await compressAndResizeImage(shopLogoFile);
+        } catch {
+          setError("Unable to read shop logo image. Please choose another file.");
+          setIsSaving(false);
+          setSavingTab(null);
+          return;
+        }
+      }
+
+      // Omit logo_url from user_metadata to prevent cookie bloat
       const shopSettings = {
         name: shopName.trim(),
         description: shopDescription.trim(),
         currency: shopCurrency,
         address: shopAddress.trim(),
-        logo_url: shopLogoPreview,
       };
 
-      if (shopLogoFile && (section === "shop" || section === "business" || section === "notifications")) {
-        try {
-          shopSettings.logo_url = await readFileAsDataURL(shopLogoFile);
-        } catch {
-          setError("Unable to read shop logo image. Please choose another file.");
-          return;
-        }
+      // Clean up legacy bloated logo_url from existing user_metadata
+      const cleanMetadata = { ...metadata };
+      if (cleanMetadata.shopSettings) {
+        const cleanShopSettings = { ...(cleanMetadata.shopSettings as Record<string, unknown>) };
+        delete cleanShopSettings.logo_url;
+        cleanMetadata.shopSettings = cleanShopSettings;
       }
 
       const settingsData = {
-        ...metadata,
+        ...cleanMetadata,
         shopSettings,
         businessInfo: {
           ownerName: ownerName.trim(),
@@ -250,13 +288,14 @@ export function SettingsForm() {
           return;
         }
 
-        // Upsert to shops table
+        // Upsert to shops table, including the logo_url
         const { error: dbError } = await supabase.from("shops").upsert({
           user_id: user!.id,
           shop_name: shopName.trim(),
           slug: cleanedSlug,
           currency: shopCurrency,
           address: shopAddress.trim(),
+          logo_url: finalLogoUrl,
           updated_at: new Date().toISOString(),
         }, { onConflict: "user_id" });
 
