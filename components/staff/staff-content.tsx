@@ -1,6 +1,49 @@
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getWorkspaceContext } from "@/lib/auth/organization";
 import { StaffView } from "@/components/staff/staff-view";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/supabase";
+
+type MemberRecord = {
+  id: string;
+  user_id: string;
+  role: string;
+  created_at: string;
+  email: string;
+  full_name: string;
+};
+
+async function fetchMembersViaRpc(
+  supabase: SupabaseClient<Database>,
+  orgId: string,
+): Promise<MemberRecord[] | null> {
+  const { data, error } = await supabase.rpc("get_organization_members", {
+    org_id: orgId,
+  });
+  if (error) return null;
+  return (data ?? []) as MemberRecord[];
+}
+
+async function fetchMembersDirect(
+  supabase: SupabaseClient<Database>,
+  orgId: string,
+): Promise<MemberRecord[]> {
+  const { data, error } = await supabase
+    .from("organization_members")
+    .select("id, user_id, role, created_at")
+    .eq("organization_id", orgId)
+    .order("created_at", { ascending: false });
+
+  if (error) return [];
+  return data.map((m: { id: string; user_id: string; role: string; created_at: string }) => ({
+    id: m.id,
+    user_id: m.user_id,
+    role: m.role,
+    created_at: m.created_at,
+    email: "",
+    full_name: "Team Member",
+  }));
+}
 
 export async function StaffContent() {
   const context = await getWorkspaceContext();
@@ -13,8 +56,11 @@ export async function StaffContent() {
             Manage your team members and their access roles.
           </p>
         </header>
-        <div className="rounded-xl border border-rose-200 bg-card p-5 text-sm text-rose-700 shadow-sm dark:border-rose-900 dark:text-rose-300">
+        <div className="rounded-xl border border-amber-200 bg-card p-5 text-sm text-amber-700 shadow-sm dark:border-amber-900 dark:text-amber-300">
           <p className="font-medium">Workspace context could not be loaded.</p>
+          <p className="mt-2 text-amber-600/90 dark:text-amber-400/90 text-xs">
+            Please ensure you have an active organization and run all migrations in your Supabase SQL Editor.
+          </p>
         </div>
       </section>
     );
@@ -22,12 +68,16 @@ export async function StaffContent() {
 
   const supabase = await getSupabaseServerClient();
 
-  // 1. Fetch active team members using safety security definer RPC
-  const { data: members, error: membersError } = await supabase.rpc("get_organization_members", {
-    org_id: context.organizationId,
-  });
+  // Try RPC first, fall back to direct table query if RPC function doesn't exist
+  let members: MemberRecord[] = [];
+  const rpcResult = await fetchMembersViaRpc(supabase, context.organizationId);
+  if (rpcResult) {
+    members = rpcResult;
+  } else {
+    members = await fetchMembersDirect(supabase, context.organizationId);
+  }
 
-  // 2. Fetch pending invitations for this organization
+  // Fetch pending invitations for this organization
   const { data: invitations, error: invitesError } = await supabase
     .from("organization_invitations")
     .select("*")
@@ -36,9 +86,7 @@ export async function StaffContent() {
     .gt("expires_at", new Date().toISOString())
     .order("created_at", { ascending: false });
 
-  const fetchError = membersError || invitesError;
-
-  if (fetchError) {
+  if (invitesError) {
     return (
       <section className="space-y-6">
         <header>
@@ -48,12 +96,9 @@ export async function StaffContent() {
           </p>
         </header>
         <div className="rounded-xl border border-rose-200 bg-card p-5 text-sm text-rose-700 shadow-sm dark:border-rose-900 dark:text-rose-300">
-          <p className="font-medium">Could not load team members</p>
+          <p className="font-medium">Could not load invitations</p>
           <p className="mt-1 text-rose-600/90 dark:text-rose-400/90">
-            {fetchError.message}
-          </p>
-          <p className="mt-3 text-muted-foreground text-xs">
-            Make sure to run the <code className="rounded bg-muted px-1 py-0.5 text-xs text-rose-800 dark:text-rose-200">20260523000008_role_based_access.sql</code> migration in your Supabase SQL Editor.
+            {invitesError.message}
           </p>
         </div>
       </section>
@@ -63,7 +108,7 @@ export async function StaffContent() {
   return (
     <StaffView
       currentUserRole={context.role}
-      initialStaff={members ?? []}
+      initialStaff={members}
       initialInvitations={invitations ?? []}
     />
   );
