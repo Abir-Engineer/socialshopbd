@@ -20,7 +20,7 @@ export async function getCurrentOrgId(): Promise<string | null> {
     .select("organization_id")
     .eq("user_id", user.id)
     .limit(1)
-    .single();
+    .maybeSingle();
 
   return data?.organization_id ?? null;
 }
@@ -34,47 +34,51 @@ export async function getWorkspaceContext(): Promise<WorkspaceContext | null> {
 
   const {
     data: { user },
+    error: userError,
   } = await supabase.auth.getUser();
+
+  if (userError) {
+    console.error("getWorkspaceContext: getUser error", userError);
+  }
 
   if (!user) return null;
 
-  const { data } = await supabase
+  // First query: get the org membership
+  const { data: membership, error: memberErr } = await supabase
     .from("organization_members")
-    .select(`
-      role,
-      organization_id,
-      organizations (
-        id, name, slug, plan,
-        subscription_status,
-        trial_ends_at,
-        current_period_end
-      )
-    `)
+    .select("role, organization_id")
     .eq("user_id", user.id)
     .limit(1)
-    .single();
+    .maybeSingle();
 
-  if (!data || !data.organizations) return null;
+  if (memberErr) {
+    console.error("getWorkspaceContext: membership query error", memberErr);
+  }
 
-  const org = data.organizations as {
-    id: string;
-    name: string;
-    slug: string;
-    plan: string;
-    subscription_status: string;
-    trial_ends_at: string;
-    current_period_end: string | null;
-  };
+  if (!membership) return null;
+
+  // Second query: get org details
+  const { data: org, error: orgErr } = await supabase
+    .from("organizations")
+    .select("*")
+    .eq("id", membership.organization_id)
+    .maybeSingle();
+
+  if (orgErr) {
+    console.error("getWorkspaceContext: org query error", orgErr);
+  }
+
+  if (!org) return null;
 
   return {
     organizationId:     org.id,
     organizationName:   org.name,
     organizationSlug:   org.slug,
-    plan:               org.plan               as WorkspaceContext["plan"],
-    subscriptionStatus: org.subscription_status as WorkspaceContext["subscriptionStatus"],
+    plan:               (org.plan ?? "free")   as WorkspaceContext["plan"],
+    subscriptionStatus: (org.subscription_status ?? "active") as WorkspaceContext["subscriptionStatus"],
     trialEndsAt:        org.trial_ends_at,
     currentPeriodEnd:   org.current_period_end ?? null,
-    role:               data.role              as WorkspaceContext["role"],
+    role:               membership.role        as WorkspaceContext["role"],
     userId:             user.id,
   };
 }

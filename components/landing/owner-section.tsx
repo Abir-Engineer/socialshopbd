@@ -1,8 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export function OwnerSection() {
   return (
-    <section id="owner" className="mt-32 scroll-mt-24">
+    <section id="owner" className="mt-20 scroll-mt-24 sm:mt-32">
       <div className="text-center">
         <p className="text-sm font-medium uppercase tracking-[0.2em] text-violet-400">
           Meet The Founder
@@ -12,12 +13,31 @@ export function OwnerSection() {
         </h2>
       </div>
 
-      <div className="mt-12 overflow-hidden rounded-3xl border border-slate-800/60 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 shadow-2xl shadow-slate-950/50">
+      <div className="relative mt-12 overflow-hidden rounded-3xl border border-slate-800/60 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 shadow-2xl shadow-slate-950/50">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(139,92,246,0.08),transparent_50%)]" />
 
         <div className="relative grid gap-8 p-8 lg:grid-cols-5 lg:items-center lg:p-12">
-          <div className="lg:col-span-3 lg:pr-8">
-            <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/10 px-4 py-1.5 text-xs font-medium text-violet-300">
+          <div className="order-first lg:col-span-2">
+            <div className="relative overflow-hidden rounded-2xl border border-slate-700/60 bg-gradient-to-br from-slate-800 to-slate-900">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(139,92,246,0.1),transparent_60%)]" />
+              <div className="relative flex aspect-[3/4] items-center justify-center">
+                <Image
+                  src="/owner-abir.jpeg"
+                  alt="Shahin Alam Abir — Founder"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 40vw"
+                />
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent p-6">
+                <p className="text-center text-2xl font-bold text-white">Shahin Alam Abir</p>
+                <p className="text-center text-sm text-slate-400">Founder</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-3 lg:pl-8">
+            <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/10 px-4 py-1.5 text-base font-medium text-violet-300">
               <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />
               Shahin Alam Abir
             </div>
@@ -52,7 +72,7 @@ export function OwnerSection() {
                 Portfolio
               </Link>
               <a
-                href="https://www.linkedin.com/"
+                href="https://www.linkedin.com/in/abir-chief-marketing-officer/"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-5 py-2.5 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:text-white"
@@ -63,7 +83,7 @@ export function OwnerSection() {
                 LinkedIn
               </a>
               <a
-                href="https://www.facebook.com/"
+                href="https://www.facebook.com/Shahin.Abirr/"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-5 py-2.5 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:text-white"
@@ -73,26 +93,6 @@ export function OwnerSection() {
                 </svg>
                 Facebook
               </a>
-            </div>
-          </div>
-
-          <div className="lg:col-span-2">
-            <div className="relative overflow-hidden rounded-2xl border border-slate-700/60 bg-gradient-to-br from-slate-800 to-slate-900">
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(139,92,246,0.1),transparent_60%)]" />
-              <div className="relative flex aspect-[3/4] items-center justify-center">
-                <div className="text-center">
-                  <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-600 text-3xl font-bold text-white shadow-2xl shadow-violet-500/30">
-                    SA
-                  </div>
-                  <p className="mt-4 text-lg font-semibold text-white">Shahin Alam Abir</p>
-                  <p className="text-sm text-slate-400">Founder</p>
-                </div>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent p-6">
-                <p className="text-center text-xs text-slate-500">
-                  Social Shop BD &mdash; Est. 2025
-                </p>
-              </div>
             </div>
           </div>
         </div>

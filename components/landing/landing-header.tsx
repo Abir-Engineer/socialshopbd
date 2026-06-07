@@ -13,6 +13,7 @@ const navLinks = [
 
 export function LandingHeader() {
   const [dashboardHref, setDashboardHref] = useState("/signup");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     getSupabaseBrowserClient()
@@ -49,7 +50,7 @@ export function LandingHeader() {
         <div className="flex items-center gap-3">
           <Link
             href="/login"
-            className="rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:text-white"
+            className="hidden rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:text-white sm:inline-block"
           >
             Login
           </Link>
@@ -59,8 +60,45 @@ export function LandingHeader() {
           >
             Get Started
           </Link>
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="inline-flex items-center justify-center rounded-lg border border-slate-700 bg-slate-900 p-2 text-slate-300 md:hidden"
+            aria-label="Toggle menu"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
+              {menuOpen ? (
+                <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
+              ) : (
+                <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" strokeLinejoin="round" />
+              )}
+            </svg>
+          </button>
         </div>
       </div>
+
+      {menuOpen && (
+        <div className="border-t border-slate-800/70 bg-slate-950 px-6 py-4 md:hidden">
+          <nav className="flex flex-col gap-3">
+            {navLinks.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                onClick={() => setMenuOpen(false)}
+                className="rounded-lg px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-900 hover:text-white"
+              >
+                {item.label}
+              </a>
+            ))}
+            <Link
+              href="/login"
+              onClick={() => setMenuOpen(false)}
+              className="rounded-lg px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-900 hover:text-white sm:hidden"
+            >
+              Login
+            </Link>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

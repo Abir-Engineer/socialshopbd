@@ -21,7 +21,7 @@ const steps = [
 
 export function HowItWorksSection() {
   return (
-    <section id="how-it-works" className="mt-32 scroll-mt-24">
+    <section id="how-it-works" className="mt-20 scroll-mt-24 sm:mt-32">
       <div className="text-center">
         <p className="text-sm font-medium uppercase tracking-[0.2em] text-violet-400">
           How It Works

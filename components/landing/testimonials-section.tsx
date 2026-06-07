@@ -24,7 +24,7 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <section className="mt-32">
+    <section className="mt-20 sm:mt-32">
       <div className="text-center">
         <p className="text-sm font-medium uppercase tracking-[0.2em] text-violet-400">
           Testimonials

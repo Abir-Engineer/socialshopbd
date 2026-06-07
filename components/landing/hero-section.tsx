@@ -22,7 +22,7 @@ export function HeroSection() {
   }, []);
 
   return (
-    <section className="relative mt-8 overflow-hidden rounded-3xl border border-slate-800/60 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 px-8 py-16 shadow-2xl shadow-slate-950/50 sm:px-12 sm:py-20 lg:px-16">
+    <section className="relative mt-6 overflow-hidden rounded-3xl border border-slate-800/60 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 px-6 py-12 shadow-2xl shadow-slate-950/50 sm:mt-8 sm:px-12 sm:py-20 lg:px-16">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(139,92,246,0.12),transparent_50%),radial-gradient(ellipse_at_bottom_left,rgba(236,72,153,0.08),transparent_50%)]" />
 
       <div className="relative mx-auto max-w-4xl text-center">
@@ -31,7 +31,7 @@ export function HeroSection() {
           Smart Commerce Management Platform
         </div>
 
-        <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+        <h1 className="mt-6 text-3xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
           Manage Your Business
           <br />
           <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
@@ -88,17 +88,47 @@ export function HeroSection() {
             <div className="h-3 w-3 rounded-full bg-green-500/80" />
             <div className="ml-4 text-xs text-slate-500">Dashboard Preview</div>
           </div>
-          <div className="grid gap-4 p-6 sm:grid-cols-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="rounded-xl border border-slate-700/50 bg-slate-950/80 p-4">
-                <div className="h-3 w-16 rounded bg-slate-700/50" />
-                <div className="mt-3 h-6 w-24 rounded bg-slate-700/50" />
-                <div className="mt-2 h-2 w-20 rounded bg-slate-700/30" />
-              </div>
-            ))}
+          <div className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-4 sm:gap-4 sm:p-6">
+            <div className="rounded-xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 to-fuchsia-500/5 p-4">
+              <p className="text-xs text-slate-400">Total Revenue</p>
+              <p className="mt-1 text-xl font-bold text-white sm:text-2xl">৳45,200</p>
+              <p className="mt-1 text-xs text-emerald-400">+12.5%</p>
+            </div>
+            <div className="rounded-xl border border-sky-500/20 bg-gradient-to-br from-sky-500/10 to-blue-500/5 p-4">
+              <p className="text-xs text-slate-400">Orders</p>
+              <p className="mt-1 text-xl font-bold text-white sm:text-2xl">342</p>
+              <p className="mt-1 text-xs text-emerald-400">+8.2%</p>
+            </div>
+            <div className="rounded-xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 to-orange-500/5 p-4">
+              <p className="text-xs text-slate-400">Products</p>
+              <p className="mt-1 text-xl font-bold text-white sm:text-2xl">1,280</p>
+              <p className="mt-1 text-xs text-slate-400">Active</p>
+            </div>
+            <div className="rounded-xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 to-teal-500/5 p-4">
+              <p className="text-xs text-slate-400">Customers</p>
+              <p className="mt-1 text-xl font-bold text-white sm:text-2xl">892</p>
+              <p className="mt-1 text-xs text-emerald-400">+5.7%</p>
+            </div>
           </div>
-          <div className="border-t border-slate-700/60 p-6">
-            <div className="h-32 rounded-xl bg-slate-800/50" />
+          <div className="border-t border-slate-700/60 p-4 sm:p-6">
+            <div className="flex items-center justify-between rounded-xl bg-slate-800/50 p-4 sm:p-6">
+              <div className="space-y-2">
+                <p className="text-xs text-slate-400">Weekly Sales</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-bold text-white sm:text-3xl">৳8,450</span>
+                  <span className="text-xs text-emerald-400">+18.3%</span>
+                </div>
+              </div>
+              <div className="hidden items-end gap-1 sm:flex">
+                <div className="h-8 w-6 rounded-t bg-violet-500/60" />
+                <div className="h-12 w-6 rounded-t bg-violet-500/80" />
+                <div className="h-16 w-6 rounded-t bg-violet-500" />
+                <div className="h-10 w-6 rounded-t bg-violet-500/80" />
+                <div className="h-20 w-6 rounded-t bg-gradient-to-t from-violet-500 to-fuchsia-500" />
+                <div className="h-14 w-6 rounded-t bg-violet-500/80" />
+                <div className="h-9 w-6 rounded-t bg-violet-500/60" />
+              </div>
+            </div>
           </div>
         </div>
       </div>

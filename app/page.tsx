@@ -24,7 +24,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <LandingHeader />
-      <main className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-10">
+      <main className="mx-auto max-w-7xl px-4 sm:px-8 lg:px-10">
         <HeroSection />
         <FeaturesSection />
         <HowItWorksSection />

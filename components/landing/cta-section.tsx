@@ -16,7 +16,7 @@ export function CTASection() {
   }, []);
 
   return (
-    <section className="relative mt-32 overflow-hidden rounded-3xl border border-slate-800/60 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 px-8 py-16 text-center shadow-2xl shadow-slate-950/50 sm:px-12 sm:py-20">
+    <section className="relative mt-20 overflow-hidden rounded-3xl border border-slate-800/60 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 px-6 py-12 text-center shadow-2xl shadow-slate-950/50 sm:mt-32 sm:px-12 sm:py-20">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(139,92,246,0.1),transparent_60%)]" />
 
       <div className="relative">

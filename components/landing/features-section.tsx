@@ -57,7 +57,7 @@ function FeatureCard({
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="mt-32 scroll-mt-24">
+    <section id="features" className="mt-20 scroll-mt-24 sm:mt-32">
       <div className="text-center">
         <p className="text-sm font-medium uppercase tracking-[0.2em] text-violet-400">
           Features
