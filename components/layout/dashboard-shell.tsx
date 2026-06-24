@@ -4,12 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import { LogoutButton } from "@/components/auth/logout-button";
 import { DASHBOARD_NAVIGATION } from "@/lib/constants/navigation";
 import { canAccessModule } from "@/lib/permissions";
 import type { PermissionModule } from "@/lib/permissions";
 import { Icon } from "@/components/ui/icon";
-import { ThemeToggle } from "@/components/dashboard/theme-toggle";
+import { ProfileDropdown } from "@/components/dashboard/profile-dropdown";
 
 const NAV_MODULE_MAP: Record<string, PermissionModule> = {
   "/dashboard": "dashboard",
@@ -150,12 +149,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                   <p className="text-xs text-muted-foreground">Manage orders, products, and growth</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <ThemeToggle />
-                <div className="hidden rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground sm:block">
-                  {userEmail ?? "admin@socialshopbd.com"}
-                </div>
-                <LogoutButton />
+              <div className="flex items-center gap-2">
+                <ProfileDropdown />
               </div>
             </div>
           </header>
