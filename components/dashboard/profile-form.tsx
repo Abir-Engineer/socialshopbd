@@ -109,12 +109,12 @@ export function ProfileForm() {
     setInfo(null);
 
     if (newPassword && newPassword.length < 6) {
-      setError("New password must be at least 6 characters.");
+      setError("নতুন পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে।");
       return;
     }
 
     if (newPassword && newPassword !== confirmPassword) {
-      setError("New password and confirm password do not match.");
+      setError("নতুন পাসওয়ার্ড এবং পাসওয়ার্ড নিশ্চিতকরণ মেলে না।");
       return;
     }
 
@@ -127,7 +127,7 @@ export function ProfileForm() {
         profileImageData = await compressAndResizeImage(profileImageFile);
       } catch {
         setIsSaving(false);
-        setError("Unable to read profile image. Please try a different file.");
+        setError("প্রোফাইল ইমেজ পড়া যাচ্ছে না। অনুগ্রহ করে ভিন্ন একটি ফাইল ব্যবহার করে দেখুন।");
         return;
       }
     }
@@ -155,8 +155,8 @@ export function ProfileForm() {
       return;
     }
 
-    setInfo("Profile saved successfully.");
-    showToast("Profile updated.", "success");
+    setInfo("প্রোফাইল সফলভাবে সংরক্ষিত হয়েছে।");
+    showToast("প্রোফাইল আপডেট করা হয়েছে।", "success");
     setNewPassword("");
     setConfirmPassword("");
     setCurrentPassword("");
@@ -176,10 +176,10 @@ export function ProfileForm() {
       <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Profile</p>
-            <h1 className="mt-2 text-2xl font-semibold text-foreground">User profile</h1>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">প্রোফাইল</p>
+            <h1 className="mt-2 text-2xl font-semibold text-foreground">ব্যবহারকারী প্রোফাইল</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Keep your account details fresh and secure.
+              আপনার অ্যাকাউন্টের বিবরণ আপডেট এবং সুরক্ষিত রাখুন।
             </p>
           </div>
         </div>
@@ -188,39 +188,39 @@ export function ProfileForm() {
       <form onSubmit={handleSubmit} className="grid gap-6 xl:grid-cols-[360px_1fr]">
         <section className="space-y-6 rounded-3xl border border-border bg-card p-6 shadow-sm">
           <div className="space-y-3">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Profile photo</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">প্রোফাইল ছবি</p>
             <div className="flex items-center gap-4">
               <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl bg-muted">
                 {profileImageUrl ? (
-                  <img src={profileImageUrl} alt="Profile preview" className="h-full w-full object-cover" />
+                  <img src={profileImageUrl} alt="প্রোফাইল প্রিভিউ" className="h-full w-full object-cover" />
                 ) : (
-                  <span className="text-sm text-muted-foreground">No image</span>
+                  <span className="text-sm text-muted-foreground">কোনো ছবি নেই</span>
                 )}
               </div>
               <div>
                 <label className="inline-flex cursor-pointer items-center rounded-full bg-muted px-4 py-2 text-sm font-medium text-foreground transition hover:bg-slate-700">
-                  Upload image
+                  ছবি আপলোড
                   <input type="file" accept="image/*" onChange={handleImageChange} className="sr-only" />
                 </label>
-                <p className="mt-2 text-sm text-muted-foreground">JPEG or PNG up to 2MB.</p>
+                <p className="mt-2 text-sm text-muted-foreground">জেপিইজি বা পিএনজি ২এমবি পর্যন্ত।</p>
               </div>
             </div>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-foreground">Full name</label>
+              <label className="block text-sm font-medium text-foreground">সম্পূর্ণ নাম</label>
               <input
                 type="text"
                 value={fullName}
                 onChange={(event) => setFullName(event.target.value)}
-                placeholder="Your full name"
+                placeholder="আপনার সম্পূর্ণ নাম"
                 className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition focus:border-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground">Email address</label>
+              <label className="block text-sm font-medium text-foreground">ইমেল ঠিকানা</label>
               <input
                 type="email"
                 value={email}
@@ -230,7 +230,7 @@ export function ProfileForm() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground">Phone number</label>
+              <label className="block text-sm font-medium text-foreground">ফোন নম্বর</label>
               <input
                 type="tel"
                 value={phone}
@@ -245,41 +245,41 @@ export function ProfileForm() {
         <section className="space-y-6 rounded-3xl border border-border bg-card p-6 shadow-sm">
           <div className="space-y-4">
             <div>
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Security</p>
-              <h2 className="mt-2 text-xl font-semibold text-foreground">Change password</h2>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">নিরাপত্তা</p>
+              <h2 className="mt-2 text-xl font-semibold text-foreground">পাসওয়ার্ড পরিবর্তন</h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                Update your password periodically to keep your account secure.
+                আপনার অ্যাকাউন্ট সুরক্ষিত রাখতে পর্যায়ক্রমে আপনার পাসওয়ার্ড আপডেট করুন।
               </p>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-foreground">Current password</label>
+                <label className="block text-sm font-medium text-foreground">বর্তমান পাসওয়ার্ড</label>
                 <input
                   type="password"
                   value={currentPassword}
                   onChange={(event) => setCurrentPassword(event.target.value)}
-                  placeholder="Current password"
+                  placeholder="বর্তমান পাসওয়ার্ড"
                   className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition focus:border-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground">New password</label>
+                <label className="block text-sm font-medium text-foreground">নতুন পাসওয়ার্ড</label>
                 <input
                   type="password"
                   value={newPassword}
                   onChange={(event) => setNewPassword(event.target.value)}
-                  placeholder="New password"
+                  placeholder="নতুন পাসওয়ার্ড"
                   className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition focus:border-blue-500"
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-foreground">Confirm new password</label>
+                <label className="block text-sm font-medium text-foreground">নতুন পাসওয়ার্ড নিশ্চিত করুন</label>
                 <input
                   type="password"
                   value={confirmPassword}
                   onChange={(event) => setConfirmPassword(event.target.value)}
-                  placeholder="Confirm new password"
+                  placeholder="নতুন পাসওয়ার্ড নিশ্চিত করুন"
                   className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition focus:border-blue-500"
                 />
               </div>
@@ -298,16 +298,16 @@ export function ProfileForm() {
             disabled={isSaving}
             className="inline-flex items-center justify-center rounded-3xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {isSaving ? "Saving profile…" : "Save profile"}
+            {isSaving ? "প্রোফাইল সংরক্ষণ করা হচ্ছে…" : "প্রোফাইল সংরক্ষণ"}
           </button>
         </section>
       </form>
 
       <div className="space-y-3">
         <div className="rounded-3xl border border-border bg-card p-5 text-sm text-muted-foreground">
-          <h3 className="text-base font-semibold text-foreground">Profile preview</h3>
+          <h3 className="text-base font-semibold text-foreground">প্রোফাইল প্রিভিউ</h3>
           <p className="mt-2">
-            Use the profile form above to keep your name, phone and profile photo up to date. Your email is managed by Supabase.
+            আপনার নাম, ফোন এবং প্রোফাইল ছবি আপডেট রাখতে উপরের প্রোফাইল ফর্মটি ব্যবহার করুন। আপনার ইমেল Supabase দ্বারা পরিচালিত হয়।
           </p>
         </div>
       </div>

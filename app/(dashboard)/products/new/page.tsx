@@ -27,14 +27,14 @@ export default function NewProductPage() {
   return (
     <section className="space-y-6">
       <header>
-        <h1 className="text-2xl font-semibold text-foreground">Add New Product</h1>
-        <p className="text-sm text-muted-foreground">Create a new product for your inventory.</p>
+        <h1 className="text-2xl font-semibold text-foreground">নতুন পণ্য যোগ করুন</h1>
+        <p className="text-sm text-muted-foreground">আপনার ইনভেন্টরির জন্য একটি নতুন পণ্য তৈরি করুন।</p>
       </header>
 
       <div className="max-w-lg rounded-xl border border-border bg-card p-6 shadow-sm">
         <form className="space-y-4" onSubmit={handleSubmit}>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Name</span>
+            <span className="text-sm font-medium text-card-foreground">নাম</span>
             <input
               name="name"
               required
@@ -43,7 +43,7 @@ export default function NewProductPage() {
             />
           </label>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">SKU</span>
+            <span className="text-sm font-medium text-card-foreground">এসকেইউ</span>
             <input
               name="sku"
               required
@@ -52,7 +52,7 @@ export default function NewProductPage() {
             />
           </label>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Stock</span>
+            <span className="text-sm font-medium text-card-foreground">স্টক</span>
             <input
               name="stock"
               type="number"
@@ -65,7 +65,7 @@ export default function NewProductPage() {
             />
           </label>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Price (BDT)</span>
+            <span className="text-sm font-medium text-card-foreground">মূল্য (বিডিটি)</span>
             <input
               name="price_bdt"
               type="number"
@@ -89,14 +89,14 @@ export default function NewProductPage() {
               disabled={isPending}
               className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-60 cursor-pointer"
             >
-              Cancel
+              বাতিল
             </button>
             <button
               type="submit"
               disabled={isPending}
               className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-70 cursor-pointer"
             >
-              {isPending ? "Saving…" : "Create Product"}
+              {isPending ? "সংরক্ষণ করা হচ্ছে…" : "পণ্য তৈরি করুন"}
             </button>
           </div>
         </form>

@@ -31,10 +31,10 @@ type PendingInvitation = {
 };
 
 const ROLE_OPTIONS = [
-  { value: "admin", label: "Admin", desc: "Full access to all modules" },
-  { value: "manager", label: "Manager", desc: "Orders, products, customers & analytics" },
-  { value: "staff", label: "Staff", desc: "Dashboard only (limited)" },
-  { value: "viewer", label: "Viewer", desc: "Read-only dashboard" },
+  { value: "admin", label: "অ্যাডমিন", desc: "সমস্ত মডিউলে পূর্ণ অ্যাক্সেস" },
+  { value: "manager", label: "ম্যানেজার", desc: "অর্ডার, পণ্য, গ্রাহক ও বিশ্লেষণ" },
+  { value: "staff", label: "স্টাফ", desc: "শুধু ড্যাশবোর্ড (সীমিত)" },
+  { value: "viewer", label: "দর্শক", desc: "শুধু-পঠনযোগ্য ড্যাশবোর্ড" },
 ] as const;
 
 const ROLE_BADGE: Record<string, string> = {
@@ -102,7 +102,7 @@ export function StaffView({
         return;
       }
       setCreateOpen(false);
-      toast.success("Invitation sent successfully via email.");
+      toast.success("ইমেলের মাধ্যমে আমন্ত্রণ সফলভাবে পাঠানো হয়েছে।");
       router.refresh();
     });
   };
@@ -116,7 +116,7 @@ export function StaffView({
         return;
       }
       setEditMember(null);
-      toast.success("Team member role updated.");
+      toast.success("টিম সদস্যের ভূমিকা আপডেট করা হয়েছে।");
       router.refresh();
     });
   };
@@ -130,7 +130,7 @@ export function StaffView({
         toast.error(result.error);
         return;
       }
-      toast.success("Team member removed from workspace.");
+      toast.success("ওয়ার্কস্পেস থেকে টিম সদস্য সরানো হয়েছে।");
       router.refresh();
     });
   };
@@ -144,7 +144,7 @@ export function StaffView({
         toast.error(result.error);
         return;
       }
-      toast.success("Invitation canceled successfully.");
+      toast.success("আমন্ত্রণ সফলভাবে বাতিল করা হয়েছে।");
       router.refresh();
     });
   };
@@ -161,13 +161,13 @@ export function StaffView({
       {/* Header */}
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Staff Management</h1>
+          <h1 className="text-2xl font-semibold text-foreground">স্টাফ ম্যানেজমেন্ট</h1>
           <p className="text-sm text-muted-foreground">
-            Manage your team members, assign roles, and control permissions across the platform.
+            আপনার টিম সদস্যদের পরিচালনা করুন, ভূমিকা নির্ধারণ করুন এবং প্ল্যাটফর্ম জুড়ে অনুমতি নিয়ন্ত্রণ করুন।
           </p>
           {isPending && (
             <p className="mt-1 text-xs text-muted-foreground" aria-live="polite">
-              Saving changes…
+              পরিবর্তন সংরক্ষণ করা হচ্ছে…
             </p>
           )}
         </div>
@@ -181,7 +181,7 @@ export function StaffView({
             className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 cursor-pointer"
           >
             <UserPlus className="h-4 w-4" />
-            Invite Team Member
+            টিম সদস্যকে আমন্ত্রণ জানান
           </button>
         )}
       </header>
@@ -194,7 +194,7 @@ export function StaffView({
           type="search"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search by name, email, or role…"
+          placeholder="নাম, ইমেল বা ভূমিকা দিয়ে খুঁজুন…"
           className="w-full rounded-xl border border-border bg-card py-2.5 pl-10 pr-10 text-sm text-foreground outline-none transition focus:border-blue-500"
           autoComplete="off"
         />
@@ -203,7 +203,7 @@ export function StaffView({
             type="button"
             onClick={() => setSearchQuery("")}
             className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:text-foreground"
-            aria-label="Clear search"
+            aria-label="খোঁজা মুছুন"
           >
             <X className="h-4 w-4" />
           </button>
@@ -216,11 +216,11 @@ export function StaffView({
           <table className="w-full text-left text-sm">
             <thead className="text-muted-foreground border-b border-border">
               <tr>
-                <th className="px-4 py-3 font-medium sm:px-5">Member</th>
-                <th className="px-4 py-3 font-medium sm:px-5">Email</th>
-                <th className="px-4 py-3 font-medium sm:px-5">Role</th>
-                <th className="px-4 py-3 font-medium sm:px-5 hidden sm:table-cell">Joined</th>
-                <th className="px-4 py-3 font-medium sm:px-5 text-right">Actions</th>
+                <th className="px-4 py-3 font-medium sm:px-5">সদস্য</th>
+                <th className="px-4 py-3 font-medium sm:px-5">ইমেল</th>
+                <th className="px-4 py-3 font-medium sm:px-5">ভূমিকা</th>
+                <th className="px-4 py-3 font-medium sm:px-5 hidden sm:table-cell">যোগদানের তারিখ</th>
+                <th className="px-4 py-3 font-medium sm:px-5 text-right">কার্যক্রম</th>
               </tr>
             </thead>
             <tbody>
@@ -231,16 +231,16 @@ export function StaffView({
                       <Shield className="h-8 w-8 text-muted-foreground/40" />
                       {searchQuery.trim() ? (
                         <>
-                          <p className="text-sm font-medium text-foreground">No matching members</p>
+                          <p className="text-sm font-medium text-foreground">কোন মিলে যাওয়া সদস্য নেই</p>
                           <p className="text-xs text-muted-foreground">
-                            Try a different search term.
+                            অন্য একটি সার্চ টার্ম ব্যবহার করে দেখুন।
                           </p>
                         </>
                       ) : (
                         <>
-                          <p className="text-sm font-medium text-foreground">No team members yet</p>
+                          <p className="text-sm font-medium text-foreground">এখনো কোনো টিম সদস্য নেই</p>
                           <p className="text-xs text-muted-foreground">
-                            Invite team members to collaborate on your shop.
+                            আপনার দোকানে সহযোগিতার জন্য টিম সদস্যদের আমন্ত্রণ জানান।
                           </p>
                         </>
                       )}
@@ -300,14 +300,14 @@ export function StaffView({
                               }}
                               className="rounded-md px-2.5 py-1 text-xs font-medium text-foreground bg-muted hover:bg-muted-foreground/15 transition cursor-pointer"
                             >
-                              Edit
+                              সম্পাদনা
                             </button>
                             <button
                               type="button"
                               onClick={() => setDeleteConfirm(member)}
                               className="rounded-md border border-rose-200 bg-background px-2.5 py-1 text-xs font-medium text-rose-600 hover:bg-rose-50 dark:border-rose-900/60 dark:text-rose-400 dark:hover:bg-rose-950/20 transition cursor-pointer"
                             >
-                              Remove
+                              সরান
                             </button>
                           </div>
                         )}
@@ -326,17 +326,17 @@ export function StaffView({
         <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
           <div className="px-5 py-3 border-b border-border">
             <h2 className="text-sm font-semibold text-foreground">
-              Pending Invitations ({filteredInvitations.length})
+              অপেক্ষমাণ আমন্ত্রণ ({filteredInvitations.length})
             </h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="text-muted-foreground border-b border-border">
                 <tr>
-                  <th className="px-4 py-3 font-medium sm:px-5">Email</th>
-                  <th className="px-4 py-3 font-medium sm:px-5">Role</th>
-                  <th className="px-4 py-3 font-medium sm:px-5 hidden sm:table-cell">Sent</th>
-                  <th className="px-4 py-3 font-medium sm:px-5 text-right">Actions</th>
+                  <th className="px-4 py-3 font-medium sm:px-5">ইমেল</th>
+                  <th className="px-4 py-3 font-medium sm:px-5">ভূমিকা</th>
+                  <th className="px-4 py-3 font-medium sm:px-5 hidden sm:table-cell">পাঠানো হয়েছে</th>
+                  <th className="px-4 py-3 font-medium sm:px-5 text-right">কার্যক্রম</th>
                 </tr>
               </thead>
               <tbody>
@@ -353,7 +353,7 @@ export function StaffView({
                           {inv.role.charAt(0).toUpperCase() + inv.role.slice(1)}
                         </span>
                         <span className="inline-flex rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-500">
-                          Pending
+                          অপেক্ষমাণ
                         </span>
                       </div>
                     </td>
@@ -370,7 +370,7 @@ export function StaffView({
                           onClick={() => setCancelInviteConfirm(inv)}
                           className="rounded-md border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition cursor-pointer"
                         >
-                          Cancel
+                          বাতিল
                         </button>
                       )}
                     </td>
@@ -393,7 +393,7 @@ export function StaffView({
           }}
         >
           <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl border border-border bg-card p-6 shadow-lg">
-            <h2 className="text-lg font-semibold text-card-foreground">Invite Team Member</h2>
+            <h2 className="text-lg font-semibold text-card-foreground">টিম সদস্যকে আমন্ত্রণ জানান</h2>
             <form
               className="mt-4 space-y-4"
               onSubmit={(e) => {
@@ -402,7 +402,7 @@ export function StaffView({
               }}
             >
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-card-foreground">Email Address</span>
+                <span className="text-sm font-medium text-card-foreground">ইমেল ঠিকানা</span>
                 <input
                   name="email"
                   type="email"
@@ -414,7 +414,7 @@ export function StaffView({
               </label>
 
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-card-foreground">Access Role</span>
+                <span className="text-sm font-medium text-card-foreground">অ্যাক্সেস ভূমিকা</span>
                 <select
                   name="role"
                   required
@@ -432,7 +432,7 @@ export function StaffView({
 
               {/* Role descriptions helper */}
               <div className="rounded-lg bg-muted/50 p-3 space-y-1.5">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Role Permissions</p>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">ভূমিকার অনুমতি</p>
                 {ROLE_OPTIONS.filter((o) => o.value !== "viewer").map((opt) => (
                   <div key={opt.value} className="flex items-start gap-2 text-xs text-muted-foreground">
                     <span
@@ -460,15 +460,15 @@ export function StaffView({
                   onClick={() => setCreateOpen(false)}
                   className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-60 cursor-pointer"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-70 cursor-pointer"
-                >
-                  {isPending ? "Sending invite…" : "Send Invitation"}
-                </button>
+                    বাতিল
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isPending}
+                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-70 cursor-pointer"
+                  >
+                    {isPending ? "আমন্ত্রণ পাঠানো হচ্ছে…" : "আমন্ত্রণ পাঠান"}
+                  </button>
               </div>
             </form>
           </div>
@@ -486,7 +486,7 @@ export function StaffView({
           }}
         >
           <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl border border-border bg-card p-6 shadow-lg">
-            <h2 className="text-lg font-semibold text-card-foreground">Edit Member Role</h2>
+            <h2 className="text-lg font-semibold text-card-foreground">সদস্যের ভূমিকা সম্পাদনা করুন</h2>
             <form
               className="mt-4 space-y-4"
               onSubmit={(e) => {
@@ -497,7 +497,7 @@ export function StaffView({
               <input type="hidden" name="id" value={editMember.id} />
 
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-card-foreground">Full Name</span>
+                <span className="text-sm font-medium text-card-foreground">পূর্ণ নাম</span>
                 <input
                   disabled
                   value={editMember.full_name}
@@ -506,16 +506,7 @@ export function StaffView({
               </label>
 
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-card-foreground">Email</span>
-                <input
-                  disabled
-                  value={editMember.email}
-                  className="w-full rounded-lg border border-border bg-muted px-3 py-2 text-sm text-muted-foreground outline-none opacity-80"
-                />
-              </label>
-
-              <label className="block space-y-2">
-                <span className="text-sm font-medium text-card-foreground">Access Role</span>
+                <span className="text-sm font-medium text-card-foreground">ইমেল</span>
                 <select
                   name="role"
                   required
@@ -544,14 +535,14 @@ export function StaffView({
                   onClick={() => setEditMember(null)}
                   className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-60 cursor-pointer"
                 >
-                  Cancel
+                  বাতিল
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
                   className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-70 cursor-pointer"
                 >
-                  {isPending ? "Saving changes…" : "Save Changes"}
+                  {isPending ? "পরিবর্তন সংরক্ষণ করা হচ্ছে…" : "পরিবর্তন সংরক্ষণ করুন"}
                 </button>
               </div>
             </form>
@@ -570,11 +561,11 @@ export function StaffView({
           }}
         >
           <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-lg">
-            <h2 className="text-lg font-semibold text-card-foreground">Remove team member?</h2>
+            <h2 className="text-lg font-semibold text-card-foreground">টিম সদস্য সরাবেন?</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Are you sure you want to remove{" "}
-              <span className="font-semibold text-foreground">{deleteConfirm.full_name}</span> from your team? They
-              will immediately lose all access to this shop.
+              আপনি কি নিশ্চিত আপনি{" "}
+              <span className="font-semibold text-foreground">{deleteConfirm.full_name}</span> কে আপনার টিম থেকে সরাতে চান? তারা
+              অবিলম্বে এই দোকানের সমস্ত অ্যাক্সেস হারাবে।
             </p>
             <div className="mt-6 flex justify-end gap-2">
               <button
@@ -583,15 +574,15 @@ export function StaffView({
                 onClick={() => setDeleteConfirm(null)}
                 className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-60 cursor-pointer"
               >
-                Cancel
-              </button>
-              <button
-                type="button"
-                disabled={isPending}
-                onClick={handleDelete}
-                className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-rose-700 disabled:opacity-70 cursor-pointer"
-              >
-                {isPending ? "Removing…" : "Remove Member"}
+                  বাতিল
+                </button>
+                <button
+                  type="button"
+                  disabled={isPending}
+                  onClick={handleDelete}
+                  className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-rose-700 disabled:opacity-70 cursor-pointer"
+                >
+                  {isPending ? "সরানো হচ্ছে…" : "সদস্য সরান"}
               </button>
             </div>
           </div>
@@ -609,11 +600,11 @@ export function StaffView({
           }}
         >
           <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-lg">
-            <h2 className="text-lg font-semibold text-card-foreground">Cancel invitation?</h2>
+            <h2 className="text-lg font-semibold text-card-foreground">আমন্ত্রণ বাতিল করবেন?</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Cancel the pending team invitation to{" "}
+              অপেক্ষমাণ টিম আমন্ত্রণ বাতিল করবেন{" "}
               <span className="font-semibold text-foreground">{cancelInviteConfirm.email}</span>?
-              They will no longer be able to join using their invite link.
+              তারা আর তাদের আমন্ত্রণ লিংক ব্যবহার করে যোগ দিতে পারবে না।
             </p>
             <div className="mt-6 flex justify-end gap-2">
               <button
@@ -622,15 +613,15 @@ export function StaffView({
                 onClick={() => setCancelInviteConfirm(null)}
                 className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-60 cursor-pointer"
               >
-                Cancel
-              </button>
-              <button
-                type="button"
-                disabled={isPending}
-                onClick={handleCancelInvite}
-                className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-rose-700 disabled:opacity-70 cursor-pointer"
-              >
-                {isPending ? "Canceling…" : "Cancel Invitation"}
+                  বাতিল
+                </button>
+                <button
+                  type="button"
+                  disabled={isPending}
+                  onClick={handleCancelInvite}
+                  className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-rose-700 disabled:opacity-70 cursor-pointer"
+                >
+                  {isPending ? "বাতিল করা হচ্ছে…" : "আমন্ত্রণ বাতিল করুন"}
               </button>
             </div>
           </div>

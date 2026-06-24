@@ -4,8 +4,8 @@ import { getOrgUsage } from "@/lib/subscription/usage";
 import { BillingView } from "@/components/billing/billing-view";
 
 export const metadata = {
-  title: "Billing & Subscription — Social Shop BD",
-  description: "Manage your subscription plan, view usage, and upgrade your account.",
+  title: "বিলিং ও সাবস্ক্রিপশন — সোশ্যাল শপ বিডি",
+  description: "আপনার সাবস্ক্রিপশন প্ল্যান ম্যানেজ করুন, ব্যবহার দেখুন এবং আপনার অ্যাকাউন্ট আপগ্রেড করুন।",
 };
 
 export default async function BillingPage({
@@ -19,7 +19,7 @@ export default async function BillingPage({
   if (!context) {
     return (
       <div className="flex h-64 items-center justify-center text-muted-foreground text-sm">
-        Could not load workspace. Please refresh.
+        ওয়ার্কস্পেস লোড করা যায়নি। অনুগ্রহ করে রিফ্রেশ করুন।
       </div>
     );
   }

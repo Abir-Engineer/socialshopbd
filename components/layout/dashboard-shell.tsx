@@ -88,8 +88,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <div className="flex">
         <aside className="hidden h-screen w-64 border-r border-border bg-card md:sticky md:top-0 md:block">
           <div className="border-b border-border px-6 py-5">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Social Shop BD</p>
-            <h1 className="mt-1 text-xl font-semibold text-card-foreground">SaaS Panel</h1>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">সোশ্যাল শপ বিডি</p>
+            <h1 className="mt-1 text-xl font-semibold text-card-foreground">সাস প্যানেল</h1>
           </div>
           <NavLinks userRole={userRole} />
         </aside>
@@ -109,13 +109,13 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           }`}
         >
           <div className="flex items-center justify-between border-b border-border px-6 py-5">
-            <h2 className="text-lg font-semibold text-card-foreground">Social Shop BD</h2>
+            <h2 className="text-lg font-semibold text-card-foreground">সোশ্যাল শপ বিডি</h2>
             <button
               type="button"
               onClick={() => setSidebarOpen(false)}
               className="rounded-md border border-border px-2 py-1 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
             >
-              Close
+              বন্ধ
             </button>
           </div>
           <NavLinks onNavigate={() => setSidebarOpen(false)} userRole={userRole} />
@@ -144,9 +144,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 </button>
                 <div>
                   <p className="text-sm font-medium text-foreground">
-                    Welcome back, {userName ?? "Admin"}
+                    স্বাগতম, {userName ?? "অ্যাডমিন"}
                   </p>
-                  <p className="text-xs text-muted-foreground">Manage orders, products, and growth</p>
+                  <p className="text-xs text-muted-foreground">অর্ডার, পণ্য ও গ্রোথ ম্যানেজ করুন</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">

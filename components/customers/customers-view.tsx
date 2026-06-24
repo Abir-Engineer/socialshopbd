@@ -33,8 +33,8 @@ export function CustomersView({ initialCustomers, role = "viewer" }: CustomersVi
 
   const emptyIsDatabase = initialCustomers.length === 0;
   const emptyMessage = emptyIsDatabase
-    ? "No customers yet. Add a customer to start your CRM."
-    : "No customers match this phone search.";
+    ? "এখনো কোনো গ্রাহক নেই। আপনার সিআরএম শুরু করতে একজন গ্রাহক যোগ করুন।"
+    : "এই ফোন অনুসন্ধানের সাথে কোনো গ্রাহক মেলেনি।";
 
   const handleCreate = (formData: FormData) => {
     setCreateError(null);
@@ -45,7 +45,7 @@ export function CustomersView({ initialCustomers, role = "viewer" }: CustomersVi
         return;
       }
       setCreateOpen(false);
-      toast.success("Customer created successfully.");
+      toast.success("গ্রাহক সফলভাবে তৈরি হয়েছে।");
       router.refresh();
     });
   };
@@ -59,7 +59,7 @@ export function CustomersView({ initialCustomers, role = "viewer" }: CustomersVi
         return;
       }
       setProfileCustomer(null);
-      toast.success("Customer profile saved.");
+      toast.success("গ্রাহক প্রোফাইল সংরক্ষিত হয়েছে।");
       router.refresh();
     });
   };
@@ -69,11 +69,11 @@ export function CustomersView({ initialCustomers, role = "viewer" }: CustomersVi
 
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Customers</h1>
-          <p className="text-sm text-muted-foreground">CRM profiles, notes, and order history in one place.</p>
+          <h1 className="text-2xl font-semibold text-foreground">গ্রাহক</h1>
+          <p className="text-sm text-muted-foreground">সিআরএম প্রোফাইল, নোট এবং অর্ডার ইতিহাস এক জায়গায়।</p>
           {isPending && (
             <p className="mt-1 text-xs text-muted-foreground" aria-live="polite">
-              Saving…
+              সংরক্ষণ করা হচ্ছে…
             </p>
           )}
         </div>
@@ -86,7 +86,7 @@ export function CustomersView({ initialCustomers, role = "viewer" }: CustomersVi
             }}
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
           >
-            Add Customer
+            গ্রাহক যোগ করুন
           </button>
         )}
       </header>
@@ -94,12 +94,12 @@ export function CustomersView({ initialCustomers, role = "viewer" }: CustomersVi
       <div className="rounded-xl border border-border bg-card shadow-sm">
         <div className="space-y-3 border-b border-border px-4 py-4 sm:px-5">
           <p className="text-sm text-muted-foreground">
-            Showing {filteredCustomers.length} customer{filteredCustomers.length === 1 ? "" : "s"}
-            {phoneQuery.trim() !== "" ? " (phone filter)" : ""}
+              মোট {filteredCustomers.length} জন গ্রাহক
+              {phoneQuery.trim() !== "" ? " (ফোন ফিল্টার)" : ""}
           </p>
           <div className="max-w-sm">
             <label htmlFor={phoneSearchId} className="text-xs font-medium text-muted-foreground">
-              Search by phone
+              ফোন দিয়ে খুঁজুন
             </label>
             <div className="relative mt-1.5">
               <input
@@ -107,7 +107,7 @@ export function CustomersView({ initialCustomers, role = "viewer" }: CustomersVi
                 type="search"
                 value={phoneQuery}
                 onChange={(e) => setPhoneQuery(e.target.value)}
-                placeholder="Digits only, e.g. 01712…"
+                placeholder="শুধু সংখ্যা, যেমন ০১৭১২…"
                 className="w-full rounded-lg border border-border bg-background py-2 pl-3 pr-9 text-sm text-foreground outline-none transition focus:border-blue-500"
                 autoComplete="off"
               />
@@ -116,7 +116,7 @@ export function CustomersView({ initialCustomers, role = "viewer" }: CustomersVi
                   type="button"
                   onClick={() => setPhoneQuery("")}
                   className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-                  aria-label="Clear phone search"
+                  aria-label="ফোন অনুসন্ধান বাতিল"
                 >
                   ×
                 </button>
@@ -132,20 +132,20 @@ export function CustomersView({ initialCustomers, role = "viewer" }: CustomersVi
               aria-hidden
             >
               <span className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground shadow-sm">
-                Loading…
+                লোড হচ্ছে…
               </span>
             </div>
           )}
           <table className="min-w-[720px] w-full text-left text-sm">
             <thead className="text-muted-foreground">
               <tr className="border-b border-border">
-                <th className="px-3 py-3 font-medium sm:px-5">Customer</th>
-                <th className="whitespace-nowrap px-3 py-3 font-medium sm:px-5">Phone</th>
-                <th className="min-w-[6rem] px-3 py-3 font-medium sm:px-5">Email</th>
-                <th className="whitespace-nowrap px-3 py-3 font-medium sm:px-5">Orders</th>
-                <th className="whitespace-nowrap px-3 py-3 font-medium sm:px-5">Total spent</th>
-                <th className="whitespace-nowrap px-3 py-3 font-medium sm:px-5">Type</th>
-                <th className="whitespace-nowrap px-3 py-3 font-medium sm:px-5">Actions</th>
+                <th className="px-3 py-3 font-medium sm:px-5">গ্রাহক</th>
+                <th className="whitespace-nowrap px-3 py-3 font-medium sm:px-5">ফোন</th>
+                <th className="min-w-[6rem] px-3 py-3 font-medium sm:px-5">ইমেল</th>
+                <th className="whitespace-nowrap px-3 py-3 font-medium sm:px-5">অর্ডার</th>
+                <th className="whitespace-nowrap px-3 py-3 font-medium sm:px-5">মোট খরচ</th>
+                <th className="whitespace-nowrap px-3 py-3 font-medium sm:px-5">ধরন</th>
+                <th className="whitespace-nowrap px-3 py-3 font-medium sm:px-5">কার্যক্রম</th>
               </tr>
             </thead>
             <tbody>
@@ -161,11 +161,11 @@ export function CustomersView({ initialCustomers, role = "viewer" }: CustomersVi
                   <td className="px-3 py-4 sm:px-5">
                     {c.isRepeat ? (
                       <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200">
-                        Repeat
+                        পুনরাবৃত্তি
                       </span>
                     ) : (
                       <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                        New
+                        নতুন
                       </span>
                     )}
                   </td>
@@ -178,7 +178,7 @@ export function CustomersView({ initialCustomers, role = "viewer" }: CustomersVi
                       }}
                       className="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
                     >
-                      View
+                      দেখুন
                     </button>
                   </td>
                 </tr>
@@ -188,7 +188,7 @@ export function CustomersView({ initialCustomers, role = "viewer" }: CustomersVi
                   <td colSpan={7} className="px-5 py-14 text-center">
                     <div className="mx-auto max-w-sm space-y-2">
                       <p className="text-base font-medium text-foreground">
-                        {emptyIsDatabase ? "No customers yet" : "No matching customers"}
+                        {emptyIsDatabase ? "এখনো কোনো গ্রাহক নেই" : "কোনো মিলে যাওয়া গ্রাহক নেই"}
                       </p>
                       <p className="text-sm text-muted-foreground">{emptyMessage}</p>
                     </div>
@@ -202,8 +202,8 @@ export function CustomersView({ initialCustomers, role = "viewer" }: CustomersVi
 
       {createOpen && (
         <CustomerFormModal
-          title="Add customer"
-          submitLabel="Create customer"
+          title="গ্রাহক যোগ করুন"
+          submitLabel="গ্রাহক তৈরি করুন"
           onClose={() => {
             setCreateOpen(false);
             setCreateError(null);
@@ -267,7 +267,7 @@ function CustomerFormModal({ title, submitLabel, initial, onClose, onSubmit, err
         >
           {initial && <input type="hidden" name="id" value={initial.id} />}
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Full name</span>
+            <span className="text-sm font-medium text-card-foreground">সম্পূর্ণ নাম</span>
             <input
               name="name"
               required
@@ -277,7 +277,7 @@ function CustomerFormModal({ title, submitLabel, initial, onClose, onSubmit, err
             />
           </label>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Phone</span>
+            <span className="text-sm font-medium text-card-foreground">ফোন</span>
             <input
               name="phone"
               type="tel"
@@ -288,7 +288,7 @@ function CustomerFormModal({ title, submitLabel, initial, onClose, onSubmit, err
             />
           </label>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Email (optional)</span>
+            <span className="text-sm font-medium text-card-foreground">ইমেল (ঐচ্ছিক)</span>
             <input
               name="email"
               type="email"
@@ -298,13 +298,13 @@ function CustomerFormModal({ title, submitLabel, initial, onClose, onSubmit, err
             />
           </label>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Notes</span>
+            <span className="text-sm font-medium text-card-foreground">নোট</span>
             <textarea
               name="notes"
               rows={4}
               defaultValue={initial?.notes ?? ""}
               disabled={disabled}
-              placeholder="Preferences, follow-ups, support history…"
+              placeholder="পছন্দ, ফলো-আপ, সাপোর্ট ইতিহাস…"
               className="w-full resize-y rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500 disabled:opacity-60"
             />
           </label>
@@ -316,14 +316,14 @@ function CustomerFormModal({ title, submitLabel, initial, onClose, onSubmit, err
               onClick={onClose}
               className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-60"
             >
-              Cancel
+              বাতিল
             </button>
             <button
               type="submit"
               disabled={disabled}
               className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-70"
             >
-              {disabled ? "Please wait…" : submitLabel}
+              {disabled ? "অনুগ্রহ করে অপেক্ষা করুন…" : submitLabel}
             </button>
           </div>
         </form>
@@ -356,7 +356,7 @@ function CustomerProfileModal({ customer, onClose, onSubmit, error, disabled, ro
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 id="customer-profile-title" className="text-lg font-semibold text-card-foreground">
-              Customer profile
+              গ্রাহক প্রোফাইল
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">{customer.fullName}</p>
           </div>
@@ -365,7 +365,7 @@ function CustomerProfileModal({ customer, onClose, onSubmit, error, disabled, ro
             onClick={onClose}
             disabled={disabled}
             className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
-            aria-label="Close"
+            aria-label="বন্ধ"
           >
             ×
           </button>
@@ -373,23 +373,23 @@ function CustomerProfileModal({ customer, onClose, onSubmit, error, disabled, ro
 
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
           <div className="rounded-lg border border-border bg-muted/30 px-3 py-3">
-            <p className="text-xs text-muted-foreground">Total orders</p>
+            <p className="text-xs text-muted-foreground">মোট অর্ডার</p>
             <p className="mt-1 text-lg font-semibold text-card-foreground">{customer.orderCount}</p>
-            <p className="mt-1 text-xs text-muted-foreground">Linked orders only</p>
+            <p className="mt-1 text-xs text-muted-foreground">শুধুমাত্র লিঙ্কযুক্ত অর্ডার</p>
           </div>
           <div className="rounded-lg border border-border bg-muted/30 px-3 py-3">
-            <p className="text-xs text-muted-foreground">Total spent</p>
+            <p className="text-xs text-muted-foreground">মোট খরচ</p>
             <p className="mt-1 text-lg font-semibold text-card-foreground">{customer.totalSpentLabel}</p>
           </div>
           <div className="rounded-lg border border-border bg-muted/30 px-3 py-3">
-            <p className="text-xs text-muted-foreground">Repeat customer</p>
-            <p className="mt-1 text-lg font-semibold text-card-foreground">{customer.isRepeat ? "Yes" : "No"}</p>
-            <p className="mt-1 text-xs text-muted-foreground">{customer.isRepeat ? "2+ linked orders" : "0–1 orders"}</p>
+            <p className="text-xs text-muted-foreground">পুনরাবৃত্তি গ্রাহক</p>
+            <p className="mt-1 text-lg font-semibold text-card-foreground">{customer.isRepeat ? "হ্যাঁ" : "না"}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{customer.isRepeat ? "২+ লিঙ্কযুক্ত অর্ডার" : "০-১ অর্ডার"}</p>
           </div>
         </div>
 
         <p className="mt-4 text-xs text-muted-foreground">
-          Created {customer.createdAtLabel} · Updated {customer.updatedAtLabel}
+          তৈরি {customer.createdAtLabel} · আপডেট {customer.updatedAtLabel}
         </p>
 
         <form
@@ -401,7 +401,7 @@ function CustomerProfileModal({ customer, onClose, onSubmit, error, disabled, ro
         >
           <input type="hidden" name="id" value={customer.id} />
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Full name</span>
+            <span className="text-sm font-medium text-card-foreground">সম্পূর্ণ নাম</span>
             <input
               name="name"
               required
@@ -411,7 +411,7 @@ function CustomerProfileModal({ customer, onClose, onSubmit, error, disabled, ro
             />
           </label>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Phone</span>
+            <span className="text-sm font-medium text-card-foreground">ফোন</span>
             <input
               name="phone"
               type="tel"
@@ -422,7 +422,7 @@ function CustomerProfileModal({ customer, onClose, onSubmit, error, disabled, ro
             />
           </label>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Email (optional)</span>
+            <span className="text-sm font-medium text-card-foreground">ইমেল (ঐচ্ছিক)</span>
             <input
               name="email"
               type="email"
@@ -432,13 +432,13 @@ function CustomerProfileModal({ customer, onClose, onSubmit, error, disabled, ro
             />
           </label>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Notes</span>
+            <span className="text-sm font-medium text-card-foreground">নোট</span>
             <textarea
               name="notes"
               rows={5}
               defaultValue={customer.notes}
               disabled={disabled || role === "viewer"}
-              placeholder="CRM notes…"
+              placeholder="সিআরএম নোট…"
               className="w-full resize-y rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500 disabled:opacity-60"
             />
           </label>
@@ -450,7 +450,7 @@ function CustomerProfileModal({ customer, onClose, onSubmit, error, disabled, ro
               onClick={onClose}
               className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-60"
             >
-              Close
+              বন্ধ
             </button>
             {role !== "viewer" && (
               <button
@@ -458,7 +458,7 @@ function CustomerProfileModal({ customer, onClose, onSubmit, error, disabled, ro
                 disabled={disabled}
                 className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-70"
               >
-                {disabled ? "Saving…" : "Save profile"}
+                {disabled ? "সংরক্ষণ করা হচ্ছে…" : "প্রোফাইল সংরক্ষণ করুন"}
               </button>
             )}
           </div>

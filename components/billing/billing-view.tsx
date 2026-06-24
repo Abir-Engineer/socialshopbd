@@ -17,12 +17,12 @@ interface BillingViewProps {
 
 const ALERT_MESSAGES: Record<string, { title: string; message: string }> = {
   trial_expired: {
-    title: "Your free trial has ended",
-    message: "Upgrade to Pro to continue using all features, or stay on the Free plan with limited access.",
+    title: "আপনার ফ্রি ট্রায়াল শেষ হয়েছে",
+    message: "সমস্ত বৈশিষ্ট্য ব্যবহার চালিয়ে যেতে প্রো-তে আপগ্রেড করুন, বা সীমিত অ্যাক্সেস সহ ফ্রি প্ল্যানে থাকুন।",
   },
   payment_required: {
-    title: "Payment required",
-    message: "Your last payment failed. Please update your billing information to restore full access.",
+    title: "পেমেন্ট প্রয়োজন",
+    message: "আপনার শেষ পেমেন্ট ব্যর্থ হয়েছে। পূর্ণ অ্যাক্সেস পুনরুদ্ধার করতে আপনার বিলিং তথ্য আপডেট করুন।",
   },
 };
 
@@ -52,14 +52,14 @@ export function BillingView({ context, usage, alertReason }: BillingViewProps) {
         });
         const json = await res.json();
         if (!res.ok) {
-          setCheckoutError(json.error ?? "Checkout failed. Please try again.");
+          setCheckoutError(json.error ?? "চেকআউট ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।");
           return;
         }
         if (json.redirect_url) {
           window.location.href = json.redirect_url;
         }
       } catch {
-        setCheckoutError("Network error. Please check your connection and try again.");
+        setCheckoutError("নেটওয়ার্ক ত্রুটি। আপনার সংযোগ পরীক্ষা করুন এবং আবার চেষ্টা করুন।");
       }
     });
   };
@@ -71,7 +71,7 @@ export function BillingView({ context, usage, alertReason }: BillingViewProps) {
         const json = await res.json();
         if (json.url) window.location.href = json.url;
       } catch {
-        setCheckoutError("Could not open billing portal. Please try again.");
+        setCheckoutError("বিলিং পোর্টাল খোলা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।");
       }
     });
   };
@@ -97,9 +97,9 @@ export function BillingView({ context, usage, alertReason }: BillingViewProps) {
       {/* Header */}
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Billing & Subscription</h1>
+          <h1 className="text-2xl font-semibold text-foreground">বিলিং ও সাবস্ক্রিপশন</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage your plan, usage limits, and payment information.
+            আপনার প্ল্যান, ব্যবহারের সীমা এবং পেমেন্ট তথ্য পরিচালনা করুন।
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -113,7 +113,7 @@ export function BillingView({ context, usage, alertReason }: BillingViewProps) {
               disabled={isPending}
               className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition disabled:opacity-60 cursor-pointer"
             >
-              Manage Billing
+              বিলিং ম্যানেজ করুন
             </button>
           )}
         </div>
@@ -123,18 +123,18 @@ export function BillingView({ context, usage, alertReason }: BillingViewProps) {
       <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">Current Plan</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">বর্তমান প্ল্যান</p>
             <p className="mt-1 text-xl font-semibold text-card-foreground">{currentPlanDetails?.name ?? plan}</p>
             <p className="mt-0.5 text-sm text-muted-foreground">{currentPlanDetails?.tagline}</p>
           </div>
           <div className="text-right">
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">Billing</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">বিলিং</p>
             <p className="mt-1 text-xl font-semibold text-card-foreground">
               {formatPlanPrice(plan, "bdt")}
             </p>
             {plan === "pro" && context.currentPeriodEnd && (
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Renews {new Date(context.currentPeriodEnd).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                নবায়ন হয় {new Date(context.currentPeriodEnd).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
               </p>
             )}
           </div>
@@ -143,9 +143,9 @@ export function BillingView({ context, usage, alertReason }: BillingViewProps) {
         {plan === "free_trial" && (
           <div className="mt-4 border-t border-border pt-4">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Trial period</span>
+              <span className="text-muted-foreground">ট্রায়াল পিরিয়ড</span>
               <span className={`font-medium ${trialExpired ? "text-rose-600" : daysLeft <= 3 ? "text-amber-600" : "text-foreground"}`}>
-                {trialExpired ? "Expired" : `${daysLeft} day${daysLeft === 1 ? "" : "s"} remaining`}
+                {trialExpired ? "মেয়াদ উত্তীর্ণ" : `${daysLeft} দিন বাকি`}
               </span>
             </div>
             {!trialExpired && (
@@ -163,31 +163,31 @@ export function BillingView({ context, usage, alertReason }: BillingViewProps) {
       {/* Usage Meters */}
       {(plan === "free" || plan === "free_trial") && (
         <div className="space-y-4">
-          <h2 className="text-base font-semibold text-foreground">Usage This Period</h2>
+          <h2 className="text-base font-semibold text-foreground">এই সময়ের ব্যবহার</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <UsageMeter
-              label="Orders (this month)"
+              label="অর্ডার (এই মাসে)"
               current={usage.ordersThisMonth}
               limit={plan === "free" ? freeLimits.orders_per_month : null}
-              unit="orders"
+              unit="অর্ডার"
             />
             <UsageMeter
-              label="Products"
+              label="পণ্য"
               current={usage.productsTotal}
               limit={plan === "free" ? freeLimits.products_total : null}
-              unit="products"
+              unit="পণ্য"
             />
             <UsageMeter
-              label="Customers"
+              label="গ্রাহক"
               current={usage.customersTotal}
               limit={plan === "free" ? freeLimits.customers_total : null}
-              unit="customers"
+              unit="গ্রাহক"
             />
             <UsageMeter
-              label="Team Members"
+              label="টিম সদস্য"
               current={usage.staffTotal}
               limit={plan === "free" ? freeLimits.staff_members : null}
-              unit="members"
+              unit="সদস্য"
             />
           </div>
         </div>
@@ -196,10 +196,10 @@ export function BillingView({ context, usage, alertReason }: BillingViewProps) {
       {plan === "pro" && (
         <div className="grid gap-4 sm:grid-cols-4">
           {[
-            { label: "Total Orders", value: usage.ordersTotal.toLocaleString() },
-            { label: "Total Products", value: usage.productsTotal.toLocaleString() },
-            { label: "Total Customers", value: usage.customersTotal.toLocaleString() },
-            { label: "Team Members", value: `${usage.staffTotal} / ${formatLimit(PLAN_DETAILS.pro.limits.staff_members)}` },
+            { label: "মোট অর্ডার", value: usage.ordersTotal.toLocaleString() },
+            { label: "মোট পণ্য", value: usage.productsTotal.toLocaleString() },
+            { label: "মোট গ্রাহক", value: usage.customersTotal.toLocaleString() },
+            { label: "টিম সদস্য", value: `${usage.staffTotal} / ${formatLimit(PLAN_DETAILS.pro.limits.staff_members)}` },
           ].map((item) => (
             <div key={item.label} className="rounded-xl border border-border bg-card p-4 shadow-sm">
               <p className="text-xs text-muted-foreground">{item.label}</p>
@@ -212,7 +212,7 @@ export function BillingView({ context, usage, alertReason }: BillingViewProps) {
       {/* Pricing Cards */}
       {plan !== "pro" && plan !== "enterprise" && (
         <div className="space-y-5">
-          <h2 className="text-base font-semibold text-foreground">Available Plans</h2>
+          <h2 className="text-base font-semibold text-foreground">উপলব্ধ প্ল্যান</h2>
 
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <PlanCard plan={PLAN_DETAILS.free} isCurrent={plan === "free"} isUpgrade={false} />
@@ -224,22 +224,22 @@ export function BillingView({ context, usage, alertReason }: BillingViewProps) {
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-semibold text-foreground">Enterprise</p>
-                <p className="mt-1 text-xs text-muted-foreground">Custom limits, SLA, dedicated support, and more.</p>
+                <p className="text-sm font-semibold text-foreground">এন্টারপ্রাইজ</p>
+                <p className="mt-1 text-xs text-muted-foreground">কাস্টম সীমা, SLA, ডেডিকেটেড সাপোর্ট এবং আরও অনেক কিছু।</p>
               </div>
               <a
                 href="mailto:support@socialshopbd.com?subject=Enterprise%20Plan%20Inquiry"
                 className="rounded-lg border border-border px-4 py-2 text-xs font-medium text-foreground hover:bg-muted transition"
               >
-                Contact Sales
+                সেলস-এ যোগাযোগ করুন
               </a>
             </div>
           </div>
 
           {/* Payment provider selector + checkout */}
           <div className="rounded-xl border border-blue-200 bg-blue-50/50 dark:border-blue-900/50 dark:bg-blue-950/10 p-5">
-            <h3 className="text-sm font-semibold text-foreground">Upgrade to Pro</h3>
-            <p className="mt-1 text-sm text-muted-foreground">Choose your preferred payment method:</p>
+            <h3 className="text-sm font-semibold text-foreground">প্রো-তে আপগ্রেড করুন</h3>
+            <p className="mt-1 text-sm text-muted-foreground">আপনার পছন্দের পেমেন্ট পদ্ধতি বেছে নিন:</p>
 
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-2 max-w-sm">
               <button
@@ -252,8 +252,8 @@ export function BillingView({ context, usage, alertReason }: BillingViewProps) {
                 }`}
               >
                 <span className="text-lg">🇧🇩</span>
-                <span className="text-xs font-medium text-foreground">SSLCommerz</span>
-                <span className="text-[10px] text-muted-foreground">bKash, Nagad, Cards</span>
+                <span className="text-xs font-medium text-foreground">এসএসএলকমার্জ</span>
+                <span className="text-[10px] text-muted-foreground">বিকাশ, নগদ, কার্ড</span>
               </button>
               <button
                 type="button"
@@ -266,7 +266,7 @@ export function BillingView({ context, usage, alertReason }: BillingViewProps) {
               >
                 <span className="text-lg">💳</span>
                 <span className="text-xs font-medium text-foreground">Stripe</span>
-                <span className="text-[10px] text-muted-foreground">International Cards</span>
+                <span className="text-[10px] text-muted-foreground">আন্তর্জাতিক কার্ড</span>
               </button>
             </div>
 
@@ -285,15 +285,15 @@ export function BillingView({ context, usage, alertReason }: BillingViewProps) {
               {isPending ? (
                 <>
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                  Preparing checkout…
+                  চেকআউট প্রস্তুত করা হচ্ছে…
                 </>
               ) : (
                 <>
-                  Upgrade to Pro — {selectedProvider === "sslcommerz" ? "৳999/mo" : "$9/mo"}
+                  প্রো-তে আপগ্রেড করুন — {selectedProvider === "sslcommerz" ? "৳999/mo" : "$9/mo"}
                 </>
               )}
             </button>
-            <p className="mt-2 text-xs text-muted-foreground">Cancel anytime. No long-term contracts.</p>
+            <p className="mt-2 text-xs text-muted-foreground">যেকোনো সময় বাতিল করুন। কোনো দীর্ঘমেয়াদী চুক্তি নেই।</p>
           </div>
         </div>
       )}
@@ -303,10 +303,10 @@ export function BillingView({ context, usage, alertReason }: BillingViewProps) {
         <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 dark:border-emerald-900/50 dark:bg-emerald-950/10 p-5">
           <div className="flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 text-white text-xs font-bold">✓</span>
-            <p className="font-medium text-foreground">You&apos;re on the {currentPlanDetails?.name} plan</p>
+            <p className="font-medium text-foreground">আপনি {currentPlanDetails?.name} প্ল্যানে আছেন</p>
           </div>
           <p className="mt-2 text-sm text-muted-foreground">
-            All features are unlocked. Use &ldquo;Manage Billing&rdquo; above to update payment method or cancel.
+            সমস্ত বৈশিষ্ট্য আনলক করা আছে। পেমেন্ট পদ্ধতি আপডেট করতে বা বাতিল করতে উপরের &ldquo;বিলিং ম্যানেজ করুন&rdquo; ব্যবহার করুন।
           </p>
         </div>
       )}

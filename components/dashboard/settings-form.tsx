@@ -6,12 +6,12 @@ import type { User } from "@supabase/supabase-js";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const TABS = [
-  { key: "shop", label: "Shop settings" },
-  { key: "business", label: "Business info" },
-  { key: "notifications", label: "Notifications" },
-  { key: "security", label: "Security" },
-  { key: "subscription", label: "Subscription" },
-  { key: "danger", label: "Danger zone" },
+  { key: "shop", label: "দোকান সেটিংস" },
+  { key: "business", label: "ব্যবসায়িক তথ্য" },
+  { key: "notifications", label: "নোটিফিকেশন" },
+  { key: "security", label: "নিরাপত্তা" },
+  { key: "subscription", label: "সাবস্ক্রিপশন" },
+  { key: "danger", label: "বিপদ অঞ্চল" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -240,7 +240,7 @@ export function SettingsForm() {
         try {
           finalLogoUrl = await compressAndResizeImage(shopLogoFile);
         } catch {
-          setError("Unable to read shop logo image. Please choose another file.");
+          setError("দোকানের লোগো ইমেজ পড়া যাচ্ছে না। অনুগ্রহ করে অন্য একটি ফাইল নির্বাচন করুন।");
           setIsSaving(false);
           setSavingTab(null);
           return;
@@ -282,7 +282,7 @@ export function SettingsForm() {
       if (section === "shop") {
         const cleanedSlug = shopSlug.trim().toLowerCase().replace(/[^a-z0-9-]/g, "");
         if (!cleanedSlug) {
-          setError("Shop URL slug cannot be empty and must be alphanumeric.");
+          setError("দোকানের ইউআরএল স্লাগ খালি হতে পারবে না এবং আলফানিউমেরিক হতে হবে।");
           setIsSaving(false);
           setSavingTab(null);
           return;
@@ -300,7 +300,7 @@ export function SettingsForm() {
         }, { onConflict: "user_id" });
 
         if (dbError) {
-          setError("Failed to sync shop metadata: " + dbError.message);
+          setError("দোকানের মেটাডেটা সিঙ্ক করতে ব্যর্থ: " + dbError.message);
           setIsSaving(false);
           setSavingTab(null);
           return;
@@ -313,7 +313,7 @@ export function SettingsForm() {
 
       if (section === "security") {
         if (newPassword && newPassword !== confirmPassword) {
-          setError("New password and confirm password do not match.");
+          setError("নতুন পাসওয়ার্ড এবং পাসওয়ার্ড নিশ্চিতকরণ মেলে না।");
           setIsSaving(false);
           setSavingTab(null);
           return;
@@ -325,7 +325,7 @@ export function SettingsForm() {
       }
 
       if (!updates.data && !updates.password) {
-        setInfo("Nothing to save for this section.");
+        setInfo("এই বিভাগের জন্য সংরক্ষণ করার কিছু নেই।");
         return;
       }
 
@@ -365,8 +365,8 @@ export function SettingsForm() {
         });
       }
 
-      setInfo("Settings saved successfully.");
-      showToast("Saved successfully.", "success");
+      setInfo("সেটিংস সফলভাবে সংরক্ষিত হয়েছে।");
+      showToast("সফলভাবে সংরক্ষিত হয়েছে।", "success");
       if (section === "security") {
         setCurrentPassword("");
         setNewPassword("");
@@ -396,9 +396,9 @@ export function SettingsForm() {
     if (!updateError) {
       setCurrentPlan(plan);
       setCurrentExpiry(formattedExpiry);
-      showToast(`Successfully upgraded to ${plan} Plan!`, "success");
+      showToast(`${plan} প্ল্যানে সফলভাবে আপগ্রেড করা হয়েছে!`, "success");
     } else {
-      showToast(`Upgrade failed: ${updateError.message}`, "error");
+      showToast(`আপগ্রেড ব্যর্থ হয়েছে: ${updateError.message}`, "error");
     }
   };
 
@@ -416,15 +416,15 @@ export function SettingsForm() {
       const response = await fetch("/api/delete-account", { method: "POST" });
       const result = await response.json();
       if (!response.ok) {
-        setError(result.error || "Unable to delete account.");
+        setError(result.error || "অ্যাকাউন্ট মুছতে অক্ষম।");
         return;
       }
-      showToast("Account deleted.", "success");
+      showToast("অ্যাকাউন্ট মুছে ফেলা হয়েছে।", "success");
       await getSupabaseBrowserClient().auth.signOut();
       router.replace("/login");
       router.refresh();
     } catch {
-      setError("Failed to delete account. Please try again.");
+      setError("অ্যাকাউন্ট মুছতে ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।");
     } finally {
       setIsSaving(false);
       setShowDeleteModal(false);
@@ -444,10 +444,10 @@ export function SettingsForm() {
     <div className="grid gap-6 xl:grid-cols-[240px_1fr]">
       <aside className="space-y-6 rounded-3xl border border-border bg-card p-6 shadow-sm">
         <div>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">Settings</p>
-          <h2 className="mt-2 text-xl font-semibold text-foreground">Configure your shop</h2>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">সেটিংস</p>
+          <h2 className="mt-2 text-xl font-semibold text-foreground">আপনার দোকান কনফিগার করুন</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Manage shop details, notifications, security and subscriptions from one place.
+            এক জায়গা থেকে দোকানের বিবরণ, নোটিফিকেশন, নিরাপত্তা এবং সাবস্ক্রিপশন পরিচালনা করুন।
           </p>
         </div>
 
@@ -478,8 +478,8 @@ export function SettingsForm() {
         <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Settings</p>
-              <h1 className="mt-2 text-2xl font-semibold text-foreground">App settings</h1>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">সেটিংস</p>
+              <h1 className="mt-2 text-2xl font-semibold text-foreground">অ্যাপ সেটিংস</h1>
             </div>
             <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
               <span>{user?.email}</span>
@@ -498,8 +498,8 @@ export function SettingsForm() {
           <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
             <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground">Shop settings</p>
-                <h2 className="mt-2 text-xl font-semibold text-foreground">Shop details</h2>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">দোকান সেটিংস</p>
+                <h2 className="mt-2 text-xl font-semibold text-foreground">দোকানের বিবরণ</h2>
               </div>
               <button
                 type="button"
@@ -507,14 +507,14 @@ export function SettingsForm() {
                 onClick={() => handleSaveSection("shop")}
                 className="inline-flex items-center justify-center rounded-3xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {savingTab === "shop" && isSaving ? "Saving…" : "Save shop settings"}
+                {savingTab === "shop" && isSaving ? "সংরক্ষণ করা হচ্ছে…" : "দোকান সেটিংস সংরক্ষণ"}
               </button>
             </div>
 
             <div className="grid gap-6">
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-foreground">Shop name</label>
+                  <label className="block text-sm font-medium text-foreground">দোকানের নাম</label>
                   <input
                     type="text"
                     value={shopName}
@@ -524,21 +524,21 @@ export function SettingsForm() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground">Currency</label>
+                  <label className="block text-sm font-medium text-foreground">মুদ্রা</label>
                   <select
                     value={shopCurrency}
                     onChange={(event) => setShopCurrency(event.target.value)}
                     className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition focus:border-blue-500"
                   >
-                    <option value="BDT">BDT</option>
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
+                    <option value="BDT">বিডিটি</option>
+                    <option value="USD">ইউএসডি</option>
+                    <option value="EUR">ইইউআর</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground">Shop URL Slug</label>
+                <label className="block text-sm font-medium text-foreground">দোকানের ইউআরএল স্লাগ</label>
                 <div className="mt-2 flex items-center rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground focus-within:border-blue-500 transition">
                   <span className="text-muted-foreground mr-1 select-none">/checkout/</span>
                   <input
@@ -551,7 +551,7 @@ export function SettingsForm() {
                 </div>
                 {shopSlug && (
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Your public checkout page will be live at:{" "}
+                                        আপনার পাবলিক চেকআউট পেজ এখানে লাইভ হবে: {" "}
                     <a
                       href={`/checkout/${shopSlug}`}
                       target="_blank"
@@ -565,18 +565,18 @@ export function SettingsForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground">Shop description</label>
+                <label className="block text-sm font-medium text-foreground">বিবরণ</label>
                 <textarea
                   value={shopDescription}
                   onChange={(event) => setShopDescription(event.target.value)}
                   rows={4}
-                  placeholder="Describe your shop and what you sell."
+                  placeholder="আপনার দোকান এবং আপনি কী বিক্রি করেন তা বর্ণনা করুন।"
                   className="mt-2 w-full rounded-3xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground">Address</label>
+                <label className="block text-sm font-medium text-foreground">ঠিকানা</label>
                 <input
                   type="text"
                   value={shopAddress}
@@ -588,18 +588,18 @@ export function SettingsForm() {
 
               <div className="grid gap-4 md:grid-cols-[240px_1fr] items-end">
                 <div className="rounded-3xl border border-border bg-muted p-4">
-                  <p className="text-sm font-medium text-foreground">Shop logo</p>
-                  <p className="mt-2 text-sm text-muted-foreground">Upload a logo for your shop profile.</p>
+                  <p className="text-sm font-medium text-foreground">লোগো</p>
+                  <p className="mt-2 text-sm text-muted-foreground">আপনার দোকান প্রোফাইলের জন্য একটি লোগো আপলোড করুন।</p>
                   <div className="mt-4 flex items-center gap-4">
                     <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-3xl bg-background">
                       {shopLogoPreview ? (
                         <img src={shopLogoPreview} alt="Shop logo preview" className="h-full w-full object-cover" />
                       ) : (
-                        <span className="text-sm text-muted-foreground">Preview</span>
+                        <span className="text-sm text-muted-foreground">প্রিভিউ</span>
                       )}
                     </div>
                     <label className="inline-flex cursor-pointer items-center rounded-full bg-muted px-4 py-2 text-sm font-medium text-foreground transition hover:bg-slate-700">
-                      Upload logo
+                      লোগো আপলোড
                       <input type="file" accept="image/*" onChange={handleShopLogoChange} className="sr-only" />
                     </label>
                   </div>
@@ -613,8 +613,8 @@ export function SettingsForm() {
           <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
             <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground">Business info</p>
-                <h2 className="mt-2 text-xl font-semibold text-foreground">Owner details</h2>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">ব্যবসায়িক তথ্য</p>
+                <h2 className="mt-2 text-xl font-semibold text-foreground">মালিকের বিবরণ</h2>
               </div>
               <button
                 type="button"
@@ -622,37 +622,37 @@ export function SettingsForm() {
                 onClick={() => handleSaveSection("business")}
                 className="inline-flex items-center justify-center rounded-3xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {savingTab === "business" && isSaving ? "Saving…" : "Save business info"}
+                {savingTab === "business" && isSaving ? "সংরক্ষণ করা হচ্ছে…" : "ব্যবসায়িক তথ্য সংরক্ষণ"}
               </button>
             </div>
 
             <div className="grid gap-6">
               <div>
-                <label className="block text-sm font-medium text-foreground">Owner name</label>
+                <label className="block text-sm font-medium text-foreground">মালিকের নাম</label>
                 <input
                   type="text"
                   value={ownerName}
                   onChange={(event) => setOwnerName(event.target.value)}
-                  placeholder="Owner name"
+                  placeholder="মালিকের নাম"
                   className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition focus:border-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground">Business type</label>
+                <label className="block text-sm font-medium text-foreground">ব্যবসায়ের ধরন</label>
                 <select
                   value={businessType}
                   onChange={(event) => setBusinessType(event.target.value)}
                   className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition focus:border-blue-500"
                 >
-                  <option value="">Select type</option>
-                  <option value="Retail">Retail</option>
-                  <option value="Wholesale">Wholesale</option>
-                  <option value="Service">Service</option>
-                  <option value="Marketplace">Marketplace</option>
+                  <option value="">ধরন নির্বাচন করুন</option>
+                  <option value="Retail">খুচরা</option>
+                  <option value="Wholesale">পাইকারি</option>
+                  <option value="Service">সার্ভিস</option>
+                  <option value="Marketplace">মার্কেটপ্লেস</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground">Website</label>
+                <label className="block text-sm font-medium text-foreground">ওয়েবসাইট</label>
                 <input
                   type="url"
                   value={websiteLink}
@@ -662,7 +662,7 @@ export function SettingsForm() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground">Facebook page link</label>
+                <label className="block text-sm font-medium text-foreground">ফেসবুক পেজ লিংক</label>
                 <input
                   type="url"
                   value={facebookLink}
@@ -679,8 +679,8 @@ export function SettingsForm() {
           <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
             <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground">Notifications</p>
-                <h2 className="mt-2 text-xl font-semibold text-foreground">Notification settings</h2>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">নোটিফিকেশন</p>
+                <h2 className="mt-2 text-xl font-semibold text-foreground">নোটিফিকেশন সেটিংস</h2>
               </div>
               <button
                 type="button"
@@ -688,29 +688,29 @@ export function SettingsForm() {
                 onClick={() => handleSaveSection("notifications")}
                 className="inline-flex items-center justify-center rounded-3xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {savingTab === "notifications" && isSaving ? "Saving…" : "Save notification settings"}
+                {savingTab === "notifications" && isSaving ? "সংরক্ষণ করা হচ্ছে…" : "নোটিফিকেশন সেটিংস সংরক্ষণ"}
               </button>
             </div>
 
             <div className="space-y-4">
               {[
                 {
-                  label: "Email notifications",
+                  label: "ইমেল নোটিফিকেশন",
                   state: emailNotifications,
                   setter: setEmailNotifications,
-                  description: "Receive platform updates and order summaries by email.",
+                  description: "ইমেলের মাধ্যমে প্ল্যাটফর্ম আপডেট এবং অর্ডার সারসংক্ষেপ গ্রহণ করুন।",
                 },
                 {
-                  label: "Order alerts",
+                  label: "অর্ডার সতর্কতা",
                   state: orderAlerts,
                   setter: setOrderAlerts,
-                  description: "Be notified when new orders arrive.",
+                  description: "নতুন অর্ডার এলে বিজ্ঞপ্তি পান।",
                 },
                 {
-                  label: "Low stock alerts",
+                  label: "স্বল্প স্টক সতর্কতা",
                   state: lowStockAlerts,
                   setter: setLowStockAlerts,
-                  description: "Get alerts when inventory runs low.",
+                  description: "ইনভেন্টরি কম হলে সতর্কতা পান।",
                 },
               ].map((item) => (
                 <label
@@ -737,8 +737,8 @@ export function SettingsForm() {
           <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
             <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground">Security</p>
-                <h2 className="mt-2 text-xl font-semibold text-foreground">Password & sessions</h2>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">নিরাপত্তা</p>
+                <h2 className="mt-2 text-xl font-semibold text-foreground">পাসওয়ার্ড ও সেশন</h2>
               </div>
               <div className="flex flex-wrap gap-3">
                 <button
@@ -747,53 +747,53 @@ export function SettingsForm() {
                   disabled={isSaving}
                   className="inline-flex items-center justify-center rounded-3xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  {savingTab === "security" && isSaving ? "Saving…" : "Change password"}
+                  {savingTab === "security" && isSaving ? "সংরক্ষণ করা হচ্ছে…" : "পাসওয়ার্ড পরিবর্তন"}
                 </button>
                 <button
                   type="button"
                   onClick={handleLogoutAllDevices}
                   className="inline-flex items-center justify-center rounded-3xl border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition hover:bg-muted"
                 >
-                  Logout from all devices
+                  সমস্ত ডিভাইস থেকে লগআউট
                 </button>
               </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-foreground">Current password</label>
+                <label className="block text-sm font-medium text-foreground">বর্তমান পাসওয়ার্ড</label>
                 <input
                   type="password"
                   value={currentPassword}
                   onChange={(event) => setCurrentPassword(event.target.value)}
-                  placeholder="Current password"
+                  placeholder="বর্তমান পাসওয়ার্ড"
                   className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition focus:border-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground">New password</label>
+                <label className="block text-sm font-medium text-foreground">নতুন পাসওয়ার্ড</label>
                 <input
                   type="password"
                   value={newPassword}
                   onChange={(event) => setNewPassword(event.target.value)}
-                  placeholder="New password"
+                  placeholder="নতুন পাসওয়ার্ড"
                   className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition focus:border-blue-500"
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-foreground">Confirm new password</label>
+                <label className="block text-sm font-medium text-foreground">নতুন পাসওয়ার্ড নিশ্চিত করুন</label>
                 <input
                   type="password"
                   value={confirmPassword}
                   onChange={(event) => setConfirmPassword(event.target.value)}
-                  placeholder="Confirm new password"
+                  placeholder="নতুন পাসওয়ার্ড নিশ্চিত করুন"
                   className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition focus:border-blue-500"
                 />
               </div>
             </div>
 
             <p className="mt-4 text-sm text-muted-foreground">
-              Changing your password will keep you logged in unless your session refreshes.
+              আপনার পাসওয়ার্ড পরিবর্তন করলে আপনি লগইন থাকবেন, যতক্ষণ না আপনার সেশন রিফ্রেশ হয়।
             </p>
           </section>
         ) : null}
@@ -801,32 +801,32 @@ export function SettingsForm() {
         {activeTab === "subscription" ? (
           <section className="rounded-3xl border border-border bg-card p-6 shadow-sm space-y-8">
             <div>
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Subscription & Billing</p>
-              <h2 className="mt-2 text-2xl font-bold text-foreground">SaaS Subscription Management</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Choose the plan that fits your business scaling needs.</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">সাবস্ক্রিপশন ও বিলিং</p>
+              <h2 className="mt-2 text-2xl font-bold text-foreground">সাবস্ক্রিপশন ব্যবস্থাপনা</h2>
+              <p className="mt-1 text-sm text-muted-foreground">আপনার ব্যবসার স্কেলিং প্রয়োজনের উপযোগী প্ল্যান বেছে নিন।</p>
             </div>
 
             {/* Current Active Plan Status Banner */}
             <div className="rounded-3xl border border-border bg-gradient-to-r from-blue-500/10 to-indigo-500/10 p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
-                <p className="text-xs uppercase font-bold tracking-wider text-blue-600 dark:text-blue-400">Currently Active</p>
-                <h3 className="text-2xl font-black mt-1 text-foreground">{currentPlan} Plan</h3>
-                <p className="text-sm text-muted-foreground mt-1">Valid until <span className="font-semibold text-foreground">{currentExpiry}</span></p>
+                <p className="text-xs uppercase font-bold tracking-wider text-blue-600 dark:text-blue-400">বর্তমানে সক্রিয়</p>
+                <h3 className="text-2xl font-black mt-1 text-foreground">{currentPlan} প্ল্যান</h3>
+                <p className="text-sm text-muted-foreground mt-1">বৈধ পর্যন্ত <span className="font-semibold text-foreground">{currentExpiry}</span></p>
               </div>
               <div className="text-right">
                 <span className="inline-flex rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                  ● Active Status
+                  ● সক্রিয় অবস্থা
                 </span>
-                <p className="text-xs text-muted-foreground mt-2">Auto-renew is disabled</p>
+                <p className="text-xs text-muted-foreground mt-2">অটো-রিনিউ অক্ষম</p>
               </div>
             </div>
 
             {/* Pricing Tiers Grid */}
             <div className="grid gap-6 md:grid-cols-3">
               {[
-                { name: "Starter", price: "Free", limit: "100 orders/mo", desc: "For starting micro-merchants.", popular: false },
-                { name: "Growth", price: "BDT 1,500/mo", limit: "1,000 orders/mo", desc: "For scaling social shops.", popular: true },
-                { name: "Enterprise", price: "BDT 4,500/mo", limit: "Unlimited orders", desc: "For full commerce automation.", popular: false }
+                { name: "Starter", price: "ফ্রি", limit: "মাসে ১০০ অর্ডার", desc: "ক্ষুদ্র ব্যবসায়ীদের শুরুর জন্য।", popular: false },
+                { name: "Growth", price: "মাসে বিডিটি ১,৫০০", limit: "মাসে ১,০০০ অর্ডার", desc: "সোশ্যাল শপ স্কেল করার জন্য।", popular: true },
+                { name: "Enterprise", price: "মাসে বিডিটি ৪,৫০০", limit: "সীমাহীন অর্ডার", desc: "পূর্ণ কমার্স অটোমেশনের জন্য।", popular: false }
               ].map((tier) => (
                 <div
                   key={tier.name}
@@ -840,7 +840,7 @@ export function SettingsForm() {
                 >
                   {tier.popular && (
                     <span className="absolute -top-3 left-6 rounded-full bg-indigo-600 px-3 py-1 text-[10px] font-bold text-white uppercase tracking-wider">
-                      Most Popular
+                      সর্বাধিক জনপ্রিয়
                     </span>
                   )}
                   <div>
@@ -855,7 +855,7 @@ export function SettingsForm() {
                       disabled
                       className="mt-6 w-full rounded-2xl bg-blue-500/20 py-2.5 text-xs font-semibold text-blue-600 dark:text-blue-400 cursor-default"
                     >
-                      Current Plan
+                      বর্তমান প্ল্যান
                     </button>
                   ) : (
                     <button
@@ -869,7 +869,7 @@ export function SettingsForm() {
                           : "bg-blue-600 text-white hover:bg-blue-700"
                       }`}
                     >
-                      Upgrade to {tier.name}
+                      {tier.name} এ আপগ্রেড করুন
                     </button>
                   )}
                 </div>
@@ -882,13 +882,13 @@ export function SettingsForm() {
           <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
             <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-xs uppercase tracking-widest text-rose-500">Danger zone</p>
-                <h2 className="mt-2 text-xl font-semibold text-foreground">Delete account</h2>
+                <p className="text-xs uppercase tracking-widest text-rose-500">বিপদ অঞ্চল</p>
+                <h2 className="mt-2 text-xl font-semibold text-foreground">অ্যাকাউন্ট মুছুন</h2>
               </div>
             </div>
 
             <p className="text-sm leading-6 text-muted-foreground">
-              Deleting your account will remove all your user data, shop settings, and sessions. This action cannot be undone.
+              আপনার অ্যাকাউন্ট মুছে ফেললে আপনার সমস্ত ব্যবহারকারী ডেটা, দোকান সেটিংস এবং সেশন মুছে যাবে। এই ক্রিয়া পূর্বাবস্থায় ফেরানো যাবে না।
             </p>
 
             <button
@@ -896,7 +896,7 @@ export function SettingsForm() {
               onClick={() => setShowDeleteModal(true)}
               className="mt-6 inline-flex items-center justify-center rounded-3xl bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-700"
             >
-              Delete account
+              অ্যাকাউন্ট মুছুন
             </button>
           </section>
         ) : null}
@@ -920,9 +920,9 @@ export function SettingsForm() {
       {showDeleteModal ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 px-4 py-6">
           <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl">
-            <h3 className="text-xl font-semibold text-foreground">Confirm account deletion</h3>
+            <h3 className="text-xl font-semibold text-foreground">অ্যাকাউন্ট মুছে ফেলার নিশ্চিতকরণ</h3>
             <p className="mt-4 text-sm leading-6 text-muted-foreground">
-              This action is irreversible. If you delete your account, all saved settings and profile data will be removed.
+              এই ক্রিয়া অপরিবর্তনীয়। আপনি যদি আপনার অ্যাকাউন্ট মুছে ফেলেন, তাহলে সমস্ত সংরক্ষিত সেটিংস এবং প্রোফাইল ডেটা সরিয়ে ফেলা হবে।
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
               <button
@@ -930,7 +930,7 @@ export function SettingsForm() {
                 onClick={() => setShowDeleteModal(false)}
                 className="inline-flex items-center justify-center rounded-3xl border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition hover:bg-muted"
               >
-                Cancel
+                বাতিল
               </button>
               <button
                 type="button"
@@ -938,7 +938,7 @@ export function SettingsForm() {
                 disabled={isSaving}
                 className="inline-flex items-center justify-center rounded-3xl bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {isSaving ? "Deleting…" : "Yes, delete account"}
+                {isSaving ? "মুছে ফেলা হচ্ছে…" : "হ্যাঁ, অ্যাকাউন্ট মুছুন"}
               </button>
             </div>
           </div>
@@ -950,10 +950,10 @@ export function SettingsForm() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 px-4 py-6">
           <div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-6">
             <div className="text-center">
-              <span className="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">Upgrade Request</span>
-              <h3 className="text-xl font-extrabold text-foreground mt-1">Select Payment Gateway</h3>
+              <span className="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">আপগ্রেড অনুরোধ</span>
+              <h3 className="text-xl font-extrabold text-foreground mt-1">পেমেন্ট গেটওয়ে নির্বাচন করুন</h3>
               <p className="text-sm text-muted-foreground mt-2">
-                Upgrading to <span className="font-semibold text-foreground">{pricingModalSelectedPlan} Plan</span> (Price: {pricingModalSelectedPlan === "Growth" ? "BDT 1,500" : "BDT 4,500"}/month)
+                এ আপগ্রেড করা হচ্ছে <span className="font-semibold text-foreground">{pricingModalSelectedPlan} প্ল্যান</span> (মূল্য: {pricingModalSelectedPlan === "Growth" ? "বিডিটি ১,৫০০" : "বিডিটি ৪,৫০০"}/মাস)
               </p>
             </div>
 
@@ -966,8 +966,8 @@ export function SettingsForm() {
                 className="flex items-center justify-between rounded-2xl border border-pink-500/20 bg-pink-500/5 p-4 text-left transition hover:bg-pink-500/10 focus:outline-none"
               >
                 <div>
-                  <span className="text-sm font-bold text-foreground">Pay with bKash</span>
-                  <p className="text-xs text-muted-foreground mt-0.5">Instant activation via bKash MFS</p>
+                  <span className="text-sm font-bold text-foreground">বিকাশ দিয়ে পেমেন্ট</span>
+                  <p className="text-xs text-muted-foreground mt-0.5">বিকাশ এমএফএস এর মাধ্যমে তাৎক্ষণিক অ্যাক্টিভেশন</p>
                 </div>
                 <div className="rounded-full bg-[#E2136E] text-white font-bold text-xs px-3 py-1.5 uppercase">
                   bKash
@@ -989,8 +989,8 @@ export function SettingsForm() {
                 className="flex items-center justify-between rounded-2xl border border-blue-500/20 bg-blue-500/5 p-4 text-left transition hover:bg-blue-500/10 focus:outline-none"
               >
                 <div>
-                  <span className="text-sm font-bold text-foreground">Cards / Netbanking</span>
-                  <p className="text-xs text-muted-foreground mt-0.5">Visa, Mastercard, Rocket, Nagad</p>
+                  <span className="text-sm font-bold text-foreground">কার্ড / নেটব্যাংকিং</span>
+                  <p className="text-xs text-muted-foreground mt-0.5">ভিসা, মাস্টারকার্ড, রকেট, নগদ</p>
                 </div>
                 <div className="rounded-full bg-blue-600 text-white font-bold text-[10px] px-2 py-1.5 uppercase">
                   SSLCommerz
@@ -1006,7 +1006,7 @@ export function SettingsForm() {
                 }}
                 className="rounded-full border border-border px-5 py-2 text-xs font-semibold text-foreground hover:bg-muted"
               >
-                Cancel
+                বাতিল
               </button>
             </div>
           </div>
@@ -1020,12 +1020,12 @@ export function SettingsForm() {
             
             {/* Authentic bKash Brand Header */}
             <div className="bg-[#E2136E] p-4 text-white text-center flex flex-col items-center relative">
-              <div className="font-bold text-lg tracking-wide uppercase">bKash Payment</div>
+              <div className="font-bold text-lg tracking-wide uppercase">বিকাশ পেমেন্ট</div>
               <div className="text-[10px] opacity-90 mt-1">Merchant: SocialShop BD Ltd</div>
               <div className="text-xl font-black mt-2">
                 ৳ {pricingModalSelectedPlan === "Growth" ? "1,500.00" : "4,500.00"}
               </div>
-              <div className="absolute top-2 right-2 text-white/50 text-[10px] font-mono">Invoice: INV-SUB-{invoiceNum}</div>
+              <div className="absolute top-2 right-2 text-white/50 text-[10px] font-mono">চালান: INV-SUB-{invoiceNum}</div>
             </div>
 
             {/* bKash Payment Wizard Body */}
@@ -1033,17 +1033,17 @@ export function SettingsForm() {
               {bkashStep === "phone" && (
                 <div className="space-y-4">
                   <div className="text-center text-xs font-medium text-neutral-600">
-                    Enter your bKash personal account number (11 digits)
+                    আপনার বিকাশ ব্যক্তিগত অ্যাকাউন্ট নম্বর লিখুন (১১ ডিজিট)
                   </div>
                   <input
                     type="text"
                     value={bkashPhone}
                     onChange={(e) => setBkashPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
-                    placeholder="e.g. 017XXXXXXXX"
+                    placeholder="যেমন ০১৭XXXXXXXX"
                     className="w-full text-center border-b-2 border-[#E2136E] bg-transparent py-2 text-lg font-bold outline-none text-neutral-800 placeholder-neutral-400 focus:border-neutral-800"
                   />
                   <p className="text-[10px] text-neutral-500 text-center leading-relaxed">
-                    By clicking on <b>Proceed</b>, you are agreeing to the terms & conditions of bKash merchant integration.
+                    <b>এগিয়ে যান</b> এ ক্লিক করার মাধ্যমে, আপনি বিকাশ মার্চেন্ট ইন্টিগ্রেশনের শর্তাবলীতে সম্মত হচ্ছেন।
                   </p>
                   <div className="flex gap-2">
                     <button
@@ -1053,7 +1053,7 @@ export function SettingsForm() {
                       }}
                       className="w-1/2 bg-neutral-300 py-2.5 rounded text-xs font-bold text-neutral-700 hover:bg-neutral-400 uppercase"
                     >
-                      Close
+                      বন্ধ
                     </button>
                     <button
                       onClick={() => {
@@ -1062,7 +1062,7 @@ export function SettingsForm() {
                       disabled={bkashPhone.length !== 11}
                       className="w-1/2 bg-[#E2136E] text-white py-2.5 rounded text-xs font-bold hover:bg-[#c0105b] uppercase disabled:opacity-50"
                     >
-                      Proceed
+                      এগিয়ে যান
                     </button>
                   </div>
                 </div>
@@ -1071,13 +1071,13 @@ export function SettingsForm() {
               {bkashStep === "otp" && (
                 <div className="space-y-4">
                   <div className="text-center text-xs font-medium text-neutral-600">
-                    A 6-digit verification code has been sent to <span className="font-bold">{bkashPhone}</span>
+                    একটি ৬-অঙ্কের ভেরিফিকেশন কোড পাঠানো হয়েছে <span className="font-bold">{bkashPhone}</span> এ
                   </div>
                   <input
                     type="text"
                     value={bkashOTP}
                     onChange={(e) => setBkashOTP(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                    placeholder="Enter OTP (e.g. 123456)"
+                    placeholder="ওটিপি লিখুন (যেমন ১২৩৪৫৬)"
                     className="w-full text-center border-b-2 border-[#E2136E] bg-transparent py-2 text-lg font-bold outline-none text-neutral-800 placeholder-neutral-400 focus:border-neutral-800"
                   />
                   <div className="flex gap-2">
@@ -1085,7 +1085,7 @@ export function SettingsForm() {
                       onClick={() => setBkashStep("phone")}
                       className="w-1/2 bg-neutral-300 py-2.5 rounded text-xs font-bold text-neutral-700 hover:bg-neutral-400 uppercase"
                     >
-                      Back
+                      পেছনে
                     </button>
                     <button
                       onClick={() => {
@@ -1094,7 +1094,7 @@ export function SettingsForm() {
                       disabled={bkashOTP.length !== 6}
                       className="w-1/2 bg-[#E2136E] text-white py-2.5 rounded text-xs font-bold hover:bg-[#c0105b] uppercase disabled:opacity-50"
                     >
-                      Proceed
+                      এগিয়ে যান
                     </button>
                   </div>
                 </div>
@@ -1103,7 +1103,7 @@ export function SettingsForm() {
               {bkashStep === "pin" && (
                 <div className="space-y-4">
                   <div className="text-center text-xs font-medium text-neutral-600">
-                    Enter your 5-digit bKash PIN to confirm transaction
+                    লেনদেন নিশ্চিত করতে আপনার ৫-অঙ্কের বিকাশ পিন লিখুন
                   </div>
                   <input
                     type="password"
@@ -1117,7 +1117,7 @@ export function SettingsForm() {
                       onClick={() => setBkashStep("otp")}
                       className="w-1/2 bg-neutral-300 py-2.5 rounded text-xs font-bold text-neutral-700 hover:bg-neutral-400 uppercase"
                     >
-                      Back
+                      পেছনে
                     </button>
                     <button
                       onClick={() => {
@@ -1138,7 +1138,7 @@ export function SettingsForm() {
                       disabled={bkashPIN.length !== 5}
                       className="w-1/2 bg-[#E2136E] text-white py-2.5 rounded text-xs font-bold hover:bg-[#c0105b] uppercase disabled:opacity-50"
                     >
-                      Confirm
+                      নিশ্চিত করুন
                     </button>
                   </div>
                 </div>
@@ -1148,8 +1148,8 @@ export function SettingsForm() {
                 <div className="py-6 text-center space-y-4 flex flex-col items-center">
                   <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#E2136E] border-t-transparent" />
                   <div>
-                    <p className="text-sm font-bold text-neutral-700">Verifying secure MFS gateway...</p>
-                    <p className="text-[10px] text-neutral-500 mt-1">Executing smart payment billing contract. Please wait.</p>
+                    <p className="text-sm font-bold text-neutral-700">সুরক্ষিত এমএফএস গেটওয়ে যাচাই করা হচ্ছে...</p>
+                    <p className="text-[10px] text-neutral-500 mt-1">স্মার্ট পেমেন্ট বিলিং কন্ট্রাক্ট এক্সিকিউট করা হচ্ছে। অনুগ্রহ করে অপেক্ষা করুন।</p>
                   </div>
                 </div>
               )}
@@ -1157,7 +1157,7 @@ export function SettingsForm() {
             
             {/* authentic footer branding */}
             <div className="bg-[#bd105c] py-2 text-center text-[10px] text-white font-medium uppercase tracking-widest">
-              Secured by bKash 24/7
+              বিকাশ ২৪/৭ দ্বারা সুরক্ষিত
             </div>
           </div>
         </div>

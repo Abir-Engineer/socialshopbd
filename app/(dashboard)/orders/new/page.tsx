@@ -32,14 +32,14 @@ export default function NewOrderPage() {
   return (
     <section className="space-y-6">
       <header>
-        <h1 className="text-2xl font-semibold text-foreground">Add New Order</h1>
-        <p className="text-sm text-muted-foreground">Create a new customer order.</p>
+        <h1 className="text-2xl font-semibold text-foreground">নতুন অর্ডার যোগ করুন</h1>
+        <p className="text-sm text-muted-foreground">একটি নতুন গ্রাহক অর্ডার তৈরি করুন।</p>
       </header>
 
       <div className="max-w-lg rounded-xl border border-border bg-card p-6 shadow-sm">
         <form className="space-y-4" onSubmit={handleSubmit}>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Order Number</span>
+            <span className="text-sm font-medium text-card-foreground">অর্ডার নম্বর</span>
             <input
               name="order_number"
               required
@@ -49,7 +49,7 @@ export default function NewOrderPage() {
             />
           </label>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Customer Name</span>
+            <span className="text-sm font-medium text-card-foreground">গ্রাহকের নাম</span>
             <input
               name="customer_name"
               required
@@ -58,7 +58,7 @@ export default function NewOrderPage() {
             />
           </label>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Amount (BDT)</span>
+            <span className="text-sm font-medium text-card-foreground">পরিমাণ (BDT)</span>
             <input
               name="amount_bdt"
               type="number"
@@ -71,7 +71,7 @@ export default function NewOrderPage() {
             />
           </label>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Status</span>
+            <span className="text-sm font-medium text-card-foreground">অবস্থা</span>
             <select
               name="status"
               required
@@ -98,14 +98,14 @@ export default function NewOrderPage() {
               disabled={isPending}
               className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-60 cursor-pointer"
             >
-              Cancel
+              বাতিল
             </button>
             <button
               type="submit"
               disabled={isPending}
               className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-70 cursor-pointer"
             >
-              {isPending ? "Saving…" : "Create Order"}
+              {isPending ? "সংরক্ষণ করা হচ্ছে…" : "অর্ডার তৈরি করুন"}
             </button>
           </div>
         </form>

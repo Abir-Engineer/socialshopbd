@@ -41,7 +41,7 @@ async function fetchMembersDirect(
     role: m.role,
     created_at: m.created_at,
     email: "",
-    full_name: "Team Member",
+    full_name: "টিম সদস্য",
   }));
 }
 
@@ -51,15 +51,15 @@ export async function StaffContent() {
     return (
       <section className="space-y-6">
         <header>
-          <h1 className="text-2xl font-semibold text-foreground">Staff Management</h1>
+          <h1 className="text-2xl font-semibold text-foreground">স্টাফ ম্যানেজমেন্ট</h1>
           <p className="text-sm text-muted-foreground">
-            Manage your team members and their access roles.
+            আপনার টিম সদস্যদের এবং তাদের অ্যাক্সেস ভূমিকা পরিচালনা করুন।
           </p>
         </header>
         <div className="rounded-xl border border-amber-200 bg-card p-5 text-sm text-amber-700 shadow-sm dark:border-amber-900 dark:text-amber-300">
-          <p className="font-medium">Workspace context could not be loaded.</p>
+          <p className="font-medium">ওয়ার্কস্পেস কন্টেক্সট লোড করা যায়নি।</p>
           <p className="mt-2 text-amber-600/90 dark:text-amber-400/90 text-xs">
-            Please ensure you have an active organization and run all migrations in your Supabase SQL Editor.
+            অনুগ্রহ করে নিশ্চিত করুন যে আপনার একটি সক্রিয় অর্গানাইজেশন আছে এবং আপনার Supabase SQL এডিটরে সমস্ত মাইগ্রেশন চালান।
           </p>
         </div>
       </section>
@@ -90,13 +90,13 @@ export async function StaffContent() {
     return (
       <section className="space-y-6">
         <header>
-          <h1 className="text-2xl font-semibold text-foreground">Staff Management</h1>
+          <h1 className="text-2xl font-semibold text-foreground">স্টাফ ম্যানেজমেন্ট</h1>
           <p className="text-sm text-muted-foreground">
-            Manage your team members and their access roles.
+            আপনার টিম সদস্যদের এবং তাদের অ্যাক্সেস ভূমিকা পরিচালনা করুন।
           </p>
         </header>
         <div className="rounded-xl border border-rose-200 bg-card p-5 text-sm text-rose-700 shadow-sm dark:border-rose-900 dark:text-rose-300">
-          <p className="font-medium">Could not load invitations</p>
+          <p className="font-medium">আমন্ত্রণ লোড করা যায়নি</p>
           <p className="mt-1 text-rose-600/90 dark:text-rose-400/90">
             {invitesError.message}
           </p>

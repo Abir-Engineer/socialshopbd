@@ -18,18 +18,18 @@ export async function CustomersContent() {
       <section className="space-y-6">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">Customers</h1>
-            <p className="text-sm text-muted-foreground">CRM profiles, notes, and order history in one place.</p>
+            <h1 className="text-2xl font-semibold text-foreground">গ্রাহক</h1>
+            <p className="text-sm text-muted-foreground">সিআরএম প্রোফাইল, নোট এবং অর্ডার ইতিহাস এক জায়গায়।</p>
           </div>
         </header>
         <div className="rounded-xl border border-rose-200 bg-card p-5 text-sm text-rose-700 shadow-sm dark:border-rose-900 dark:text-rose-300">
-          <p className="font-medium">Could not load customers</p>
+          <p className="font-medium">গ্রাহক লোড করা যায়নি</p>
           <p className="mt-1 text-rose-600/90 dark:text-rose-400/90">{customersError.message}</p>
           <p className="mt-3 text-muted-foreground">
-            Run{" "}
+            চালান{" "}
             <code className="rounded bg-muted px-1 py-0.5 text-xs">supabase/migrations/20260511000002_customers.sql</code>{" "}
-            in the Supabase SQL editor (and ensure orders has <code className="rounded bg-muted px-1 py-0.5 text-xs">customer_id</code>
-            ), then reload.
+            Supabase SQL এডিটরে (এবং নিশ্চিত করুন orders টেবিলে <code className="rounded bg-muted px-1 py-0.5 text-xs">customer_id</code>
+            ), তারপর রিলোড করুন।
           </p>
         </div>
       </section>

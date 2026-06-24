@@ -56,7 +56,7 @@ export function ProductsView({ initialProducts, role }: ProductsViewProps) {
   };
 
   const handleDelete = (product: ProductRow) => {
-    if (!window.confirm(`Delete “${product.name}”? This cannot be undone.`)) {
+    if (!window.confirm(`"${product.name}" মুছবেন? এটি পূর্বাবস্থায় ফেরানো যাবে না।`)) {
       return;
     }
     setFormError(null);
@@ -79,9 +79,9 @@ export function ProductsView({ initialProducts, role }: ProductsViewProps) {
     <section className={`space-y-6 ${isPending ? "pointer-events-none opacity-60" : ""}`} aria-busy={isPending}>
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Products</h1>
-          <p className="text-sm text-muted-foreground">Monitor product inventory and listing health.</p>
-          {isPending && <p className="mt-1 text-xs text-muted-foreground">Saving…</p>}
+          <h1 className="text-2xl font-semibold text-foreground">পণ্য</h1>
+          <p className="text-sm text-muted-foreground">পণ্যের ইনভেন্টরি ও লিস্টিং স্বাস্থ্য পর্যবেক্ষণ করুন।</p>
+          {isPending && <p className="mt-1 text-xs text-muted-foreground">সংরক্ষণ করা হচ্ছে…</p>}
         </div>
         {role !== "viewer" && (
           <button
@@ -92,28 +92,28 @@ export function ProductsView({ initialProducts, role }: ProductsViewProps) {
             }}
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
           >
-            Add New Product
+            নতুন পণ্য যোগ করুন
           </button>
         )}
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <article className="rounded-xl border border-border bg-card p-5 shadow-sm">
-          <p className="text-sm text-muted-foreground">Total Products</p>
+          <p className="text-sm text-muted-foreground">মোট পণ্য</p>
           <h2 className="mt-2 text-2xl font-semibold text-card-foreground">{stats.total.toLocaleString("en-BD")}</h2>
         </article>
         <article className="rounded-xl border border-border bg-card p-5 shadow-sm">
-          <p className="text-sm text-muted-foreground">Active Listings</p>
+          <p className="text-sm text-muted-foreground">সক্রিয় লিস্টিং</p>
           <h2 className="mt-2 text-2xl font-semibold text-card-foreground">{stats.active.toLocaleString("en-BD")}</h2>
         </article>
         <article className="rounded-xl border border-border bg-card p-5 shadow-sm">
-          <p className="text-sm text-muted-foreground">Low Stock Alerts</p>
+          <p className="text-sm text-muted-foreground">স্বল্প স্টক সতর্কতা</p>
           <h2 className="mt-2 text-2xl font-semibold text-amber-600 dark:text-amber-400">
             {stats.lowStock.toLocaleString("en-BD")}
           </h2>
         </article>
         <article className="rounded-xl border border-border bg-card p-5 shadow-sm">
-          <p className="text-sm text-muted-foreground">Out of Stock</p>
+          <p className="text-sm text-muted-foreground">স্টকে নেই</p>
           <h2 className="mt-2 text-2xl font-semibold text-rose-600 dark:text-rose-400">
             {stats.outOfStock.toLocaleString("en-BD")}
           </h2>
@@ -122,26 +122,25 @@ export function ProductsView({ initialProducts, role }: ProductsViewProps) {
 
       <div className="rounded-xl border border-border bg-card shadow-sm">
         <div className="border-b border-border px-5 py-4">
-          <p className="text-sm text-muted-foreground">Inventory Overview</p>
+          <p className="text-sm text-muted-foreground">ইনভেন্টরি ওভারভিউ</p>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
             <thead className="text-muted-foreground">
               <tr className="border-b border-border">
-                <th className="px-5 py-3 font-medium">Product</th>
-                <th className="px-5 py-3 font-medium">SKU</th>
-                <th className="px-5 py-3 font-medium">Stock</th>
-                <th className="px-5 py-3 font-medium">Price</th>
-                <th className="px-5 py-3 font-medium">Status</th>
-                {role !== "viewer" && <th className="px-5 py-3 font-medium">Actions</th>}
+                <th className="px-5 py-3 font-medium">পণ্য</th>
+                <th className="px-5 py-3 font-medium">এসকেইউ</th>
+                <th className="px-5 py-3 font-medium">স্টক</th>
+                <th className="px-5 py-3 font-medium">মূল্য</th>
+                <th className="px-5 py-3 font-medium">অবস্থা</th>
+                {role !== "viewer" && <th className="px-5 py-3 font-medium">কার্যক্রম</th>}
               </tr>
             </thead>
             <tbody>
               {products.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-5 py-12 text-center text-muted-foreground">
-                    No products yet. Use <span className="font-medium text-foreground">Add New Product</span> to create
-                    your first item.
+                    এখনো কোনো পণ্য নেই। <span className="font-medium text-foreground">নতুন পণ্য যোগ করুন</span> ব্যবহার করে আপনার প্রথম আইটেম তৈরি করুন।
                   </td>
                 </tr>
               ) : (
@@ -168,14 +167,14 @@ export function ProductsView({ initialProducts, role }: ProductsViewProps) {
                               }}
                               className="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
                             >
-                              Edit
+                              সম্পাদনা
                             </button>
                             <button
                               type="button"
                               onClick={() => handleDelete(product)}
                               className="text-xs font-medium text-rose-600 hover:underline dark:text-rose-400"
                             >
-                              Delete
+                              মুছুন
                             </button>
                           </div>
                         </td>
@@ -197,8 +196,8 @@ export function ProductsView({ initialProducts, role }: ProductsViewProps) {
 
       {addOpen && (
         <ProductModal
-          title="Add New Product"
-          submitLabel="Create product"
+          title="নতুন পণ্য যোগ করুন"
+          submitLabel="পণ্য তৈরি করুন"
           onClose={closeModals}
           onSubmit={handleCreate}
           error={formError}
@@ -209,8 +208,8 @@ export function ProductsView({ initialProducts, role }: ProductsViewProps) {
       {editOpen && editing && (
         <ProductModal
           key={editing.id}
-          title="Edit Product"
-          submitLabel="Save changes"
+          title="পণ্য সম্পাদনা করুন"
+          submitLabel="পরিবর্তন সংরক্ষণ করুন"
           initial={editing}
           onClose={closeModals}
           onSubmit={handleUpdate}
@@ -256,7 +255,7 @@ function ProductModal({ title, submitLabel, initial, onClose, onSubmit, error, d
         >
           {initial && <input type="hidden" name="id" value={initial.id} />}
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Name</span>
+            <span className="text-sm font-medium text-card-foreground">নাম</span>
             <input
               name="name"
               required
@@ -265,7 +264,7 @@ function ProductModal({ title, submitLabel, initial, onClose, onSubmit, error, d
             />
           </label>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">SKU</span>
+            <span className="text-sm font-medium text-card-foreground">এসকেইউ</span>
             <input
               name="sku"
               required
@@ -274,7 +273,7 @@ function ProductModal({ title, submitLabel, initial, onClose, onSubmit, error, d
             />
           </label>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Stock</span>
+            <span className="text-sm font-medium text-card-foreground">স্টক</span>
             <input
               name="stock"
               type="number"
@@ -286,7 +285,7 @@ function ProductModal({ title, submitLabel, initial, onClose, onSubmit, error, d
             />
           </label>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Price (BDT)</span>
+            <span className="text-sm font-medium text-card-foreground">মূল্য (বিডিটি)</span>
             <input
               name="price_bdt"
               type="number"
@@ -304,7 +303,7 @@ function ProductModal({ title, submitLabel, initial, onClose, onSubmit, error, d
               onClick={onClose}
               className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
             >
-              Cancel
+              বাতিল
             </button>
             <button
               type="submit"

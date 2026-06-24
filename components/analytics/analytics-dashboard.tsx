@@ -63,11 +63,11 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
       <div className="rounded-xl border border-border bg-card/95 p-3 shadow-xl backdrop-blur-sm">
         <p className="text-xs font-semibold text-foreground mb-1">{label}</p>
         <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
-          Revenue: <span className="font-mono">{formatBdt(payload[0].value)}</span>
+          আয়: <span className="font-mono">{formatBdt(payload[0].value)}</span>
         </p>
         {payload[1] && (
           <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400 mt-0.5">
-            Orders: <span className="font-mono">{payload[1].value}</span>
+            অর্ডার: <span className="font-mono">{payload[1].value}</span>
           </p>
         )}
       </div>
@@ -83,7 +83,7 @@ function CustomerTooltip({ active, payload, label }: { active?: boolean; payload
       <div className="rounded-xl border border-border bg-card/95 p-3 shadow-xl backdrop-blur-sm">
         <p className="text-xs font-semibold text-foreground mb-1">{label}</p>
         <p className="text-xs font-medium text-violet-600 dark:text-violet-400">
-          New Customers: <span className="font-mono">{payload[0].value}</span>
+          নতুন গ্রাহক: <span className="font-mono">{payload[0].value}</span>
         </p>
       </div>
     );
@@ -99,10 +99,10 @@ function ProductTooltip({ active, payload }: { active?: boolean; payload?: { pay
       <div className="rounded-xl border border-border bg-card/95 p-3 shadow-xl backdrop-blur-sm">
         <p className="text-xs font-semibold text-foreground mb-1">{data.name}</p>
         <p className="text-xs font-medium text-indigo-600 dark:text-indigo-400">
-          Units Sold: <span className="font-mono">{data.units}</span>
+          বিক্রিত ইউনিট: <span className="font-mono">{data.units}</span>
         </p>
         <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400 mt-0.5">
-          Revenue: <span className="font-mono">{formatBdt(data.revenue)}</span>
+          আয়: <span className="font-mono">{formatBdt(data.revenue)}</span>
         </p>
       </div>
     );
@@ -152,7 +152,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
   if (loadError) {
     return (
       <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900 shadow-sm dark:border-rose-900/30 dark:bg-rose-950/20 dark:text-rose-100">
-        <h3 className="font-semibold">Error Loading Analytics</h3>
+        <h3 className="font-semibold">অ্যানালিটিক্স লোড করতে ত্রুটি</h3>
         <p className="mt-1 opacity-90">{loadError}</p>
       </div>
     );
@@ -178,10 +178,10 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
     .reduce((acc, s) => acc + s.count, 0);
 
   const statusPieData = [
-    { name: "Delivered", value: deliveredCount, color: "#10b981" },
-    { name: "Pending / Processing", value: pendingCount, color: "#3b82f6" },
-    { name: "Returned", value: returnedCount, color: "#f59e0b" },
-    { name: "Cancelled", value: otherCount, color: "#ef4444" },
+    { name: "ডেলিভারি হয়েছে", value: deliveredCount, color: "#10b981" },
+    { name: "অপেক্ষমাণ / প্রক্রিয়াধীন", value: pendingCount, color: "#3b82f6" },
+    { name: "ফেরত হয়েছে", value: returnedCount, color: "#f59e0b" },
+    { name: "বাতিল হয়েছে", value: otherCount, color: "#ef4444" },
   ].filter((d) => d.value > 0);
 
   return (
@@ -190,13 +190,13 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">
-            Realtime Analytics
+            রিয়েলটাইম অ্যানালিটিক্স
           </p>
           <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-            Insights Dashboard
+            ইনসাইটস ড্যাশবোর্ড
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Monitor real-time sales performance, customer growth, and operational metrics.
+            রিয়েল-টাইম বিক্রয় কর্মক্ষমতা, গ্রাহক বৃদ্ধি এবং কার্যক্ষম মেট্রিক্স মনিটর করুন।
           </p>
         </div>
 
@@ -210,7 +210,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            Last 30 Days
+            গত ৩০ দিন
           </button>
           <button
             onClick={() => setTimeframe("7d")}
@@ -220,7 +220,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            Last 7 Days
+            গত ৭ দিন
           </button>
         </div>
       </header>
@@ -231,7 +231,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
         <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md group">
           <div className="absolute top-0 right-0 h-24 w-24 -mr-4 -mt-4 rounded-full bg-blue-500/5 dark:bg-blue-500/10 transition-transform duration-300 group-hover:scale-110" />
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Revenue</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">আয়</span>
             <div className="rounded-xl bg-blue-500/10 p-2.5 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400">
               <DollarSign className="h-5 w-5" />
             </div>
@@ -254,7 +254,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
               ) : (
                 <span className="text-muted-foreground">—</span>
               )}
-              <span className="text-muted-foreground">vs previous period</span>
+              <span className="text-muted-foreground">পূর্ববর্তী সময়ের তুলনায়</span>
             </p>
           </div>
         </div>
@@ -263,7 +263,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
         <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md group">
           <div className="absolute top-0 right-0 h-24 w-24 -mr-4 -mt-4 rounded-full bg-emerald-500/5 dark:bg-emerald-500/10 transition-transform duration-300 group-hover:scale-110" />
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Orders Overview</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">অর্ডার ওভারভিউ</span>
             <div className="rounded-xl bg-emerald-500/10 p-2.5 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
               <ShoppingBag className="h-5 w-5" />
             </div>
@@ -286,7 +286,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
               ) : (
                 <span className="text-muted-foreground">—</span>
               )}
-              <span className="text-muted-foreground">vs previous period</span>
+              <span className="text-muted-foreground">পূর্ববর্তী সময়ের তুলনায়</span>
             </p>
           </div>
         </div>
@@ -295,7 +295,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
         <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md group">
           <div className="absolute top-0 right-0 h-24 w-24 -mr-4 -mt-4 rounded-full bg-indigo-500/5 dark:bg-indigo-500/10 transition-transform duration-300 group-hover:scale-110" />
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Avg. Order Value</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">গড় অর্ডার মূল্য</span>
             <div className="rounded-xl bg-indigo-500/10 p-2.5 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
               <Calendar className="h-5 w-5" />
             </div>
@@ -318,7 +318,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
               ) : (
                 <span className="text-muted-foreground">—</span>
               )}
-              <span className="text-muted-foreground">vs prior period (30d)</span>
+              <span className="text-muted-foreground">পূর্ববর্তী সময়ের তুলনায় (৩০ দিন)</span>
             </p>
           </div>
         </div>
@@ -327,7 +327,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
         <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md group">
           <div className="absolute top-0 right-0 h-24 w-24 -mr-4 -mt-4 rounded-full bg-violet-500/5 dark:bg-violet-500/10 transition-transform duration-300 group-hover:scale-110" />
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Customer Growth</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">গ্রাহক প্রবৃদ্ধি</span>
             <div className="rounded-xl bg-violet-500/10 p-2.5 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400">
               <Users className="h-5 w-5" />
             </div>
@@ -350,7 +350,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
               ) : (
                 <span className="text-muted-foreground">—</span>
               )}
-              <span className="text-muted-foreground">new signups (30d)</span>
+              <span className="text-muted-foreground">নতুন সাইনআপ (৩০ দিন)</span>
             </p>
           </div>
         </div>
@@ -361,8 +361,8 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
         {/* Sales Chart (Revenue & Orders) */}
         <div className="rounded-2xl border border-border bg-card p-6 shadow-sm lg:col-span-2 space-y-6">
           <div>
-            <h3 className="text-lg font-semibold text-foreground">Sales & Order Volume</h3>
-            <p className="text-xs text-muted-foreground">Monthly breakdown over the last 12 months</p>
+            <h3 className="text-lg font-semibold text-foreground">বিক্রয় ও অর্ডার ভলিউম</h3>
+            <p className="text-xs text-muted-foreground">গত ১২ মাসের মাসিক বিবরণ</p>
           </div>
 
           <div className="h-80 w-full">
@@ -417,15 +417,15 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
         {/* Order Status (Pending vs Delivered Pie Chart) */}
         <div className="rounded-2xl border border-border bg-card p-6 shadow-sm flex flex-col justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-foreground">Pending vs Delivered</h3>
-            <p className="text-xs text-muted-foreground">Order status allocation</p>
+            <h3 className="text-lg font-semibold text-foreground">অপেক্ষমাণ বনাম ডেলিভারি হয়েছে</h3>
+            <p className="text-xs text-muted-foreground">অর্ডার অবস্থা বরাদ্দ</p>
           </div>
 
           <div className="h-60 w-full my-auto flex items-center justify-center">
             {!mounted ? (
               <div className="h-36 w-36 animate-pulse rounded-full bg-muted" />
             ) : statusPieData.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No data available</div>
+              <div className="text-sm text-muted-foreground">কোনো তথ্য নেই</div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -443,7 +443,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value) => [`${value} orders`, "Volume"]}
+                    formatter={(value) => [`${value} অর্ডার`, "ভলিউম"]}
                     contentStyle={{ borderRadius: "12px", border: "1px solid var(--border)", background: "var(--card)" }}
                   />
                 </PieChart>
@@ -470,8 +470,8 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
         <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-foreground">Top Selling Products</h3>
-              <p className="text-xs text-muted-foreground">Ranked by revenue generated</p>
+              <h3 className="text-lg font-semibold text-foreground">সর্বোচ্চ বিক্রিত পণ্য</h3>
+              <p className="text-xs text-muted-foreground">উৎপন্ন আয় অনুযায়ী সাজানো</p>
             </div>
             <Package className="h-5 w-5 text-muted-foreground" />
           </div>
@@ -481,8 +481,8 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
               <div className="h-full w-full animate-pulse bg-muted rounded-xl" />
             ) : topProducts.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center text-center">
-                <p className="text-sm font-semibold">No sales yet</p>
-                <p className="text-xs text-muted-foreground mt-1">Products will appear once order items are purchased.</p>
+                <p className="text-sm font-semibold">এখনো কোনো বিক্রয় নেই</p>
+                <p className="text-xs text-muted-foreground mt-1">অর্ডার আইটেম ক্রয় হলে পণ্য দেখা যাবে।</p>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
@@ -520,8 +520,8 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
         <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-foreground">New Customers Trend</h3>
-              <p className="text-xs text-muted-foreground">Monthly customer registration volume</p>
+              <h3 className="text-lg font-semibold text-foreground">নতুন গ্রাহক প্রবণতা</h3>
+              <p className="text-xs text-muted-foreground">মাসিক গ্রাহক নিবন্ধন ভলিউম</p>
             </div>
             <Users className="h-5 w-5 text-muted-foreground" />
           </div>
@@ -558,8 +558,8 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-foreground">Recent Orders & Activity</h3>
-            <p className="text-xs text-muted-foreground">Most recent orders received in your shop</p>
+            <h3 className="text-lg font-semibold text-foreground">সাম্প্রতিক অর্ডার ও কার্যক্রম</h3>
+            <p className="text-xs text-muted-foreground">আপনার দোকানে প্রাপ্ত সাম্প্রতিক অর্ডার</p>
           </div>
           <Activity className="h-5 w-5 text-muted-foreground animate-pulse" />
         </div>
@@ -568,19 +568,19 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-border/80 text-xs font-semibold text-muted-foreground">
-                <th className="pb-3 font-medium">Order Number</th>
-                <th className="pb-3 font-medium">Customer</th>
-                <th className="pb-3 font-medium">Date</th>
-                <th className="pb-3 font-medium">Amount</th>
-                <th className="pb-3 font-medium">Status</th>
-                <th className="pb-3 text-right">Action</th>
+                <th className="pb-3 font-medium">অর্ডার নম্বর</th>
+                <th className="pb-3 font-medium">গ্রাহক</th>
+                <th className="pb-3 font-medium">তারিখ</th>
+                <th className="pb-3 font-medium">পরিমাণ</th>
+                <th className="pb-3 font-medium">অবস্থা</th>
+                <th className="pb-3 text-right">কার্যক্রম</th>
               </tr>
             </thead>
             <tbody>
               {recentOrders.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-8 text-center text-sm text-muted-foreground">
-                    No orders registered yet.
+                    এখনো কোনো অর্ডার নিবন্ধিত হয়নি।
                   </td>
                 </tr>
               ) : (
@@ -609,7 +609,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
                         href={`/orders`}
                         className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
                       >
-                        Details
+                        বিস্তারিত
                         <ArrowUpRight className="h-3 w-3" />
                       </a>
                     </td>
@@ -624,15 +624,15 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
       {/* Low Stock Alerts */}
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-6">
         <div>
-          <h3 className="text-lg font-semibold text-foreground">Low Stock Inventory Alerts</h3>
-          <p className="text-xs text-muted-foreground">Products running out of stock (less than 10 units remaining)</p>
+          <h3 className="text-lg font-semibold text-foreground">কম স্টক ইনভেন্টরি সতর্কতা</h3>
+          <p className="text-xs text-muted-foreground">স্টক শেষ হতে চলেছে এমন পণ্য (১০ ইউনিটের কম অবশিষ্ট)</p>
         </div>
 
         {lowStock.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-8 text-center bg-muted/5">
             <CheckCircle2 className="h-8 w-8 text-emerald-500 mb-2" />
-            <p className="text-sm font-semibold text-foreground">All clear</p>
-            <p className="text-xs text-muted-foreground">No low-stock products currently detected.</p>
+            <p className="text-sm font-semibold text-foreground">সব পরিষ্কার</p>
+            <p className="text-xs text-muted-foreground">বর্তমানে কোনো কম-স্টক পণ্য পাওয়া যায়নি।</p>
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

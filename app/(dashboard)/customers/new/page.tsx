@@ -27,14 +27,14 @@ export default function NewCustomerPage() {
   return (
     <section className="space-y-6">
       <header>
-        <h1 className="text-2xl font-semibold text-foreground">Add New Customer</h1>
-        <p className="text-sm text-muted-foreground">Add a customer to your CRM.</p>
+        <h1 className="text-2xl font-semibold text-foreground">নতুন গ্রাহক যোগ করুন</h1>
+        <p className="text-sm text-muted-foreground">আপনার সিআরএম-এ একজন গ্রাহক যোগ করুন।</p>
       </header>
 
       <div className="max-w-lg rounded-xl border border-border bg-card p-6 shadow-sm">
         <form className="space-y-4" onSubmit={handleSubmit}>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Full Name</span>
+            <span className="text-sm font-medium text-card-foreground">সম্পূর্ণ নাম</span>
             <input
               name="name"
               required
@@ -43,7 +43,7 @@ export default function NewCustomerPage() {
             />
           </label>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Phone</span>
+            <span className="text-sm font-medium text-card-foreground">ফোন</span>
             <input
               name="phone"
               type="tel"
@@ -53,7 +53,7 @@ export default function NewCustomerPage() {
             />
           </label>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Email (optional)</span>
+            <span className="text-sm font-medium text-card-foreground">ইমেল (ঐচ্ছিক)</span>
             <input
               name="email"
               type="email"
@@ -62,12 +62,12 @@ export default function NewCustomerPage() {
             />
           </label>
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">Notes</span>
+            <span className="text-sm font-medium text-card-foreground">নোট</span>
             <textarea
               name="notes"
               rows={4}
               disabled={isPending}
-              placeholder="Preferences, follow-ups, support history…"
+              placeholder="পছন্দ, ফলো-আপ, সাপোর্ট ইতিহাস…"
               className="w-full resize-y rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500 disabled:opacity-60"
             />
           </label>
@@ -83,14 +83,14 @@ export default function NewCustomerPage() {
               disabled={isPending}
               className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-60 cursor-pointer"
             >
-              Cancel
+              বাতিল
             </button>
             <button
               type="submit"
               disabled={isPending}
               className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-70 cursor-pointer"
             >
-              {isPending ? "Saving…" : "Create Customer"}
+              {isPending ? "সংরক্ষণ করা হচ্ছে…" : "গ্রাহক তৈরি করুন"}
             </button>
           </div>
         </form>
