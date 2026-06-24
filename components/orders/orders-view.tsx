@@ -129,7 +129,7 @@ export function OrdersView({ initialOrders, linkCustomers = [], role = "viewer" 
   return (
     <section className="space-y-6" aria-busy={isBusy}>
 
-      <header className="flex flex-wrap items-center justify-between gap-3">
+      <header className="animate-fade-in flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">অর্ডার ব্যবস্থাপনা</h1>
           <p className="text-sm text-muted-foreground">সকল গ্রাহকের অর্ডার ট্র্যাক এবং পরিচালনা করুন।</p>
@@ -232,7 +232,7 @@ export function OrdersView({ initialOrders, linkCustomers = [], role = "viewer" 
             </thead>
             <tbody>
               {filteredOrders.map((order) => (
-                <tr key={order.id} className="border-b border-border/70 last:border-b-0">
+                <tr key={order.id} className="border-b border-border/70 last:border-b-0 hover:bg-muted/50 transition-colors">
                   <td className="whitespace-nowrap px-3 py-4 font-medium text-card-foreground sm:px-5">
                     {order.orderNumber}
                   </td>

@@ -228,7 +228,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
       {/* Metric Cards Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {/* Revenue Card */}
-        <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md group">
+        <div className="animate-fade-in relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md group" style={{ animationDelay: "0s" }}>
           <div className="absolute top-0 right-0 h-24 w-24 -mr-4 -mt-4 rounded-full bg-blue-500/5 dark:bg-blue-500/10 transition-transform duration-300 group-hover:scale-110" />
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">আয়</span>
@@ -260,7 +260,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
         </div>
 
         {/* Orders Card */}
-        <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md group">
+        <div className="animate-fade-in relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md group" style={{ animationDelay: "0.1s" }}>
           <div className="absolute top-0 right-0 h-24 w-24 -mr-4 -mt-4 rounded-full bg-emerald-500/5 dark:bg-emerald-500/10 transition-transform duration-300 group-hover:scale-110" />
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">অর্ডার ওভারভিউ</span>
@@ -292,7 +292,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
         </div>
 
         {/* AOV Card */}
-        <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md group">
+        <div className="animate-fade-in relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md group" style={{ animationDelay: "0.2s" }}>
           <div className="absolute top-0 right-0 h-24 w-24 -mr-4 -mt-4 rounded-full bg-indigo-500/5 dark:bg-indigo-500/10 transition-transform duration-300 group-hover:scale-110" />
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">গড় অর্ডার মূল্য</span>
@@ -324,7 +324,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
         </div>
 
         {/* Customer Growth Card */}
-        <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md group">
+        <div className="animate-fade-in relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md group" style={{ animationDelay: "0.3s" }}>
           <div className="absolute top-0 right-0 h-24 w-24 -mr-4 -mt-4 rounded-full bg-violet-500/5 dark:bg-violet-500/10 transition-transform duration-300 group-hover:scale-110" />
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">গ্রাহক প্রবৃদ্ধি</span>
@@ -361,7 +361,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
         {/* Sales Chart (Revenue & Orders) */}
         <div className="rounded-2xl border border-border bg-card p-6 shadow-sm lg:col-span-2 space-y-6">
           <div>
-            <h3 className="text-lg font-semibold text-foreground">বিক্রয় ও অর্ডার ভলিউম</h3>
+            <h3 className="animate-slide-up text-lg font-semibold text-foreground">বিক্রয় ও অর্ডার ভলিউম</h3>
             <p className="text-xs text-muted-foreground">গত ১২ মাসের মাসিক বিবরণ</p>
           </div>
 
@@ -417,7 +417,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
         {/* Order Status (Pending vs Delivered Pie Chart) */}
         <div className="rounded-2xl border border-border bg-card p-6 shadow-sm flex flex-col justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-foreground">অপেক্ষমাণ বনাম ডেলিভারি হয়েছে</h3>
+            <h3 className="animate-slide-up text-lg font-semibold text-foreground">অপেক্ষমাণ বনাম ডেলিভারি হয়েছে</h3>
             <p className="text-xs text-muted-foreground">অর্ডার অবস্থা বরাদ্দ</p>
           </div>
 
@@ -470,7 +470,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
         <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-foreground">সর্বোচ্চ বিক্রিত পণ্য</h3>
+              <h3 className="animate-slide-up text-lg font-semibold text-foreground">সর্বোচ্চ বিক্রিত পণ্য</h3>
               <p className="text-xs text-muted-foreground">উৎপন্ন আয় অনুযায়ী সাজানো</p>
             </div>
             <Package className="h-5 w-5 text-muted-foreground" />
@@ -520,7 +520,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
         <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-foreground">নতুন গ্রাহক প্রবণতা</h3>
+              <h3 className="animate-slide-up text-lg font-semibold text-foreground">নতুন গ্রাহক প্রবণতা</h3>
               <p className="text-xs text-muted-foreground">মাসিক গ্রাহক নিবন্ধন ভলিউম</p>
             </div>
             <Users className="h-5 w-5 text-muted-foreground" />
@@ -558,7 +558,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-foreground">সাম্প্রতিক অর্ডার ও কার্যক্রম</h3>
+            <h3 className="animate-slide-up text-lg font-semibold text-foreground">সাম্প্রতিক অর্ডার ও কার্যক্রম</h3>
             <p className="text-xs text-muted-foreground">আপনার দোকানে প্রাপ্ত সাম্প্রতিক অর্ডার</p>
           </div>
           <Activity className="h-5 w-5 text-muted-foreground animate-pulse" />
@@ -624,7 +624,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
       {/* Low Stock Alerts */}
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-6">
         <div>
-          <h3 className="text-lg font-semibold text-foreground">কম স্টক ইনভেন্টরি সতর্কতা</h3>
+          <h3 className="animate-slide-up text-lg font-semibold text-foreground">কম স্টক ইনভেন্টরি সতর্কতা</h3>
           <p className="text-xs text-muted-foreground">স্টক শেষ হতে চলেছে এমন পণ্য (১০ ইউনিটের কম অবশিষ্ট)</p>
         </div>
 

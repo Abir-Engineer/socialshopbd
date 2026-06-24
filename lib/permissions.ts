@@ -1,6 +1,6 @@
 import type { OrgRole } from "@/types/organization";
 
-export type PermissionModule = "dashboard" | "orders" | "products" | "customers" | "analytics" | "staff" | "billing" | "settings";
+export type PermissionModule = "dashboard" | "orders" | "products" | "customers" | "analytics" | "staff" | "inventory" | "billing" | "settings";
 
 export type PermissionAction = "view" | "create" | "edit" | "delete";
 
@@ -9,9 +9,9 @@ export type PermissionAction = "view" | "create" | "edit" | "delete";
  * Each role maps to a set of modules they can access.
  */
 const ROLE_MODULE_ACCESS: Record<OrgRole, PermissionModule[]> = {
-  owner: ["dashboard", "orders", "products", "customers", "analytics", "staff", "billing", "settings"],
-  admin: ["dashboard", "orders", "products", "customers", "analytics", "staff", "billing", "settings"],
-  manager: ["dashboard", "orders", "products", "customers", "analytics"],
+  owner: ["dashboard", "orders", "products", "customers", "analytics", "staff", "inventory", "billing", "settings"],
+  admin: ["dashboard", "orders", "products", "customers", "analytics", "staff", "inventory", "billing", "settings"],
+  manager: ["dashboard", "orders", "products", "customers", "analytics", "inventory"],
   staff: ["dashboard"],
   viewer: ["dashboard"],
 };

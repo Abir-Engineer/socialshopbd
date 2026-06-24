@@ -77,7 +77,7 @@ export function ProductsView({ initialProducts, role }: ProductsViewProps) {
 
   return (
     <section className={`space-y-6 ${isPending ? "pointer-events-none opacity-60" : ""}`} aria-busy={isPending}>
-      <header className="flex flex-wrap items-center justify-between gap-3">
+      <header className="animate-fade-in flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">পণ্য</h1>
           <p className="text-sm text-muted-foreground">পণ্যের ইনভেন্টরি ও লিস্টিং স্বাস্থ্য পর্যবেক্ষণ করুন।</p>
@@ -98,23 +98,23 @@ export function ProductsView({ initialProducts, role }: ProductsViewProps) {
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <article className="rounded-xl border border-border bg-card p-5 shadow-sm">
+        <article className="animate-slide-up rounded-xl border border-border bg-card p-5 shadow-sm" style={{ animationDelay: "0s" }}>
           <p className="text-sm text-muted-foreground">মোট পণ্য</p>
-          <h2 className="mt-2 text-2xl font-semibold text-card-foreground">{stats.total.toLocaleString("en-BD")}</h2>
+          <h2 className="mt-2 text-3xl font-bold tracking-tight text-card-foreground">{stats.total.toLocaleString("en-BD")}</h2>
         </article>
-        <article className="rounded-xl border border-border bg-card p-5 shadow-sm">
+        <article className="animate-slide-up rounded-xl border border-border bg-card p-5 shadow-sm" style={{ animationDelay: "0.1s" }}>
           <p className="text-sm text-muted-foreground">সক্রিয় লিস্টিং</p>
-          <h2 className="mt-2 text-2xl font-semibold text-card-foreground">{stats.active.toLocaleString("en-BD")}</h2>
+          <h2 className="mt-2 text-3xl font-bold tracking-tight text-card-foreground">{stats.active.toLocaleString("en-BD")}</h2>
         </article>
-        <article className="rounded-xl border border-border bg-card p-5 shadow-sm">
+        <article className="animate-slide-up rounded-xl border border-border bg-card p-5 shadow-sm" style={{ animationDelay: "0.2s" }}>
           <p className="text-sm text-muted-foreground">স্বল্প স্টক সতর্কতা</p>
-          <h2 className="mt-2 text-2xl font-semibold text-amber-600 dark:text-amber-400">
+          <h2 className="mt-2 text-3xl font-bold tracking-tight text-amber-600 dark:text-amber-400">
             {stats.lowStock.toLocaleString("en-BD")}
           </h2>
         </article>
-        <article className="rounded-xl border border-border bg-card p-5 shadow-sm">
+        <article className="animate-slide-up rounded-xl border border-border bg-card p-5 shadow-sm" style={{ animationDelay: "0.3s" }}>
           <p className="text-sm text-muted-foreground">স্টকে নেই</p>
-          <h2 className="mt-2 text-2xl font-semibold text-rose-600 dark:text-rose-400">
+          <h2 className="mt-2 text-3xl font-bold tracking-tight text-rose-600 dark:text-rose-400">
             {stats.outOfStock.toLocaleString("en-BD")}
           </h2>
         </article>
@@ -147,7 +147,7 @@ export function ProductsView({ initialProducts, role }: ProductsViewProps) {
                 products.map((product) => {
                   const status = getStockStatus(product.stock);
                   return (
-                    <tr key={product.id} className="border-b border-border/70 last:border-b-0">
+                    <tr key={product.id} className="border-b border-border/70 last:border-b-0 hover:bg-muted/50 transition-colors">
                       <td className="px-5 py-4 font-medium text-card-foreground">{product.name}</td>
                       <td className="px-5 py-4 text-muted-foreground">{product.sku}</td>
                       <td className="px-5 py-4 text-card-foreground">{product.stock}</td>

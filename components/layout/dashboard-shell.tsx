@@ -18,6 +18,7 @@ const NAV_MODULE_MAP: Record<string, PermissionModule> = {
   "/analytics": "analytics",
   "/staff": "staff",
   "/billing": "billing",
+  "/inventory": "inventory",
   "/settings": "settings",
 };
 
@@ -37,7 +38,7 @@ function NavLinks({ onNavigate, userRole }: { onNavigate?: () => void; userRole:
             key={item.name}
             href={item.href}
             onClick={onNavigate}
-            className={`flex items-center rounded-lg px-3 py-2 text-sm font-medium transition ${
+            className={`flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 hover:translate-x-0.5 ${
               isActive
                 ? "bg-blue-600 text-white"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -86,7 +87,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
       <div className="flex">
-        <aside className="hidden h-screen w-64 border-r border-border bg-card md:sticky md:top-0 md:block">
+        <aside className="animate-fade-in hidden h-screen w-64 border-r border-border bg-card md:sticky md:top-0 md:block">
           <div className="border-b border-border px-6 py-5">
             <p className="text-xs uppercase tracking-widest text-muted-foreground">সোশ্যাল শপ বিডি</p>
             <h1 className="mt-1 text-xl font-semibold text-card-foreground">সাস প্যানেল</h1>
@@ -143,11 +144,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                   </svg>
                 </button>
                 <div>
-                  <p className="text-sm font-medium text-foreground">
+                  <p className="animate-slide-up text-sm font-medium text-foreground">
                     স্বাগতম, {userName ?? "অ্যাডমিন"}
                   </p>
                   <p className="text-xs text-muted-foreground">অর্ডার, পণ্য ও গ্রোথ ম্যানেজ করুন</p>
                 </div>
+                <span className="ml-2 mt-0.5 h-2 w-2 rounded-full bg-emerald-500 animate-pulse-dot shrink-0" title="লাইভ" />
               </div>
               <div className="flex items-center gap-2">
                 <ProfileDropdown />

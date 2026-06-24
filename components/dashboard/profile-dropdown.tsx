@@ -29,6 +29,7 @@ export function ProfileDropdown() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [lang, setLang] = useState(() => typeof window !== "undefined" ? localStorage.getItem("lang") || "bn" : "bn");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -136,8 +137,8 @@ export function ProfileDropdown() {
               onClick={() => setOpen(false)}
               className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-foreground transition hover:bg-muted"
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5 text-muted-foreground">
-                <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM3 12h2m14 0h2M12 3v2m0 14v2" strokeLinecap="round" strokeLinejoin="round" />
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5 text-muted-foreground">
+                <path d="M12 2l.95 2.43a8.5 8.5 0 0 1 3.3 1.37l2.47-1.06 1.06 2.47-2.43.95a8.5 8.5 0 0 1 0 3.68l2.43.95-1.06 2.47-2.47-1.06a8.5 8.5 0 0 1-3.3 1.37L12 22l-.95-2.43a8.5 8.5 0 0 1-3.3-1.37l-2.47 1.06-1.06-2.47 2.43-.95a8.5 8.5 0 0 1 0-3.68l-2.43-.95 1.06-2.47 2.47 1.06a8.5 8.5 0 0 1 3.3-1.37L12 2z" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               সেটিংস
             </Link>
@@ -152,6 +153,22 @@ export function ProfileDropdown() {
               </span>
               {isDark ? "লাইট মোড" : "ডার্ক মোড"}
             </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                const next = lang === "en" ? "bn" : "en";
+                localStorage.setItem("lang", next);
+                setLang(next);
+                window.location.reload();
+              }}
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-foreground transition hover:bg-muted"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5 text-muted-foreground">
+                <path d="M12 2a10 10 0 1 0 10 10M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              {lang === "en" ? "BN" : "EN"}
+            </button>
           </div>
 
           <div className="border-t border-border px-2 py-2">
@@ -160,8 +177,8 @@ export function ProfileDropdown() {
               onClick={handleLogout}
               className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-red-600 transition hover:bg-red-50 dark:hover:bg-red-950/50"
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" strokeLinecap="round" strokeLinejoin="round" />
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4m7 14l5-5-5-5m5 5H9" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               লগআউট
             </button>
