@@ -49,14 +49,14 @@ ALTER TABLE public.coupons          ENABLE ROW LEVEL SECURITY;
 
 -- RLS for payment_history
 CREATE POLICY "payhist_org_select" ON public.payment_history
-  FOR SELECT USING (organization_id = get_current_organization_id());
+  FOR SELECT USING (organization_id = public.get_user_org_id());
 
 CREATE POLICY "payhist_org_insert" ON public.payment_history
-  FOR INSERT WITH CHECK (organization_id = get_current_organization_id());
+  FOR INSERT WITH CHECK (organization_id = public.get_user_org_id());
 
 -- RLS for coupons
 CREATE POLICY "coupons_org_select" ON public.coupons
-  FOR SELECT USING (organization_id IS NULL OR organization_id = get_current_organization_id());
+  FOR SELECT USING (organization_id IS NULL OR organization_id = public.get_user_org_id());
 
 -- Additional columns for organization_subscriptions
 ALTER TABLE public.organization_subscriptions

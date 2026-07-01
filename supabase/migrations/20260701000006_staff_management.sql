@@ -40,10 +40,10 @@ CREATE INDEX IF NOT EXISTS audit_date_idx   ON public.audit_logs (created_at DES
 ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "audit_org_select" ON public.audit_logs
-  FOR SELECT USING (organization_id = get_current_organization_id());
+  FOR SELECT USING (organization_id = public.get_user_org_id());
 
 CREATE POLICY "audit_org_insert" ON public.audit_logs
-  FOR INSERT WITH CHECK (organization_id = get_current_organization_id());
+  FOR INSERT WITH CHECK (organization_id = public.get_user_org_id());
 
 -- === 3. activity_logs table ===
 CREATE TABLE IF NOT EXISTS public.activity_logs (
@@ -66,10 +66,10 @@ CREATE INDEX IF NOT EXISTS activity_date_idx   ON public.activity_logs (created_
 ALTER TABLE public.activity_logs ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "activity_org_select" ON public.activity_logs
-  FOR SELECT USING (organization_id = get_current_organization_id());
+  FOR SELECT USING (organization_id = public.get_user_org_id());
 
 CREATE POLICY "activity_org_insert" ON public.activity_logs
-  FOR INSERT WITH CHECK (organization_id = get_current_organization_id());
+  FOR INSERT WITH CHECK (organization_id = public.get_user_org_id());
 
 -- === 4. Update get_organization_members RPC ===
 CREATE OR REPLACE FUNCTION public.get_organization_members(org_id uuid)

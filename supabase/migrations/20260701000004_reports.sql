@@ -25,13 +25,13 @@ CREATE INDEX IF NOT EXISTS expenses_category_idx  ON public.expenses (category);
 ALTER TABLE public.expenses ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "expenses_org_select" ON public.expenses
-  FOR SELECT USING (organization_id = get_current_organization_id());
+  FOR SELECT USING (organization_id = public.get_user_org_id());
 
 CREATE POLICY "expenses_org_insert" ON public.expenses
-  FOR INSERT WITH CHECK (organization_id = get_current_organization_id());
+  FOR INSERT WITH CHECK (organization_id = public.get_user_org_id());
 
 CREATE POLICY "expenses_org_update" ON public.expenses
-  FOR UPDATE USING (organization_id = get_current_organization_id());
+  FOR UPDATE USING (organization_id = public.get_user_org_id());
 
 CREATE POLICY "expenses_org_delete" ON public.expenses
-  FOR DELETE USING (organization_id = get_current_organization_id());
+  FOR DELETE USING (organization_id = public.get_user_org_id());

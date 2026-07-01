@@ -33,16 +33,16 @@ CREATE INDEX IF NOT EXISTS org_settings_org_idx ON public.org_settings (organiza
 ALTER TABLE public.org_settings ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "org_settings_org_select" ON public.org_settings
-  FOR SELECT USING (organization_id = get_current_organization_id());
+  FOR SELECT USING (organization_id = public.get_user_org_id());
 
 CREATE POLICY "org_settings_org_insert" ON public.org_settings
-  FOR INSERT WITH CHECK (organization_id = get_current_organization_id());
+  FOR INSERT WITH CHECK (organization_id = public.get_user_org_id());
 
 CREATE POLICY "org_settings_org_update" ON public.org_settings
-  FOR UPDATE USING (organization_id = get_current_organization_id());
+  FOR UPDATE USING (organization_id = public.get_user_org_id());
 
 CREATE POLICY "org_settings_org_delete" ON public.org_settings
-  FOR DELETE USING (organization_id = get_current_organization_id());
+  FOR DELETE USING (organization_id = public.get_user_org_id());
 
 -- === 4. notification_preferences table ===
 CREATE TABLE IF NOT EXISTS public.notification_preferences (
@@ -65,13 +65,13 @@ CREATE INDEX IF NOT EXISTS notif_prefs_org_idx ON public.notification_preference
 ALTER TABLE public.notification_preferences ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "notif_prefs_org_select" ON public.notification_preferences
-  FOR SELECT USING (organization_id = get_current_organization_id());
+  FOR SELECT USING (organization_id = public.get_user_org_id());
 
 CREATE POLICY "notif_prefs_org_insert" ON public.notification_preferences
-  FOR INSERT WITH CHECK (organization_id = get_current_organization_id());
+  FOR INSERT WITH CHECK (organization_id = public.get_user_org_id());
 
 CREATE POLICY "notif_prefs_org_update" ON public.notification_preferences
-  FOR UPDATE USING (organization_id = get_current_organization_id());
+  FOR UPDATE USING (organization_id = public.get_user_org_id());
 
 CREATE POLICY "notif_prefs_org_delete" ON public.notification_preferences
-  FOR DELETE USING (organization_id = get_current_organization_id());
+  FOR DELETE USING (organization_id = public.get_user_org_id());
