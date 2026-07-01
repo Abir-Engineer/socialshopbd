@@ -1,4 +1,4 @@
-import type { InventoryItem } from "@/types/inventory";
+import type { ProductRow as InventoryItem } from "@/types/products";
 
 export type StockStatus = "in_stock" | "low_stock" | "out_of_stock";
 

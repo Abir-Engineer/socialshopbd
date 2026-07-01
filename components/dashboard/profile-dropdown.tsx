@@ -77,6 +77,7 @@ export function ProfileDropdown() {
         type="button"
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-1.5 transition hover:bg-muted"
+        aria-label={`User menu${userName ? `: ${userName}` : ""}`}
       >
         <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-blue-600 text-sm font-semibold text-white">
           {profileImage ? (

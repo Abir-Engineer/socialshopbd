@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import { cookies, headers } from "next/headers";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
-import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export async function GET() {
+  if (process.env.NODE_ENV !== "development") {
+    return NextResponse.json({ error: "Not available in production" }, { status: 403 });
+  }
+
   const cookieStore = await cookies();
   const allCookies = cookieStore.getAll();
 

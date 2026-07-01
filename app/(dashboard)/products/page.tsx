@@ -4,10 +4,15 @@ import { ProductsSkeleton } from "@/components/products/products-skeleton";
 
 export const dynamic = "force-dynamic";
 
-export default function ProductsPage() {
+type Props = {
+  searchParams: Promise<{ page?: string; query?: string; category?: string; brand?: string; stockStatus?: string }>;
+};
+
+export default async function ProductsPage({ searchParams }: Props) {
+  const sp = await searchParams;
   return (
     <Suspense fallback={<ProductsSkeleton />}>
-      <ProductsContent />
+      <ProductsContent searchParams={sp} />
     </Suspense>
   );
 }

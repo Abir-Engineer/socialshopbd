@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { updateStock } from "@/app/(dashboard)/inventory/actions";
 import { getStockStatus, inventoryStats, stockStatusBadge, stockStatusLabel } from "@/lib/inventory/display";
-import type { InventoryItem } from "@/types/inventory";
+import type { ProductRow as InventoryItem } from "@/types/products";
 
 type InventoryViewProps = {
   initialItems: InventoryItem[];

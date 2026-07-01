@@ -28,10 +28,10 @@ import {
   Activity,
   Package,
   Calendar,
+  Truck,
 } from "lucide-react";
 import type { AnalyticsSnapshot, MonthlyPoint, TopProductRow, StatusSlice } from "@/types/analytics";
-import { formatOrderStatusLabel } from "@/lib/orders/map-row";
-import { getOrderStatusBadgeClass } from "@/utils/order-status";
+import { formatOrderStatusLabel, getOrderStatusBadgeClass } from "@/lib/orders/display";
 import { type OrderStatus } from "@/types/orders";
 
 type AnalyticsDashboardProps = {
@@ -130,6 +130,9 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
     aov30d,
     aovPrev30d,
     aovGrowthPct,
+    profit30d,
+    courierCost30d,
+    expenses30d,
     customerGrowth30d,
     customerGrowthPrev30d,
     customerGrowthGrowthPct,
@@ -226,7 +229,7 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
       </header>
 
       {/* Metric Cards Grid */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
         {/* Revenue Card */}
         <div className="animate-fade-in relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md group" style={{ animationDelay: "0s" }}>
           <div className="absolute top-0 right-0 h-24 w-24 -mr-4 -mt-4 rounded-full bg-blue-500/5 dark:bg-blue-500/10 transition-transform duration-300 group-hover:scale-110" />
@@ -319,6 +322,40 @@ export function AnalyticsDashboard({ snapshot }: AnalyticsDashboardProps) {
                 <span className="text-muted-foreground">—</span>
               )}
               <span className="text-muted-foreground">পূর্ববর্তী সময়ের তুলনায় (৩০ দিন)</span>
+            </p>
+          </div>
+        </div>
+
+        {/* Profit Card */}
+        <div className="animate-fade-in relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md group" style={{ animationDelay: "0.15s" }}>
+          <div className="absolute top-0 right-0 h-24 w-24 -mr-4 -mt-4 rounded-full bg-emerald-500/5 dark:bg-emerald-500/10 transition-transform duration-300 group-hover:scale-110" />
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">নিট মুনাফা</span>
+            <div className="rounded-xl bg-emerald-500/10 p-2.5 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
+              <TrendingUp className="h-5 w-5" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <h3 className="text-3xl font-bold tracking-tight text-foreground">{formatBdt(profit30d)}</h3>
+            <p className="mt-2 flex items-center gap-1.5 text-xs font-medium">
+              <span className="text-muted-foreground">আয় — খরচ (৩০ দিন)</span>
+            </p>
+          </div>
+        </div>
+
+        {/* Courier Cost Card */}
+        <div className="animate-fade-in relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md group" style={{ animationDelay: "0.25s" }}>
+          <div className="absolute top-0 right-0 h-24 w-24 -mr-4 -mt-4 rounded-full bg-amber-500/5 dark:bg-amber-500/10 transition-transform duration-300 group-hover:scale-110" />
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">কুরিয়ার খরচ</span>
+            <div className="rounded-xl bg-amber-500/10 p-2.5 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">
+              <Truck className="h-5 w-5" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <h3 className="text-3xl font-bold tracking-tight text-foreground">{formatBdt(courierCost30d)}</h3>
+            <p className="mt-2 flex items-center gap-1.5 text-xs font-medium">
+              <span className="text-muted-foreground">খরচ: {formatBdt(expenses30d)}</span>
             </p>
           </div>
         </div>

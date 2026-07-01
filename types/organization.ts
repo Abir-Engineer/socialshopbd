@@ -8,7 +8,8 @@ export type SubscriptionStatus =
   | "unpaid"
   | "incomplete";
 
-export type PaymentProvider = "stripe" | "sslcommerz" | "manual" | "none";
+export type PaymentProvider = "stripe" | "sslcommerz" | "bkash" | "manual" | "none";
+export type PaymentStatus = "succeeded" | "failed" | "refunded" | "pending";
 
 export interface Organization {
   id: string;
@@ -32,6 +33,8 @@ export interface OrganizationMember {
   organization_id: string;
   user_id: string;
   role: OrgRole;
+  status: string;
+  last_login: string | null;
   created_at: string;
 }
 

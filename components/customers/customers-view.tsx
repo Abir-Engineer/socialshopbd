@@ -1,468 +1,388 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useId, useMemo, useState, useTransition } from "react";
-import { useToast } from "@/components/ui/toast";
-import { createCustomer, updateCustomer } from "@/app/(dashboard)/customers/actions";
-import { digitsOnly } from "@/lib/customers/phone";
-import type { CustomerListItem } from "@/types/customers";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useState, useTransition } from "react";
+import { createCustomer, deleteCustomer, updateCustomer, bulkDeleteCustomers, exportCustomersCsv } from "@/app/(dashboard)/customers/actions";
+import type { CustomerListItem, CustomerFilters } from "@/types/customers";
+import { customerStats as computeStats, tagBadgeClass, formatLtv } from "@/lib/customers/display";
+import { CustomerForm } from "@/components/customers/customer-form";
+import { Users, Search, SlidersHorizontal, X, Upload, Download, ChevronLeft, ChevronRight, Star, Package, Phone, Mail } from "lucide-react";
 
 type CustomersViewProps = {
   initialCustomers: CustomerListItem[];
-  role?: string;
+  totalCount: number;
+  totalPages: number;
+  currentPage: number;
+  allTags: string[];
+  role: string;
 };
 
-type ToastItem = { id: number; message: string; variant: "success" | "error" };
-
-export function CustomersView({ initialCustomers, role = "viewer" }: CustomersViewProps) {
+export function CustomersView({ initialCustomers, totalCount, totalPages, currentPage, allTags, role }: CustomersViewProps) {
   const router = useRouter();
-  const phoneSearchId = useId();
-  const [phoneQuery, setPhoneQuery] = useState("");
+  const sp = useSearchParams();
   const [isPending, startTransition] = useTransition();
-  const [createOpen, setCreateOpen] = useState(false);
-  const [profileCustomer, setProfileCustomer] = useState<CustomerListItem | null>(null);
-  const [createError, setCreateError] = useState<string | null>(null);
-  const [profileError, setProfileError] = useState<string | null>(null);
-  const toast = useToast();
 
-  const filteredCustomers = useMemo(() => {
-    const q = digitsOnly(phoneQuery);
-    if (!q) return initialCustomers;
-    return initialCustomers.filter((c) => digitsOnly(c.phone).includes(q));
-  }, [initialCustomers, phoneQuery]);
+  const [addOpen, setAddOpen] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [query, setQuery] = useState(sp.get("query") ?? "");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [exportLoading, setExportLoading] = useState(false);
 
-  const emptyIsDatabase = initialCustomers.length === 0;
-  const emptyMessage = emptyIsDatabase
-    ? "এখনো কোনো গ্রাহক নেই। আপনার সিআরএম শুরু করতে একজন গ্রাহক যোগ করুন।"
-    : "এই ফোন অনুসন্ধানের সাথে কোনো গ্রাহক মেলেনি।";
+  const isViewer = role === "viewer";
+  const customers = initialCustomers;
+  const stats = computeStats(customers);
+
+  const buildUrl = useCallback(
+    (params: Record<string, string | undefined>) => {
+      const p = new URLSearchParams(sp.toString());
+      for (const [k, v] of Object.entries(params)) {
+        if (v) p.set(k, v);
+        else p.delete(k);
+      }
+      return `/customers?${p.toString()}`;
+    },
+    [sp],
+  );
+
+  const handleSearch = () => {
+    router.push(buildUrl({ query: query || undefined, page: "1" }));
+  };
+
+  const applyFilter = (key: string, value: string) => {
+    router.push(buildUrl({ [key]: value || undefined, page: "1" }));
+  };
+
+  const handlePageChange = (page: number) => {
+    router.push(buildUrl({ page: String(page) }));
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === customers.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(customers.map((c) => c.id)));
+    }
+  };
 
   const handleCreate = (formData: FormData) => {
-    setCreateError(null);
+    setFormError(null);
     startTransition(async () => {
       const result = await createCustomer(formData);
-      if (!result.ok) {
-        setCreateError(result.error);
-        return;
-      }
-      setCreateOpen(false);
-      toast.success("গ্রাহক সফলভাবে তৈরি হয়েছে।");
+      if (!result.ok) { setFormError(result.error); return; }
+      setAddOpen(false);
+      setFormError(null);
       router.refresh();
     });
   };
 
-  const handleProfileUpdate = (formData: FormData) => {
-    setProfileError(null);
+  const handleBulkDelete = () => {
     startTransition(async () => {
-      const result = await updateCustomer(formData);
-      if (!result.ok) {
-        setProfileError(result.error);
-        return;
-      }
-      setProfileCustomer(null);
-      toast.success("গ্রাহক প্রোফাইল সংরক্ষিত হয়েছে।");
+      const result = await bulkDeleteCustomers(Array.from(selectedIds));
+      if (!result.ok) { setFormError(result.error); return; }
+      setSelectedIds(new Set());
       router.refresh();
     });
   };
+
+  const handleExport = async () => {
+    setExportLoading(true);
+    const result = await exportCustomersCsv();
+    if (!result.ok) { setFormError(result.error); setExportLoading(false); return; }
+    const blob = new Blob([result.csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `customers-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setExportLoading(false);
+  };
+
+  const sortValue = `${sp.get("sortBy") ?? "created_at"}-${sp.get("sortOrder") ?? "desc"}`;
+  const handleSortChange = (value: string) => {
+    const [sortBy, sortOrder] = value.split("-");
+    router.push(buildUrl({ sortBy, sortOrder, page: "1" }));
+  };
+
+  const tagFilterValue = sp.get("tag") ?? "";
+  const repeatFilterValue = sp.get("isRepeat") ?? "";
 
   return (
-    <section className="space-y-6" aria-busy={isPending}>
-
+    <section className={`space-y-6 ${isPending ? "pointer-events-none opacity-60" : ""}`} aria-busy={isPending}>
       <header className="animate-fade-in flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">গ্রাহক</h1>
-          <p className="text-sm text-muted-foreground">সিআরএম প্রোফাইল, নোট এবং অর্ডার ইতিহাস এক জায়গায়।</p>
-          {isPending && (
-            <p className="mt-1 text-xs text-muted-foreground" aria-live="polite">
-              সংরক্ষণ করা হচ্ছে…
-            </p>
-          )}
+          <h1 className="text-2xl font-semibold text-foreground">Customers</h1>
+          <p className="text-sm text-muted-foreground">Manage your customer relationships.</p>
+          {isPending && <p className="mt-1 text-xs text-muted-foreground">Saving…</p>}
         </div>
-        {role !== "viewer" && (
-          <button
-            type="button"
-            onClick={() => {
-              setCreateError(null);
-              setCreateOpen(true);
-            }}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-          >
-            গ্রাহক যোগ করুন
-          </button>
+        {!isViewer && (
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={handleExport} disabled={exportLoading} className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-50">
+              <Download className="h-4 w-4" /> Export
+            </button>
+            <button type="button" onClick={() => router.push("/customers/new")} className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700">
+              <Users className="h-4 w-4" /> Add Customer
+            </button>
+          </div>
         )}
       </header>
 
-      <div className="rounded-xl border border-border bg-card shadow-sm">
-        <div className="space-y-3 border-b border-border px-4 py-4 sm:px-5">
-          <p className="text-sm text-muted-foreground">
-              মোট {filteredCustomers.length} জন গ্রাহক
-              {phoneQuery.trim() !== "" ? " (ফোন ফিল্টার)" : ""}
-          </p>
-          <div className="max-w-sm">
-            <label htmlFor={phoneSearchId} className="text-xs font-medium text-muted-foreground">
-              ফোন দিয়ে খুঁজুন
-            </label>
-            <div className="relative mt-1.5">
-              <input
-                id={phoneSearchId}
-                type="search"
-                value={phoneQuery}
-                onChange={(e) => setPhoneQuery(e.target.value)}
-                placeholder="শুধু সংখ্যা, যেমন ০১৭১২…"
-                className="w-full rounded-lg border border-border bg-background py-2 pl-3 pr-9 text-sm text-foreground outline-none transition focus:border-blue-500"
-                autoComplete="off"
-              />
-              {phoneQuery.trim() !== "" && (
-                <button
-                  type="button"
-                  onClick={() => setPhoneQuery("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-                  aria-label="ফোন অনুসন্ধান বাতিল"
-                >
-                  ×
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard label="Total Customers" value={totalCount.toLocaleString("en-BD")} />
+        <StatCard label="Repeat Buyers" value={stats.repeatBuyers.toLocaleString("en-BD")} accent="amber" />
+        <StatCard label="Total LTV" value={`৳${stats.totalLtv.toLocaleString("en-BD")}`} />
+        <StatCard label="Avg Order Value" value={`৳${stats.avgOrderValue.toLocaleString("en-BD")}`} accent="blue" />
+      </div>
 
-        <div className="relative overflow-x-auto">
-          {isPending && (
-            <div
-              className="pointer-events-none absolute inset-0 z-10 flex items-start justify-center bg-background/55 pt-14"
-              aria-hidden
-            >
-              <span className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground shadow-sm">
-                লোড হচ্ছে…
-              </span>
-            </div>
-          )}
-          <table className="min-w-[720px] w-full text-left text-sm">
-            <thead className="text-muted-foreground">
-              <tr className="border-b border-border">
-                <th className="px-3 py-3 font-medium sm:px-5">গ্রাহক</th>
-                <th className="whitespace-nowrap px-3 py-3 font-medium sm:px-5">ফোন</th>
-                <th className="min-w-[6rem] px-3 py-3 font-medium sm:px-5">ইমেল</th>
-                <th className="whitespace-nowrap px-3 py-3 font-medium sm:px-5">অর্ডার</th>
-                <th className="whitespace-nowrap px-3 py-3 font-medium sm:px-5">মোট খরচ</th>
-                <th className="whitespace-nowrap px-3 py-3 font-medium sm:px-5">ধরন</th>
-                <th className="whitespace-nowrap px-3 py-3 font-medium sm:px-5">কার্যক্রম</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredCustomers.map((c) => (
-                <tr key={c.id} className="border-b border-border/70 last:border-b-0 hover:bg-muted/50 transition-colors">
-                  <td className="px-3 py-4 font-medium text-card-foreground sm:px-5">{c.fullName}</td>
-                  <td className="whitespace-nowrap px-3 py-4 text-muted-foreground sm:px-5">{c.phone}</td>
-                  <td className="max-w-[10rem] truncate px-3 py-4 text-muted-foreground sm:max-w-none sm:px-5">
-                    {c.email ?? "—"}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-4 text-card-foreground sm:px-5">{c.orderCount}</td>
-                  <td className="whitespace-nowrap px-3 py-4 text-card-foreground sm:px-5">{c.totalSpentLabel}</td>
-                  <td className="px-3 py-4 sm:px-5">
-                    {c.isRepeat ? (
-                      <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200">
-                        পুনরাবৃত্তি
-                      </span>
-                    ) : (
-                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                        নতুন
-                      </span>
-                    )}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-4 sm:px-5">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setProfileError(null);
-                        setProfileCustomer(c);
-                      }}
-                      className="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
-                    >
-                      দেখুন
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {filteredCustomers.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="px-5 py-14 text-center">
-                    <div className="mx-auto max-w-sm space-y-2">
-                      <p className="text-base font-medium text-foreground">
-                        {emptyIsDatabase ? "এখনো কোনো গ্রাহক নেই" : "কোনো মিলে যাওয়া গ্রাহক নেই"}
-                      </p>
-                      <p className="text-sm text-muted-foreground">{emptyMessage}</p>
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-1 flex-wrap items-center gap-2">
+          <div className="relative flex-1 sm:max-w-xs">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
+              placeholder="Search name, phone, email, tags..."
+              className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-sm text-foreground outline-none transition focus:border-blue-500"
+            />
+          </div>
+          <button type="button" onClick={() => setFilterOpen(true)} className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition ${tagFilterValue || repeatFilterValue ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300" : "border-border bg-background text-foreground hover:bg-muted"}`}>
+            <SlidersHorizontal className="h-4 w-4" /> Filters
+          </button>
+          <select value={sortValue} onChange={(e) => handleSortChange(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-blue-500">
+            <option value="created_at-desc">Newest First</option>
+            <option value="created_at-asc">Oldest First</option>
+            <option value="name-asc">Name A–Z</option>
+            <option value="name-desc">Name Z–A</option>
+            <option value="orderCount-desc">Most Orders</option>
+            <option value="totalSpentBdt-desc">Highest Spent</option>
+          </select>
         </div>
       </div>
 
-      {createOpen && (
-        <CustomerFormModal
-          title="গ্রাহক যোগ করুন"
-          submitLabel="গ্রাহক তৈরি করুন"
-          onClose={() => {
-            setCreateOpen(false);
-            setCreateError(null);
-          }}
-          onSubmit={handleCreate}
-          error={createError}
-          disabled={isPending}
-        />
+      {selectedIds.size > 0 && (
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm dark:border-blue-900 dark:bg-blue-950/50">
+          <span className="font-medium text-blue-800 dark:text-blue-200">{selectedIds.size} selected</span>
+          <button type="button" onClick={toggleSelectAll} className="text-blue-700 underline hover:no-underline dark:text-blue-300">Deselect all</button>
+          <button type="button" onClick={handleBulkDelete} className="ml-auto rounded bg-rose-600 px-3 py-1 text-xs font-medium text-white hover:bg-rose-700">Delete</button>
+        </div>
       )}
 
-      {profileCustomer && (
-        <CustomerProfileModal
-          key={profileCustomer.id}
-          customer={profileCustomer}
-          onClose={() => {
-            setProfileCustomer(null);
-            setProfileError(null);
-          }}
-          onSubmit={handleProfileUpdate}
-          error={profileError}
-          disabled={isPending}
-          role={role}
-        />
+      {customers.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
+          <Users className="mb-3 h-10 w-10 text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">
+            {sp.get("query") || tagFilterValue ? "No customers match your search." : "No customers yet."}
+          </p>
+          {!isViewer && !sp.get("query") && !tagFilterValue && (
+            <button type="button" onClick={() => router.push("/customers/new")} className="mt-3 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Add Customer</button>
+          )}
+        </div>
+      ) : (
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {customers.map((c) => (
+              <CustomerCard
+                key={c.id}
+                customer={c}
+                isSelected={selectedIds.has(c.id)}
+                onToggleSelect={toggleSelect}
+                onView={() => router.push(`/customers/${c.id}`)}
+                isViewer={isViewer}
+              />
+            ))}
+          </div>
+        </>
+      )}
+
+      {totalPages > 1 && (
+        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+      )}
+
+      {formError && !addOpen && (
+        <p className="rounded-lg bg-rose-100 px-3 py-2 text-sm text-rose-700 dark:bg-rose-950 dark:text-rose-200">{formError}</p>
+      )}
+
+      <FilterDrawer
+        open={filterOpen}
+        onClose={() => setFilterOpen(false)}
+        tagFilter={tagFilterValue}
+        repeatFilter={repeatFilterValue}
+        allTags={allTags}
+        onTagChange={(v) => applyFilter("tag", v)}
+        onRepeatChange={(v) => applyFilter("isRepeat", v)}
+        onClear={() => router.push("/customers")}
+      />
+
+      {addOpen && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 px-4 py-8" onMouseDown={(e) => { if (e.target === e.currentTarget) setAddOpen(false); }}>
+          <div className="w-full max-w-2xl rounded-xl border border-border bg-card p-6 shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-card-foreground">Add Customer</h2>
+              <button type="button" onClick={() => setAddOpen(false)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
+            </div>
+            <CustomerForm error={formError} disabled={isPending} onSubmit={handleCreate} />
+          </div>
+        </div>
       )}
     </section>
   );
 }
 
-
-type CustomerFormModalProps = {
-  title: string;
-  submitLabel: string;
-  initial?: CustomerListItem;
-  onClose: () => void;
-  onSubmit: (formData: FormData) => void;
-  error: string | null;
-  disabled: boolean;
-};
-
-function CustomerFormModal({ title, submitLabel, initial, onClose, onSubmit, error, disabled }: CustomerFormModalProps) {
+function StatCard({ label, value, accent }: { label: string; value: string; accent?: "amber" | "blue" }) {
+  const valClass = accent === "amber"
+    ? "text-amber-600 dark:text-amber-400"
+    : accent === "blue"
+      ? "text-blue-600 dark:text-blue-400"
+      : "text-card-foreground";
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-8"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="customer-form-title"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget && !disabled) onClose();
-      }}
-    >
-      <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl border border-border bg-card p-6 shadow-lg">
-        <h2 id="customer-form-title" className="text-lg font-semibold text-card-foreground">
-          {title}
-        </h2>
-        <form
-          className="mt-4 space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onSubmit(new FormData(e.currentTarget));
-          }}
-        >
-          {initial && <input type="hidden" name="id" value={initial.id} />}
-          <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">সম্পূর্ণ নাম</span>
-            <input
-              name="name"
-              required
-              defaultValue={initial?.fullName}
-              disabled={disabled}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500 disabled:opacity-60"
-            />
-          </label>
-          <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">ফোন</span>
-            <input
-              name="phone"
-              type="tel"
-              required
-              defaultValue={initial?.phone}
-              disabled={disabled}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500 disabled:opacity-60"
-            />
-          </label>
-          <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">ইমেল (ঐচ্ছিক)</span>
-            <input
-              name="email"
-              type="email"
-              defaultValue={initial?.email ?? ""}
-              disabled={disabled}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500 disabled:opacity-60"
-            />
-          </label>
-          <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">নোট</span>
-            <textarea
-              name="notes"
-              rows={4}
-              defaultValue={initial?.notes ?? ""}
-              disabled={disabled}
-              placeholder="পছন্দ, ফলো-আপ, সাপোর্ট ইতিহাস…"
-              className="w-full resize-y rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500 disabled:opacity-60"
-            />
-          </label>
-          {error && <p className="rounded-lg bg-rose-100 px-3 py-2 text-sm text-rose-700">{error}</p>}
-          <div className="flex flex-wrap justify-end gap-2 pt-2">
-            <button
-              type="button"
-              disabled={disabled}
-              onClick={onClose}
-              className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-60"
-            >
-              বাতিল
-            </button>
-            <button
-              type="submit"
-              disabled={disabled}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-70"
-            >
-              {disabled ? "অনুগ্রহ করে অপেক্ষা করুন…" : submitLabel}
-            </button>
+    <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <h2 className={`mt-2 text-3xl font-bold tracking-tight ${valClass}`}>{value}</h2>
+    </div>
+  );
+}
+
+function CustomerCard({ customer, isSelected, onToggleSelect, onView, isViewer }: {
+  customer: CustomerListItem;
+  isSelected: boolean;
+  onToggleSelect: (id: string) => void;
+  onView: () => void;
+  isViewer: boolean;
+}) {
+  return (
+    <div className={`group relative overflow-hidden rounded-xl border bg-card shadow-sm transition hover:shadow-md cursor-pointer ${isSelected ? "border-blue-500 ring-1 ring-blue-500" : "border-border"}`} onClick={onView}>
+      {!isViewer && (
+        <div className="absolute left-2 top-2 z-10" onClick={(e) => e.stopPropagation()}>
+          <input type="checkbox" checked={isSelected} onChange={() => onToggleSelect(customer.id)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+        </div>
+      )}
+      <div className="p-4">
+        <div className="flex items-center gap-3">
+          <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border border-border bg-muted/30">
+            {customer.avatarUrl ? (
+              <img src={customer.avatarUrl} alt={customer.fullName} className="h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-sm font-bold text-white">
+                {customer.fullName.charAt(0).toUpperCase()}
+              </div>
+            )}
           </div>
-        </form>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5">
+              <h3 className="truncate text-sm font-semibold text-card-foreground">{customer.fullName}</h3>
+              {customer.isRepeat && <Star className="h-3.5 w-3.5 flex-shrink-0 fill-amber-400 text-amber-400" />}
+            </div>
+            {customer.businessName && <p className="truncate text-xs text-muted-foreground">{customer.businessName}</p>}
+          </div>
+        </div>
+
+        <div className="mt-3 space-y-1">
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Phone className="h-3 w-3" /> {customer.phone}
+          </p>
+          {customer.email && (
+            <p className="flex items-center gap-1.5 text-xs text-muted-foreground truncate">
+              <Mail className="h-3 w-3" /> {customer.email}
+            </p>
+          )}
+        </div>
+
+        {customer.tags.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1">
+            {customer.tags.slice(0, 3).map((t) => (
+              <span key={t} className={tagBadgeClass(t)}>{t}</span>
+            ))}
+            {customer.tags.length > 3 && <span className="text-[10px] text-muted-foreground">+{customer.tags.length - 3}</span>}
+          </div>
+        )}
+
+        <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-3">
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Package className="h-3 w-3" /> {customer.orderCount} orders
+          </div>
+          <p className="text-sm font-semibold text-card-foreground">{formatLtv(customer.totalSpentBdt)}</p>
+        </div>
       </div>
     </div>
   );
 }
 
-type CustomerProfileModalProps = {
-  customer: CustomerListItem;
-  onClose: () => void;
-  onSubmit: (formData: FormData) => void;
-  error: string | null;
-  disabled: boolean;
-  role: string;
-};
+function Pagination({ currentPage, totalPages, onPageChange }: { currentPage: number; totalPages: number; onPageChange: (page: number) => void }) {
+  const pages: (number | "...")[] = [];
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+      pages.push(i);
+    } else if (pages[pages.length - 1] !== "...") {
+      pages.push("...");
+    }
+  }
 
-function CustomerProfileModal({ customer, onClose, onSubmit, error, disabled, role }: CustomerProfileModalProps) {
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-8"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="customer-profile-title"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget && !disabled) onClose();
-      }}
-    >
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-border bg-card p-6 shadow-lg">
-        <div className="flex items-start justify-between gap-3">
+    <nav className="flex items-center justify-center gap-1" aria-label="Pagination">
+      <button type="button" disabled={currentPage <= 1} onClick={() => onPageChange(currentPage - 1)} className="flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40">
+        <ChevronLeft className="h-4 w-4" /> Prev
+      </button>
+      {pages.map((p, i) =>
+        p === "..." ? (
+          <span key={`e${i}`} className="px-2 text-muted-foreground">…</span>
+        ) : (
+          <button key={p} type="button" onClick={() => onPageChange(p)} className={`min-w-[2.25rem] rounded-lg px-3 py-2 text-sm font-medium transition ${p === currentPage ? "bg-blue-600 text-white" : "border border-border text-foreground hover:bg-muted"}`}>{p}</button>
+        ),
+      )}
+      <button type="button" disabled={currentPage >= totalPages} onClick={() => onPageChange(currentPage + 1)} className="flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40">
+        Next <ChevronRight className="h-4 w-4" />
+      </button>
+    </nav>
+  );
+}
+
+function FilterDrawer({ open, onClose, tagFilter, repeatFilter, allTags, onTagChange, onRepeatChange, onClear }: {
+  open: boolean;
+  onClose: () => void;
+  tagFilter: string;
+  repeatFilter: string;
+  allTags: string[];
+  onTagChange: (v: string) => void;
+  onRepeatChange: (v: string) => void;
+  onClear: () => void;
+}) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="w-80 max-w-full border-l border-border bg-card p-6 shadow-lg">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-semibold text-card-foreground">Filters</h2>
+          <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
+        </div>
+        <div className="space-y-5">
           <div>
-            <h2 id="customer-profile-title" className="text-lg font-semibold text-card-foreground">
-              গ্রাহক প্রোফাইল
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">{customer.fullName}</p>
+            <label className="text-sm font-medium text-card-foreground">Tag</label>
+            <select value={tagFilter} onChange={(e) => onTagChange(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-blue-500">
+              <option value="">All Tags</option>
+              {allTags.map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={disabled}
-            className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
-            aria-label="বন্ধ"
-          >
-            ×
-          </button>
+          <div>
+            <label className="text-sm font-medium text-card-foreground">Buyer Type</label>
+            <select value={repeatFilter} onChange={(e) => onRepeatChange(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-blue-500">
+              <option value="">All</option>
+              <option value="yes">Repeat Buyers</option>
+              <option value="no">First-Time</option>
+            </select>
+          </div>
+          <button type="button" onClick={onClear} className="w-full rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground hover:bg-muted">Clear all filters</button>
         </div>
-
-        <div className="mt-6 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-lg border border-border bg-muted/30 px-3 py-3">
-            <p className="text-xs text-muted-foreground">মোট অর্ডার</p>
-            <p className="mt-1 text-lg font-semibold text-card-foreground">{customer.orderCount}</p>
-            <p className="mt-1 text-xs text-muted-foreground">শুধুমাত্র লিঙ্কযুক্ত অর্ডার</p>
-          </div>
-          <div className="rounded-lg border border-border bg-muted/30 px-3 py-3">
-            <p className="text-xs text-muted-foreground">মোট খরচ</p>
-            <p className="mt-1 text-lg font-semibold text-card-foreground">{customer.totalSpentLabel}</p>
-          </div>
-          <div className="rounded-lg border border-border bg-muted/30 px-3 py-3">
-            <p className="text-xs text-muted-foreground">পুনরাবৃত্তি গ্রাহক</p>
-            <p className="mt-1 text-lg font-semibold text-card-foreground">{customer.isRepeat ? "হ্যাঁ" : "না"}</p>
-            <p className="mt-1 text-xs text-muted-foreground">{customer.isRepeat ? "২+ লিঙ্কযুক্ত অর্ডার" : "০-১ অর্ডার"}</p>
-          </div>
-        </div>
-
-        <p className="mt-4 text-xs text-muted-foreground">
-          তৈরি {customer.createdAtLabel} · আপডেট {customer.updatedAtLabel}
-        </p>
-
-        <form
-          className="mt-6 space-y-4 border-t border-border pt-6"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onSubmit(new FormData(e.currentTarget));
-          }}
-        >
-          <input type="hidden" name="id" value={customer.id} />
-          <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">সম্পূর্ণ নাম</span>
-            <input
-              name="name"
-              required
-              defaultValue={customer.fullName}
-              disabled={disabled || role === "viewer"}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500 disabled:opacity-60"
-            />
-          </label>
-          <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">ফোন</span>
-            <input
-              name="phone"
-              type="tel"
-              required
-              defaultValue={customer.phone}
-              disabled={disabled || role === "viewer"}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500 disabled:opacity-60"
-            />
-          </label>
-          <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">ইমেল (ঐচ্ছিক)</span>
-            <input
-              name="email"
-              type="email"
-              defaultValue={customer.email ?? ""}
-              disabled={disabled || role === "viewer"}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500 disabled:opacity-60"
-            />
-          </label>
-          <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">নোট</span>
-            <textarea
-              name="notes"
-              rows={5}
-              defaultValue={customer.notes}
-              disabled={disabled || role === "viewer"}
-              placeholder="সিআরএম নোট…"
-              className="w-full resize-y rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500 disabled:opacity-60"
-            />
-          </label>
-          {error && <p className="rounded-lg bg-rose-100 px-3 py-2 text-sm text-rose-700">{error}</p>}
-          <div className="flex flex-wrap justify-end gap-2">
-            <button
-              type="button"
-              disabled={disabled}
-              onClick={onClose}
-              className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-60"
-            >
-              বন্ধ
-            </button>
-            {role !== "viewer" && (
-              <button
-                type="submit"
-                disabled={disabled}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-70"
-              >
-                {disabled ? "সংরক্ষণ করা হচ্ছে…" : "প্রোফাইল সংরক্ষণ করুন"}
-              </button>
-            )}
-          </div>
-        </form>
       </div>
     </div>
   );

@@ -24,15 +24,20 @@ export function mapCustomerToListItem(
   const orderCount = stats?.orderCount ?? 0;
   const totalSpentBdt = stats?.totalSpentBdt ?? 0;
 
+  const tags = Array.isArray(row.tags) ? (row.tags as string[]) : [];
+
   return {
     id: row.id,
     fullName: row.name,
+    businessName: row.business_name ?? "",
     phone: row.phone,
     email: row.email,
+    avatarUrl: row.avatar_url,
+    tags,
     notes: row.notes ?? "",
     orderCount,
     totalSpentBdt,
-    totalSpentLabel: `BDT ${totalSpentBdt.toLocaleString("en-BD")}`,
+    totalSpentLabel: `৳${totalSpentBdt.toLocaleString("en-BD")}`,
     createdAtLabel: formatOrderDate(row.created_at),
     updatedAtLabel: formatOrderDate(row.updated_at),
     isRepeat: orderCount >= 2,

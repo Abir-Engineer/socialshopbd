@@ -3,6 +3,9 @@ import type { Database } from "@/types/supabase";
 import type { AnalyticsSnapshot, LowStockRow, MonthlyPoint, CustomerMonthlyPoint, StatusSlice, TopProductRow, RecentOrderActivity } from "@/types/analytics";
 
 type OrderRow = Database["public"]["Tables"]["orders"]["Row"];
+type OrderItemRow = Database["public"]["Tables"]["order_items"]["Row"];
+type ProductRow = Database["public"]["Tables"]["products"]["Row"];
+type ExpenseRow = Database["public"]["Tables"]["expenses"]["Row"];
 
 const MS_DAY = 86_400_000;
 const LOW_STOCK_THRESHOLD = 10;
@@ -50,11 +53,12 @@ export async function buildAnalyticsSnapshot(
   since.setMonth(since.getMonth() - 15);
   const sinceIso = since.toISOString();
 
-  // Fetch orders, products, and customers
-  const [ordersRes, productsRes, customersRes] = await Promise.all([
-    supabase.from("orders").select("id, amount_bdt, status, customer_id, customer_name, order_number, created_at").gte("created_at", sinceIso),
-    supabase.from("products").select("id, name, sku, stock").order("stock", { ascending: true }),
+  // Fetch orders, products, customers, and expenses
+  const [ordersRes, productsRes, customersRes, expensesRes] = await Promise.all([
+    supabase.from("orders").select("id, amount_bdt, status, customer_id, customer_name, order_number, created_at, delivery_charge_bdt, discount_bdt, coupon_discount_bdt, shipping_cost_bdt").gte("created_at", sinceIso),
+    supabase.from("products").select("id, name, sku, stock, cost_price_bdt"),
     supabase.from("customers").select("id, created_at").gte("created_at", sinceIso),
+    supabase.from("expenses").select("amount_bdt, date").gte("date", sinceIso),
   ]);
 
   const emptyMonthly = (): MonthlyPoint[] =>
@@ -63,6 +67,8 @@ export async function buildAnalyticsSnapshot(
       label: labelForMonthKey(key),
       revenue: 0,
       orders: 0,
+      profit: 0,
+      courierCost: 0,
     }));
 
   const emptyMonthlyCustomers = (): CustomerMonthlyPoint[] =>
@@ -95,6 +101,9 @@ export async function buildAnalyticsSnapshot(
       orders7dGrowthPct: null,
       repeatBuyerCount: 0,
       repeatOrderSharePct: null,
+      profit30d: 0,
+      courierCost30d: 0,
+      expenses30d: 0,
       monthly: emptyMonthly(),
       monthlyCustomers: emptyMonthlyCustomers(),
       statusBreakdown: [],
@@ -107,14 +116,27 @@ export async function buildAnalyticsSnapshot(
   const orders = ordersRes.data ?? [];
   const products = productsRes.data ?? [];
   const customers = customersRes.error ? [] : (customersRes.data ?? []);
+  const expenses = expensesRes.error ? [] : (expensesRes.data ?? []);
+
+  const productCostMap = new Map<string, number>();
+  for (const p of products) {
+    productCostMap.set(p.id, p.cost_price_bdt);
+  }
 
   // OPTIMIZED QUERY: Fetch order items only for the recent orders in the snapshot window
   const orderIds = orders.map((o) => o.id);
   const itemsRes = orderIds.length > 0
-    ? await supabase.from("order_items").select("product_id, quantity, line_total_bdt").in("order_id", orderIds)
+    ? await supabase.from("order_items").select("product_id, quantity, line_total_bdt, order_id").in("order_id", orderIds)
     : { data: [], error: null };
-  
+
   const items = itemsRes.error ? [] : (itemsRes.data ?? []);
+
+  const itemsByOrder = new Map<string, { product_id: string; quantity: number; line_total_bdt: number }[]>();
+  for (const item of items) {
+    const list = itemsByOrder.get(item.order_id) ?? [];
+    list.push(item);
+    itemsByOrder.set(item.order_id, list);
+  }
 
   const now = Date.now();
   
@@ -132,28 +154,45 @@ export async function buildAnalyticsSnapshot(
   let revenuePrev30d = 0;
   let orders30d = 0;
   let ordersPrev30d = 0;
+  let profit30d = 0;
+  let courierCost30d = 0;
 
   let revenue7d = 0;
   let revenuePrev7d = 0;
   let orders7d = 0;
   let ordersPrev7d = 0;
 
-  const monthMap = new Map<string, { revenue: number; orders: number }>();
+  const monthMap = new Map<string, { revenue: number; orders: number; profit: number; courierCost: number }>();
   for (const key of buildLast12MonthKeys()) {
-    monthMap.set(key, { revenue: 0, orders: 0 });
+    monthMap.set(key, { revenue: 0, orders: 0, profit: 0, courierCost: 0 });
   }
 
   const statusMap = new Map<string, { count: number; revenue: number }>();
   const customerCounts = new Map<string, number>();
 
+  function calcCogs(o: { id: string }): number {
+    const orderItems = itemsByOrder.get(o.id) ?? [];
+    let cogs = 0;
+    for (const item of orderItems) {
+      cogs += (productCostMap.get(item.product_id) ?? 0) * item.quantity;
+    }
+    return cogs;
+  }
+
   for (const o of orders) {
     const t = new Date(o.created_at).getTime();
     const rev = revenueForOrder(o);
+    const cogs = calcCogs(o);
+    const shippingCost = o.shipping_cost_bdt ?? 0;
+    const discountTotal = (o.discount_bdt ?? 0) + (o.coupon_discount_bdt ?? 0);
+    const profit = rev - cogs - shippingCost - discountTotal;
 
     // 30 day periods
     if (t >= cur30Start) {
       revenue30d += rev;
       orders30d += 1;
+      profit30d += profit;
+      courierCost30d += shippingCost;
     } else if (t >= prev30Start && t < prev30End) {
       revenuePrev30d += rev;
       ordersPrev30d += 1;
@@ -173,6 +212,8 @@ export async function buildAnalyticsSnapshot(
       const b = monthMap.get(mk)!;
       b.revenue += rev;
       b.orders += 1;
+      b.profit += profit;
+      b.courierCost += shippingCost;
     }
 
     const st = statusMap.get(o.status) ?? { count: 0, revenue: 0 };
@@ -226,7 +267,7 @@ export async function buildAnalyticsSnapshot(
 
   const monthly: MonthlyPoint[] = buildLast12MonthKeys().map((key) => {
     const b = monthMap.get(key)!;
-    return { key, label: labelForMonthKey(key), revenue: b.revenue, orders: b.orders };
+    return { key, label: labelForMonthKey(key), revenue: b.revenue, orders: b.orders, profit: b.profit, courierCost: b.courierCost };
   });
 
   const monthlyCustomers: CustomerMonthlyPoint[] = buildLast12MonthKeys().map((key) => {
@@ -280,6 +321,11 @@ export async function buildAnalyticsSnapshot(
   const aov30d = orders30d > 0 ? revenue30d / orders30d : null;
   const aovPrev30d = ordersPrev30d > 0 ? revenuePrev30d / ordersPrev30d : null;
 
+  const expense30dStart = new Date(Date.now() - 30 * MS_DAY).toISOString().slice(0, 10);
+  const expenses30d = expenses
+    .filter((e) => e.date >= expense30dStart)
+    .reduce((s, e) => s + e.amount_bdt, 0);
+
   return {
     revenue30d,
     revenuePrev30d,
@@ -301,6 +347,10 @@ export async function buildAnalyticsSnapshot(
     orders7d,
     ordersPrev7d,
     orders7dGrowthPct: pctGrowth(orders7d, ordersPrev7d),
+
+    profit30d: Math.max(0, profit30d - expenses30d),
+    courierCost30d,
+    expenses30d,
 
     repeatBuyerCount,
     repeatOrderSharePct,

@@ -9,6 +9,8 @@ import { canAccessModule } from "@/lib/permissions";
 import type { PermissionModule } from "@/lib/permissions";
 import { Icon } from "@/components/ui/icon";
 import { ProfileDropdown } from "@/components/dashboard/profile-dropdown";
+import { GlobalSearch } from "@/components/dashboard/global-search";
+import { NotificationCenter } from "@/components/dashboard/notification-center";
 
 const NAV_MODULE_MAP: Record<string, PermissionModule> = {
   "/dashboard": "dashboard",
@@ -151,7 +153,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 </div>
                 <span className="ml-2 mt-0.5 h-2 w-2 rounded-full bg-emerald-500 animate-pulse-dot shrink-0" title="লাইভ" />
               </div>
+              <div className="hidden sm:block flex-1 max-w-md mx-4">
+                <GlobalSearch />
+              </div>
               <div className="flex items-center gap-2">
+                <NotificationCenter />
                 <ProfileDropdown />
               </div>
             </div>
