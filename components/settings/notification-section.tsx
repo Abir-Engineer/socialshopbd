@@ -37,7 +37,7 @@ export function NotificationSection({ orgId, initial }: Props) {
     const supabase = getSupabaseBrowserClient();
     await upsertNotificationPrefs(supabase, orgId, prefs as never);
     setSaving(false);
-    toast.success("Notification preferences saved.");
+    toast.success("Notification preferences have been saved successfully.");
   };
 
   return (
@@ -53,7 +53,7 @@ export function NotificationSection({ orgId, initial }: Props) {
           onClick={handleSave}
           className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60 transition cursor-pointer"
         >
-          {saving ? "Saving..." : "Save"}
+          {saving ? "Saving..." : "Save Notification Settings"}
         </button>
       </div>
       <div className="space-y-2">

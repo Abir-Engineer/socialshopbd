@@ -10,13 +10,13 @@ import { CTASection } from "@/components/landing/cta-section";
 import { LandingFooter } from "@/components/landing/landing-footer";
 
 export const metadata: Metadata = {
-  title: "Social Shop BD - Smart Commerce Management Platform",
+  title: "SocialShopBD — The All-in-One Commerce OS for Bangladesh",
   description:
-    "Products, Orders, Customers, Analytics and Team Management — everything in one platform for Facebook Sellers, Online Shops & Growing Businesses.",
+    "Products, Orders, Customers, Analytics & Team — all in one platform built for Facebook sellers, Instagram shops & growing brands in Bangladesh.",
   openGraph: {
-    title: "Social Shop BD - Smart Commerce Management Platform",
+    title: "SocialShopBD — The All-in-One Commerce OS for Bangladesh",
     description:
-      "Manage your business from one powerful dashboard. Built for Facebook sellers and growing businesses.",
+      "Your entire business. One dashboard. Built for Bangladeshi sellers.",
   },
 };
 

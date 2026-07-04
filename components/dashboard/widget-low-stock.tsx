@@ -22,7 +22,7 @@ export function WidgetLowStock({ data }: Props) {
         {data.length === 0 ? (
           <div className="flex flex-col items-center gap-2 px-5 py-8 text-center">
             <Package className="h-8 w-8 text-emerald-500/60" />
-            <p className="text-sm text-muted-foreground">All stocked up</p>
+            <p className="text-sm text-muted-foreground">Fully stocked</p>
           </div>
         ) : (
           data.map((item) => (

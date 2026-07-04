@@ -58,7 +58,7 @@ export function CheckoutForm({ shop, products }: CheckoutFormProps) {
             <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
           </svg>
         </div>
-        <h2 className="mt-6 text-2xl font-bold text-foreground">Order Placed Successfully!</h2>
+        <h2 className="mt-6 text-2xl font-bold text-foreground">Order placed successfully</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Thank you for shopping with <span className="font-semibold text-foreground">{shop.shop_name}</span>.
         </p>
@@ -73,7 +73,7 @@ export function CheckoutForm({ shop, products }: CheckoutFormProps) {
             <span className="font-medium text-foreground">{selectedProduct?.name}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Qty:</span>
+            <span className="text-muted-foreground">Quantity:</span>
             <span className="font-medium text-foreground">{quantity}</span>
           </div>
           <div className="border-t border-border pt-3 flex justify-between text-base font-semibold">
@@ -168,7 +168,7 @@ export function CheckoutForm({ shop, products }: CheckoutFormProps) {
             disabled={isPending || products.length === 0}
             className="w-full rounded-2xl bg-blue-600 py-4 text-sm font-semibold text-white shadow-lg shadow-blue-500/10 transition hover:bg-blue-700 active:scale-95 disabled:opacity-60"
           >
-            {isPending ? "Processing Order..." : "Confirm Cash on Delivery"}
+            {isPending ? "Processing Order…" : "Confirm Cash on Delivery"}
           </button>
         </form>
 
@@ -179,7 +179,7 @@ export function CheckoutForm({ shop, products }: CheckoutFormProps) {
 
             {products.length === 0 ? (
               <div className="text-center py-8 text-sm text-muted-foreground">
-                No active products available for purchase.
+                No products available for purchase right now.
               </div>
             ) : (
               <div className="space-y-4">

@@ -128,7 +128,7 @@ export function CustomersView({ initialCustomers, totalCount, totalPages, curren
         {!isViewer && (
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={handleExport} disabled={exportLoading} className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-50">
-              <Download className="h-4 w-4" /> Export
+              <Download className="h-4 w-4" /> Export CSV
             </button>
             <button type="button" onClick={() => router.push("/customers/new")} className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700">
               <Users className="h-4 w-4" /> Add Customer
@@ -174,7 +174,7 @@ export function CustomersView({ initialCustomers, totalCount, totalPages, curren
         <div className="flex flex-wrap items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm dark:border-blue-900 dark:bg-blue-950/50">
           <span className="font-medium text-blue-800 dark:text-blue-200">{selectedIds.size} selected</span>
           <button type="button" onClick={toggleSelectAll} className="text-blue-700 underline hover:no-underline dark:text-blue-300">Deselect all</button>
-          <button type="button" onClick={handleBulkDelete} className="ml-auto rounded bg-rose-600 px-3 py-1 text-xs font-medium text-white hover:bg-rose-700">Delete</button>
+            <button type="button" onClick={handleBulkDelete} className="ml-auto rounded bg-rose-600 px-3 py-1 text-xs font-medium text-white hover:bg-rose-700">Delete Customers</button>
         </div>
       )}
 
@@ -182,8 +182,9 @@ export function CustomersView({ initialCustomers, totalCount, totalPages, curren
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
           <Users className="mb-3 h-10 w-10 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">
-            {sp.get("query") || tagFilterValue ? "No customers match your search." : "No customers yet."}
+            {sp.get("query") || tagFilterValue ? "No customers match your search." : "No customers yet"}
           </p>
+          <p className="mt-1 text-xs text-muted-foreground">Customers will appear here after receiving orders.</p>
           {!isViewer && !sp.get("query") && !tagFilterValue && (
             <button type="button" onClick={() => router.push("/customers/new")} className="mt-3 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Add Customer</button>
           )}
@@ -239,6 +240,13 @@ export function CustomersView({ initialCustomers, totalCount, totalPages, curren
   );
 }
 
+const CUSTOMERS_STAT_TOOLTIPS: Record<string, string> = {
+  "Total Customers": "All registered customers",
+  "Repeat Buyers": "Customers with repeat purchases",
+  "Total LTV": "Lifetime value of all customers",
+  "Avg Order Value": "Average amount per customer order",
+};
+
 function StatCard({ label, value, accent }: { label: string; value: string; accent?: "amber" | "blue" }) {
   const valClass = accent === "amber"
     ? "text-amber-600 dark:text-amber-400"
@@ -247,7 +255,7 @@ function StatCard({ label, value, accent }: { label: string; value: string; acce
       : "text-card-foreground";
   return (
     <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className="text-sm text-muted-foreground" title={CUSTOMERS_STAT_TOOLTIPS[label] ?? label}>{label}</p>
       <h2 className={`mt-2 text-3xl font-bold tracking-tight ${valClass}`}>{value}</h2>
     </div>
   );

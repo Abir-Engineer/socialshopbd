@@ -22,8 +22,8 @@ export function TrialBanner({ daysLeft }: TrialBannerProps) {
 
   const message =
     daysLeft === 0
-      ? "আপনার ফ্রি ট্রায়াল আজ শেষ হচ্ছে!"
-      : `${daysLeft} দিন বাকি আপনার ফ্রি ট্রায়ালে।`;
+      ? "Your free trial ends today!"
+      : `${daysLeft} ${daysLeft === 1 ? "day" : "days"} left on your free trial.`;
 
   return (
     <div className={`relative flex items-center justify-between gap-4 rounded-xl px-4 py-3 text-white shadow-md ${styles[urgency]}`}>
@@ -32,7 +32,7 @@ export function TrialBanner({ daysLeft }: TrialBannerProps) {
         <p className="text-sm font-medium truncate">
           {message}{" "}
           <Link href="/billing" className="underline underline-offset-2 hover:opacity-80 transition font-semibold">
-            প্রো-তে আপগ্রেড করুন
+            Upgrade to Pro
           </Link>
         </p>
       </div>
@@ -40,7 +40,7 @@ export function TrialBanner({ daysLeft }: TrialBannerProps) {
         type="button"
         onClick={() => setDismissed(true)}
         className="shrink-0 rounded p-0.5 hover:bg-white/20 transition"
-        aria-label="ট্রায়াল ব্যানারটি বন্ধ করুন"
+        aria-label="Dismiss trial banner"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4" aria-hidden>
           <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />

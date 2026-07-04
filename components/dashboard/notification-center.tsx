@@ -95,7 +95,7 @@ export function NotificationCenter() {
                 onClick={markAllRead}
                 className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 transition"
               >
-                Mark all read
+                Mark all as read
               </button>
             )}
           </div>
@@ -103,8 +103,8 @@ export function NotificationCenter() {
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
                 <Bell className="h-8 w-8 text-muted-foreground/40" />
-                <p className="text-sm text-muted-foreground">No notifications yet</p>
-                <p className="text-xs text-muted-foreground/60">Notifications will appear here as they arrive.</p>
+                <p className="text-sm text-muted-foreground">All caught up</p>
+                <p className="text-xs text-muted-foreground/60">No new notifications.</p>
               </div>
             ) : (
               notifications.map((n) => (

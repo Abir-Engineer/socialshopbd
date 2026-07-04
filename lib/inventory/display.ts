@@ -41,7 +41,7 @@ export function stockStatusBadge(stock: number): string {
 
 export function stockStatusLabel(stock: number): string {
   const status = getStockStatus(stock);
-  if (status === "out_of_stock") return "স্টকে নেই";
-  if (status === "low_stock") return "স্বল্প স্টক";
-  return "স্টকে আছে";
+  if (status === "out_of_stock") return "Out of Stock";
+  if (status === "low_stock") return "Low Stock";
+  return "In Stock";
 }

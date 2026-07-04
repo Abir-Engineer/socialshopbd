@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const stats = [
-  { value: "500+", label: "Businesses" },
+  { value: "500+", label: "Active Businesses" },
   { value: "10K+", label: "Orders Managed" },
   { value: "99.9%", label: "Uptime" },
 ];
@@ -28,20 +28,20 @@ export function HeroSection() {
       <div className="relative mx-auto max-w-4xl text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/10 px-4 py-1.5 text-xs font-medium text-violet-300">
           <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />
-          Smart Commerce Management Platform
+          The All-in-One Commerce OS for Bangladesh
         </div>
 
         <h1 className="mt-6 text-3xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
-          Manage Your Business
+          Your Entire Business.
           <br />
           <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
-            From One Powerful Dashboard
+            One Dashboard.
           </span>
         </h1>
 
         <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-          Products, Orders, Customers, Analytics and Team Management &mdash;
-          everything in one platform.
+          Products, Orders, Customers, Analytics & Team &mdash;
+          all in one platform built for Bangladeshi sellers.
         </p>
 
         <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -49,7 +49,7 @@ export function HeroSection() {
             href={dashboardHref}
             className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-violet-500/30 transition hover:opacity-90 hover:shadow-violet-500/40"
           >
-            Start Free
+            Start Free →
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
               <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -91,7 +91,7 @@ export function HeroSection() {
           <div className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-4 sm:gap-4 sm:p-6">
             <div className="rounded-xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 to-fuchsia-500/5 p-4">
               <p className="text-xs text-slate-400">Total Revenue</p>
-              <p className="mt-1 text-xl font-bold text-white sm:text-2xl">৳45,200</p>
+              <p className="mt-1 text-xl font-bold text-white sm:text-2xl">BDT 45,200</p>
               <p className="mt-1 text-xs text-emerald-400">+12.5%</p>
             </div>
             <div className="rounded-xl border border-sky-500/20 bg-gradient-to-br from-sky-500/10 to-blue-500/5 p-4">
@@ -115,7 +115,7 @@ export function HeroSection() {
               <div className="space-y-2">
                 <p className="text-xs text-slate-400">Weekly Sales</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold text-white sm:text-3xl">৳8,450</span>
+                  <span className="text-2xl font-bold text-white sm:text-3xl">BDT 8,450</span>
                   <span className="text-xs text-emerald-400">+18.3%</span>
                 </div>
               </div>

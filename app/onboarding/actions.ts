@@ -26,11 +26,11 @@ async function insertMembership(organization_id: string, user_id: string) {
 export async function createOrganization(formData: FormData): Promise<OnboardingResult> {
   try {
     const name = String(formData.get("name") ?? "").trim();
-    if (!name) return { ok: false, error: "Organization name is required." };
+    if (!name) return { ok: false, error: "Please enter an organization name." };
 
     const supabase = await getSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { ok: false, error: "Unauthorized." };
+    if (!user) return { ok: false, error: "You don't have permission to perform this action." };
 
     // ── Check if user already owns an org ──
     const { data: existingOrg } = await supabase
@@ -57,7 +57,7 @@ export async function createOrganization(formData: FormData): Promise<Onboarding
 
       if (!existingMembership) {
         const error = await insertMembership(existingOrg.id, user.id);
-        if (error) return { ok: false, error: error.message };
+        if (error) return { ok: false, error: "Something went wrong. Please try again." };
       }
 
       revalidatePath("/");
@@ -97,17 +97,17 @@ export async function createOrganization(formData: FormData): Promise<Onboarding
 
     if (orgError) {
       if (orgError.code === "23505") {
-        return { ok: false, error: "An organization with this slug already exists. Please try again." };
+        return { ok: false, error: "This organization name is already taken. Please try another." };
       }
-      return { ok: false, error: orgError.message };
+      return { ok: false, error: "Something went wrong. Please try again." };
     }
 
     const error = await insertMembership(org.id, user.id);
-    if (error) return { ok: false, error: error.message };
+    if (error) return { ok: false, error: "Something went wrong. Please try again." };
 
     revalidatePath("/");
     return { ok: true };
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "An unexpected error occurred." };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 }

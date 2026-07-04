@@ -74,7 +74,7 @@ export function OrderComments({ orderId, comments, role }: OrderCommentsProps) {
               disabled={isPending || !content.trim()}
               className="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
             >
-              <Send className="h-3 w-3" /> Send
+              <Send className="h-3 w-3" /> Send Comment
             </button>
           </div>
           {error && <p className="text-xs text-rose-500">{error}</p>}
@@ -82,7 +82,7 @@ export function OrderComments({ orderId, comments, role }: OrderCommentsProps) {
       )}
 
       {sorted.length === 0 ? (
-        <p className="py-4 text-center text-sm text-muted-foreground">No comments yet.</p>
+        <p className="py-4 text-center text-sm text-muted-foreground">No comments yet. Add the first comment.</p>
       ) : (
         <div className="space-y-3">
           {sorted.map((c) => (

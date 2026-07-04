@@ -52,7 +52,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
             href="/login"
             className="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-md hover:bg-blue-500 transition"
           >
-            Go to Login
+            Go to Sign In
           </Link>
         </div>
       </main>

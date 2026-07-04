@@ -121,7 +121,7 @@ export function ProductsView({ initialProducts, totalCount, totalPages, currentP
   };
 
   const handleDelete = (product: ProductRow) => {
-    if (!window.confirm(`"${product.name}" মুছবেন? এটি পূর্বাবস্থায় ফেরানো যাবে না।`)) return;
+    if (!window.confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
     setFormError(null);
     startTransition(async () => {
       const result = await deleteProduct(product.id);
@@ -193,34 +193,34 @@ export function ProductsView({ initialProducts, totalCount, totalPages, currentP
     <section className={`space-y-6 ${isPending ? "pointer-events-none opacity-60" : ""}`} aria-busy={isPending}>
       <header className="animate-fade-in flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">পণ্য</h1>
-          <p className="text-sm text-muted-foreground">পণ্যের ইনভেন্টরি ও লিস্টিং স্বাস্থ্য পর্যবেক্ষণ করুন।</p>
-          {isPending && <p className="mt-1 text-xs text-muted-foreground">সংরক্ষণ করা হচ্ছে…</p>}
+          <h1 className="text-2xl font-semibold text-foreground">Products</h1>
+          <p className="text-sm text-muted-foreground">Monitor product inventory and listing health.</p>
+          {isPending && <p className="mt-1 text-xs text-muted-foreground">Saving…</p>}
         </div>
         {!isViewer && (
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={handleExport} disabled={exportLoading} className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-50">
-              <Download className="h-4 w-4" /> Export
+              <Download className="h-4 w-4" /> Export CSV
             </button>
             <button type="button" onClick={() => { setImportOpen(true); setImportResult(null); setImportCsv(""); }} className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted">
-              <Upload className="h-4 w-4" /> Import
+              <Upload className="h-4 w-4" /> Import CSV
             </button>
             <button
               type="button"
               onClick={() => { setFormError(null); setAddOpen(true); }}
               className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
             >
-              <Package className="h-4 w-4" /> নতুন পণ্য
+              <Package className="h-4 w-4" /> Add Product
             </button>
           </div>
         )}
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="মোট পণ্য" value={totalCount.toLocaleString("en-BD")} />
-        <StatCard label="এই পৃষ্ঠায়" value={products.length.toLocaleString("en-BD")} />
-        <StatCard label="স্বল্প স্টক" value={stats.lowStock.toLocaleString("en-BD")} accent="amber" />
-        <StatCard label="স্টকে নেই" value={stats.outOfStock.toLocaleString("en-BD")} accent="rose" />
+        <StatCard label="Total Products" value={totalCount.toLocaleString("en-BD")} />
+        <StatCard label="On This Page" value={products.length.toLocaleString("en-BD")} />
+        <StatCard label="Low Stock" value={stats.lowStock.toLocaleString("en-BD")} accent="amber" />
+        <StatCard label="Out of Stock" value={stats.outOfStock.toLocaleString("en-BD")} accent="rose" />
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -262,8 +262,8 @@ export function ProductsView({ initialProducts, totalCount, totalPages, currentP
         <div className="flex flex-wrap items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm dark:border-blue-900 dark:bg-blue-950/50">
           <span className="font-medium text-blue-800 dark:text-blue-200">{selectedIds.size} selected</span>
           <button type="button" onClick={toggleSelectAll} className="text-blue-700 underline hover:no-underline dark:text-blue-300">Deselect all</button>
-          <button type="button" onClick={() => setBulkAction("update")} className="ml-auto rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700">Update</button>
-          <button type="button" onClick={() => setBulkAction("delete")} className="rounded bg-rose-600 px-3 py-1 text-xs font-medium text-white hover:bg-rose-700">Delete</button>
+          <button type="button" onClick={() => setBulkAction("update")} className="ml-auto rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700">Update Products</button>
+          <button type="button" onClick={() => setBulkAction("delete")} className="rounded bg-rose-600 px-3 py-1 text-xs font-medium text-white hover:bg-rose-700">Delete Products</button>
         </div>
       )}
 
@@ -271,7 +271,7 @@ export function ProductsView({ initialProducts, totalCount, totalPages, currentP
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
           <Package className="mb-3 h-10 w-10 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">
-            {sp.get("query") || category || brand ? "No products match your search." : "এখনো কোনো পণ্য নেই।"}
+            {sp.get("query") || category || brand ? "No products match your search." : "No products found"}
           </p>
           {!isViewer && !sp.get("query") && !category && !brand && (
             <button
@@ -279,7 +279,7 @@ export function ProductsView({ initialProducts, totalCount, totalPages, currentP
               onClick={() => { setFormError(null); setAddOpen(true); }}
               className="mt-3 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
             >
-              নতুন পণ্য যোগ করুন
+              Create your first product to start selling.
             </button>
           )}
         </div>
@@ -313,8 +313,8 @@ export function ProductsView({ initialProducts, totalCount, totalPages, currentP
 
       {addOpen && (
         <ProductModal
-          title="নতুন পণ্য যোগ করুন"
-          submitLabel="পণ্য তৈরি করুন"
+          title="Add New Product"
+          submitLabel="Create Product"
           onClose={closeModals}
           onSubmit={handleCreate}
           error={formError}
@@ -325,8 +325,8 @@ export function ProductsView({ initialProducts, totalCount, totalPages, currentP
       {editOpen && editing && (
         <ProductModal
           key={editing.id}
-          title="পণ্য সম্পাদনা করুন"
-          submitLabel="পরিবর্তন সংরক্ষণ করুন"
+          title="Edit Product"
+          submitLabel="Save Changes"
           initial={editing}
           onClose={closeModals}
           onSubmit={handleUpdate}
@@ -379,6 +379,13 @@ export function ProductsView({ initialProducts, totalCount, totalPages, currentP
   );
 }
 
+const PRODUCTS_STAT_TOOLTIPS: Record<string, string> = {
+  "Total Products": "All products in your catalog",
+  "On This Page": "Products shown on current page",
+  "Low Stock": "Products running out soon",
+  "Out of Stock": "Products currently unavailable",
+};
+
 function StatCard({ label, value, accent }: { label: string; value: string; accent?: "rose" | "amber" }) {
   const valClass = accent === "rose"
     ? "text-rose-600 dark:text-rose-400"
@@ -387,7 +394,7 @@ function StatCard({ label, value, accent }: { label: string; value: string; acce
       : "text-card-foreground";
   return (
     <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className="text-sm text-muted-foreground" title={PRODUCTS_STAT_TOOLTIPS[label] ?? label}>{label}</p>
       <h2 className={`mt-2 text-3xl font-bold tracking-tight ${valClass}`}>{value}</h2>
     </div>
   );
@@ -440,8 +447,8 @@ function ProductCard({
         </div>
         {!isViewer && (
           <div className="flex gap-2 pt-1.5">
-            <button type="button" onClick={onEdit} className="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400">সম্পাদনা</button>
-            <button type="button" onClick={onDelete} className="text-xs font-medium text-rose-600 hover:underline dark:text-rose-400">মুছুন</button>
+            <button type="button" onClick={onEdit} className="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400">Edit</button>
+            <button type="button" onClick={onDelete} className="text-xs font-medium text-rose-600 hover:underline dark:text-rose-400">Delete</button>
           </div>
         )}
       </div>
@@ -543,7 +550,7 @@ function BulkDeleteModal({ count, onConfirm, onCancel, disabled }: { count: numb
         <p className="mt-2 text-sm text-muted-foreground">This action cannot be undone.</p>
         <div className="mt-4 flex justify-end gap-2">
           <button type="button" onClick={onCancel} className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-muted">Cancel</button>
-          <button type="button" disabled={disabled} onClick={onConfirm} className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50">Delete</button>
+          <button type="button" disabled={disabled} onClick={onConfirm} className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50">Delete Products</button>
         </div>
       </div>
     </Overlay>
@@ -570,7 +577,7 @@ function BulkUpdateModal({ onConfirm, onCancel, error, disabled }: { onConfirm: 
           {error && <p className="rounded-lg bg-rose-100 px-3 py-2 text-sm text-rose-700">{error}</p>}
           <div className="flex justify-end gap-2">
             <button type="button" onClick={onCancel} className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-muted">Cancel</button>
-            <button type="submit" disabled={disabled} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">Update</button>
+            <button type="submit" disabled={disabled} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">Update Products</button>
           </div>
         </form>
       </div>
@@ -628,7 +635,7 @@ function ProductModal({ title, submitLabel, initial, onClose, onSubmit, error, d
     const ext = file.name.split(".").pop() ?? "jpg";
     const path = `temp/${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage.from("product-images").upload(path, file, { cacheControl: "3600", upsert: false, contentType: file.type });
-    if (error) return { ok: false, error: error.message };
+    if (error) return { ok: false, error: "Upload failed. Please try again." };
     const { data } = supabase.storage.from("product-images").getPublicUrl(path);
     return { ok: true, url: data.publicUrl };
   };
@@ -702,7 +709,7 @@ function ProductModal({ title, submitLabel, initial, onClose, onSubmit, error, d
           {error && <p className="rounded-lg bg-rose-100 px-3 py-2 text-sm text-rose-700">{error}</p>}
 
           <div className="flex flex-wrap justify-end gap-2 pt-2">
-            <button type="button" onClick={onClose} className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted">বাতিল</button>
+            <button type="button" onClick={onClose} className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted">Cancel</button>
             <button type="submit" disabled={disabled} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70">{submitLabel}</button>
           </div>
         </form>

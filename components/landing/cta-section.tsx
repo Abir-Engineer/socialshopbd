@@ -26,11 +26,10 @@ export function CTASection() {
         </div>
 
         <h2 className="mt-6 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-          Ready to Grow Your Business?
+          Ready to Scale Your Business?
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-base text-slate-400">
-          Join hundreds of business owners already using Social Shop BD to
-          manage and grow their operations.
+          Join 500+ business owners already scaling with SocialShopBD.
         </p>
 
         <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -38,7 +37,7 @@ export function CTASection() {
             href={dashboardHref}
             className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-violet-500/30 transition hover:opacity-90"
           >
-            Start Free Today
+            Start Free →
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
               <path d="M13 7l5 5m0 0l-5 5m5-5H6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -47,7 +46,7 @@ export function CTASection() {
             href="/login"
             className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/80 px-8 py-3.5 text-sm font-semibold text-slate-200 transition hover:border-slate-500 hover:text-white"
           >
-            Login
+            Sign In
           </Link>
         </div>
       </div>

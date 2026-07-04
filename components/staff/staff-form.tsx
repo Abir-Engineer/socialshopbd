@@ -27,7 +27,7 @@ export function StaffForm({ mode, member, onClose, onSubmit, isPending, formErro
     >
       <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl border border-border bg-card p-6 shadow-lg">
         <h2 className="text-lg font-semibold text-card-foreground">
-          {isBn ? "টিম সদস্যকে আমন্ত্রণ জানান" : "Edit member role"}
+          {isBn ? "Invite Team Member" : "Edit Member Role"}
         </h2>
         <form
           className="mt-4 space-y-4"

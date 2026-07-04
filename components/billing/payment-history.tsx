@@ -12,7 +12,7 @@ export function PaymentHistory({ payments }: PaymentHistoryProps) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-12 text-center">
         <p className="text-sm font-medium text-foreground">No payment history yet</p>
-        <p className="mt-1 text-xs text-muted-foreground">Payments will appear here after your first subscription payment.</p>
+        <p className="mt-1 text-xs text-muted-foreground">Payments will appear here after your first successful payment.</p>
       </div>
     );
   }

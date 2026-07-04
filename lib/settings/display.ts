@@ -14,7 +14,7 @@ export const THEME_OPTIONS = [
 
 export const LOCALE_OPTIONS = [
   { value: "en", label: "English" },
-  { value: "bn", label: "বাংলা" },
+  { value: "bn", label: "Bangla" },
 ] as const;
 
 export const BUSINESS_TYPE_OPTIONS = [

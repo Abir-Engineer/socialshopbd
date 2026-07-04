@@ -26,14 +26,14 @@ export async function createCustomer(formData: FormData): Promise<CustomerAction
   const name = safeString(formData.get("name"));
   const phone = safeString(formData.get("phone"));
 
-  if (!name) return { ok: false, error: "Name is required." };
-  if (!phone) return { ok: false, error: "Phone is required." };
+  if (!name) return { ok: false, error: "Please enter a name." };
+  if (!phone) return { ok: false, error: "Please enter a phone number." };
 
   let organizationId: string;
   try {
     organizationId = await requireOrgId();
   } catch (e) {
-    return { ok: false, error: (e as Error).message };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   const supabase = await getSupabaseServerClient();
@@ -74,9 +74,9 @@ export async function createCustomer(formData: FormData): Promise<CustomerAction
 
   if (error) {
     if (error.code === "23505") {
-      return { ok: false, error: "That phone number is already in use." };
+      return { ok: false, error: "This phone number is already in use." };
     }
-    return { ok: false, error: error.message };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   revalidatePath("/customers");
@@ -86,13 +86,13 @@ export async function createCustomer(formData: FormData): Promise<CustomerAction
 
 export async function updateCustomer(formData: FormData): Promise<CustomerActionResult> {
   const id = safeString(formData.get("id"));
-  if (!id) return { ok: false, error: "Missing customer id." };
+  if (!id) return { ok: false, error: "Something went wrong. Please try again." };
 
   const name = safeString(formData.get("name"));
   const phone = safeString(formData.get("phone"));
 
-  if (!name) return { ok: false, error: "Name is required." };
-  if (!phone) return { ok: false, error: "Phone is required." };
+  if (!name) return { ok: false, error: "Please enter a name." };
+  if (!phone) return { ok: false, error: "Please enter a phone number." };
 
   const patch: CustomerUpdate = {
     name,
@@ -124,9 +124,9 @@ export async function updateCustomer(formData: FormData): Promise<CustomerAction
 
   if (error) {
     if (error.code === "23505") {
-      return { ok: false, error: "That phone number is already in use." };
+      return { ok: false, error: "This phone number is already in use." };
     }
-    return { ok: false, error: error.message };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   revalidatePath("/customers");
@@ -136,13 +136,13 @@ export async function updateCustomer(formData: FormData): Promise<CustomerAction
 }
 
 export async function deleteCustomer(id: string): Promise<CustomerActionResult> {
-  if (!id?.trim()) return { ok: false, error: "Missing customer id." };
+  if (!id?.trim()) return { ok: false, error: "Something went wrong. Please try again." };
 
   const supabase = await getSupabaseServerClient();
   const { error } = await supabase.from("customers").delete().eq("id", id);
 
   if (error) {
-    return { ok: false, error: error.message };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   revalidatePath("/customers");
@@ -151,13 +151,13 @@ export async function deleteCustomer(id: string): Promise<CustomerActionResult> 
 }
 
 export async function bulkDeleteCustomers(ids: string[]): Promise<CustomerBulkActionResult> {
-  if (!ids.length) return { ok: false, error: "No customers selected." };
+  if (!ids.length) return { ok: false, error: "Please select at least one customer." };
 
   const supabase = await getSupabaseServerClient();
   const { error, count } = await supabase.from("customers").delete().in("id", ids);
 
   if (error) {
-    return { ok: false, error: error.message };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   revalidatePath("/customers");
@@ -173,11 +173,11 @@ export async function exportCustomersCsv(): Promise<CustomerExportResult> {
     .order("created_at", { ascending: false });
 
   if (error) {
-    return { ok: false, error: error.message };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   if (!data || data.length === 0) {
-    return { ok: false, error: "No customers to export." };
+    return { ok: false, error: "No customers available to export." };
   }
 
   const headers = [

@@ -27,7 +27,7 @@ function parsePositiveInt(
   const raw = typeof value === "string" ? value.trim() : String(value ?? "");
   const n = Number.parseInt(raw, 10);
   if (!Number.isFinite(n) || n < 0) {
-    return { ok: false, error: `${label} must be a whole number zero or greater.` };
+    return { ok: false, error: `${label} must be zero or a positive whole number.` };
   }
   return { ok: true, n };
 }
@@ -46,7 +46,7 @@ async function validateOrg(): Promise<string> {
   try {
     return await requireOrgId();
   } catch {
-    throw new Error("Unauthorized. Your workspace could not be found.");
+    throw new Error("You don't have permission to perform this action.");
   }
 }
 
@@ -113,9 +113,9 @@ export async function createProduct(formData: FormData): Promise<ProductActionRe
 
   if (error) {
     if (error.code === "23505") {
-      return { ok: false, error: "That SKU is already in use. Choose another SKU." };
+      return { ok: false, error: "This SKU is already in use. Please choose another." };
     }
-    return { ok: false, error: error.message };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   revalidatePath("/products");
@@ -126,13 +126,13 @@ export async function createProduct(formData: FormData): Promise<ProductActionRe
 
 export async function updateProduct(formData: FormData): Promise<ProductActionResult> {
   const id = safeString(formData.get("id"));
-  if (!id) return { ok: false, error: "Missing product id." };
+  if (!id) return { ok: false, error: "Something went wrong. Please try again." };
 
   const name = safeString(formData.get("name"));
   const sku = safeString(formData.get("sku")).toUpperCase();
 
-  if (!name) return { ok: false, error: "Name is required." };
-  if (!sku) return { ok: false, error: "SKU is required." };
+  if (!name) return { ok: false, error: "Please enter a product name." };
+  if (!sku) return { ok: false, error: "Please enter a SKU." };
 
   const stockParsed = parsePositiveInt(formData.get("stock"), "Stock");
   if (!stockParsed.ok) return stockParsed;
@@ -181,9 +181,9 @@ export async function updateProduct(formData: FormData): Promise<ProductActionRe
 
   if (error) {
     if (error.code === "23505") {
-      return { ok: false, error: "That SKU is already in use. Choose another SKU." };
+      return { ok: false, error: "This SKU is already in use. Please choose another." };
     }
-    return { ok: false, error: error.message };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   revalidatePath("/products");
@@ -193,13 +193,13 @@ export async function updateProduct(formData: FormData): Promise<ProductActionRe
 }
 
 export async function deleteProduct(id: string): Promise<ProductActionResult> {
-  if (!id?.trim()) return { ok: false, error: "Missing product id." };
+  if (!id?.trim()) return { ok: false, error: "Something went wrong. Please try again." };
 
   const supabase = await getSupabaseServerClient();
   const { error } = await supabase.from("products").delete().eq("id", id);
 
   if (error) {
-    return { ok: false, error: error.message };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   revalidatePath("/products");
@@ -209,7 +209,7 @@ export async function deleteProduct(id: string): Promise<ProductActionResult> {
 }
 
 export async function bulkDeleteProducts(ids: string[]): Promise<ProductBulkActionResult> {
-  if (!ids.length) return { ok: false, error: "No products selected." };
+  if (!ids.length) return { ok: false, error: "Please select at least one product." };
 
   const supabase = await getSupabaseServerClient();
   const { error, count } = await supabase
@@ -218,7 +218,7 @@ export async function bulkDeleteProducts(ids: string[]): Promise<ProductBulkActi
     .in("id", ids);
 
   if (error) {
-    return { ok: false, error: error.message };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   revalidatePath("/products");
@@ -231,7 +231,7 @@ export async function bulkUpdateProducts(
   ids: string[],
   updates: { category?: string; brand?: string; stock?: number; price_bdt?: number },
 ): Promise<ProductBulkActionResult> {
-  if (!ids.length) return { ok: false, error: "No products selected." };
+  if (!ids.length) return { ok: false, error: "Please select at least one product." };
 
   const patch: ProductUpdate = {
     updated_at: new Date().toISOString(),
@@ -245,7 +245,7 @@ export async function bulkUpdateProducts(
   const { error } = await supabase.from("products").update(patch).in("id", ids);
 
   if (error) {
-    return { ok: false, error: error.message };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   revalidatePath("/products");
@@ -262,11 +262,11 @@ export async function exportProductsCsv(): Promise<ProductExportResult> {
     .order("created_at", { ascending: false });
 
   if (error) {
-    return { ok: false, error: error.message };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   if (!data || data.length === 0) {
-    return { ok: false, error: "No products to export." };
+    return { ok: false, error: "No products available to export." };
   }
 
   const headers = [
@@ -317,7 +317,7 @@ export async function importProductsCsv(csvContent: string): Promise<ProductBulk
     .filter((l) => l.length > 0);
 
   if (lines.length < 2) {
-    return { ok: false, error: "CSV must have a header row and at least one data row." };
+    return { ok: false, error: "CSV file must have a header row and at least one data row." };
   }
 
   const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
@@ -334,7 +334,7 @@ export async function importProductsCsv(csvContent: string): Promise<ProductBulk
   const imageIdx = headers.indexOf("image url");
 
   if (nameIdx === -1 || skuIdx === -1) {
-    return { ok: false, error: "CSV must have at least 'Name' and 'SKU' columns." };
+    return { ok: false, error: "CSV file must include 'Name' and 'SKU' columns." };
   }
 
   const supabase = await getSupabaseServerClient();
@@ -348,7 +348,7 @@ export async function importProductsCsv(csvContent: string): Promise<ProductBulk
     const sku = (cols[skuIdx] ?? "").trim().toUpperCase();
 
     if (!name || !sku) {
-      errors.push(`Row ${i}: missing name or SKU`);
+      errors.push(`Row ${i}: missing name or SKU.`);
       continue;
     }
 
@@ -371,9 +371,9 @@ export async function importProductsCsv(csvContent: string): Promise<ProductBulk
     const { error } = await supabase.from("products").insert(row);
     if (error) {
       if (error.code === "23505") {
-        errors.push(`Row ${i}: SKU "${sku}" already exists`);
+        errors.push(`Row ${i}: SKU "${sku}" already exists.`);
       } else {
-        errors.push(`Row ${i}: ${error.message}`);
+        errors.push(`Row ${i}: something went wrong.`);
       }
     } else {
       imported++;
@@ -385,7 +385,7 @@ export async function importProductsCsv(csvContent: string): Promise<ProductBulk
   revalidatePath("/inventory");
 
   if (errors.length > 0 && imported === 0) {
-    return { ok: false, error: `Import failed: ${errors[0]}` };
+    return { ok: false, error: `Import failed: ${errors[0].replace(/\.$/, "")}. Please review your CSV file.` };
   }
 
   return { ok: true, count: imported };

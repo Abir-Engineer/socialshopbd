@@ -24,6 +24,7 @@ export function WidgetTopProducts({ data }: Props) {
           <div className="flex flex-col items-center gap-2 px-5 py-8 text-center">
             <Package className="h-8 w-8 text-muted-foreground/40" />
             <p className="text-sm text-muted-foreground">No product data yet</p>
+            <p className="text-xs text-muted-foreground/60">Sales will appear here once orders are placed.</p>
           </div>
         ) : (
           data.map((product, i) => {

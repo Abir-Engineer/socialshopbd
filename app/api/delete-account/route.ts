@@ -8,7 +8,7 @@ export async function POST() {
 
   if (authError || !data.user) {
     return NextResponse.json(
-      { error: authError?.message || "Authentication required." },
+      { error: authError?.message || "Please log in to continue." },
       { status: 401 },
     );
   }
@@ -17,7 +17,7 @@ export async function POST() {
   const { error: deleteError } = await admin.auth.admin.deleteUser(data.user.id);
 
   if (deleteError) {
-    return NextResponse.json({ error: deleteError.message }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });

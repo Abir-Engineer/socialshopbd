@@ -7,11 +7,11 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useTheme } from "@/hooks/use-theme";
 
 const ROLE_LABELS: Record<string, string> = {
-  owner: "মালিক",
-  admin: "অ্যাডমিন",
-  manager: "ম্যানেজার",
-  staff: "স্টাফ",
-  viewer: "দর্শক",
+  owner: "Owner",
+  admin: "Admin",
+  manager: "Manager",
+  staff: "Staff",
+  viewer: "Viewer",
 };
 
 function getInitials(name: string | null): string {
@@ -88,10 +88,10 @@ export function ProfileDropdown() {
         </div>
         <div className="hidden text-left sm:block">
           <p className="text-sm font-medium leading-tight text-foreground">
-            {userName ?? "ব্যবহারকারী"}
+            {userName ?? "Owner"}
           </p>
           <p className="text-xs leading-tight text-muted-foreground">
-            {userRole ? ROLE_LABELS[userRole] ?? userRole : "লোড হচ্ছে..."}
+            {userRole ? ROLE_LABELS[userRole] ?? userRole : "Loading..."}
           </p>
         </div>
         <svg
@@ -118,10 +118,10 @@ export function ProfileDropdown() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-foreground">
-                  {userName ?? "ব্যবহারকারী"}
+                  {userName ?? "Owner"}
                 </p>
                 <p className="truncate text-xs text-muted-foreground">
-                  {userEmail ?? "ইমেল নেই"}
+                  {userEmail ?? "No email"}
                 </p>
                 {userRole && (
                   <span className="mt-1 inline-flex rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900 dark:text-blue-200">
@@ -141,7 +141,7 @@ export function ProfileDropdown() {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5 text-muted-foreground">
                 <path d="M12 2l.95 2.43a8.5 8.5 0 0 1 3.3 1.37l2.47-1.06 1.06 2.47-2.43.95a8.5 8.5 0 0 1 0 3.68l2.43.95-1.06 2.47-2.47-1.06a8.5 8.5 0 0 1-3.3 1.37L12 22l-.95-2.43a8.5 8.5 0 0 1-3.3-1.37l-2.47 1.06-1.06-2.47 2.43-.95a8.5 8.5 0 0 1 0-3.68l-2.43-.95 1.06-2.47 2.47 1.06a8.5 8.5 0 0 1 3.3-1.37L12 2z" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              সেটিংস
+              Settings
             </Link>
 
             <button
@@ -152,7 +152,7 @@ export function ProfileDropdown() {
               <span className="flex h-5 w-5 items-center justify-center text-muted-foreground">
                 {isDark ? "☀️" : "🌙"}
               </span>
-              {isDark ? "লাইট মোড" : "ডার্ক মোড"}
+              {isDark ? "Light Mode" : "Dark Mode"}
             </button>
 
             <button
@@ -181,7 +181,7 @@ export function ProfileDropdown() {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4m7 14l5-5-5-5m5 5H9" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              লগআউট
+Sign Out
             </button>
           </div>
         </div>

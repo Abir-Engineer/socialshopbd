@@ -1,9 +1,9 @@
 const steps = [
   {
     step: 1,
-    title: "Create Account",
+    title: "Create Your Account",
     description:
-      "Sign up in seconds. No credit card required. Start your free trial instantly.",
+      "Sign up. No credit card required. Start your free trial now.",
   },
   {
     step: 2,
@@ -27,10 +27,10 @@ export function HowItWorksSection() {
           How It Works
         </p>
         <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-          Three simple steps to get started
+          Get Started in 3 Simple Steps
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-base text-slate-400">
-          Get your business online and running in minutes.
+          No credit card. No hassle. Start free.
         </p>
       </div>
 

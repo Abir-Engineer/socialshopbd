@@ -42,12 +42,12 @@ export async function createOrder(formData: FormData): Promise<OrderCreateResult
   const orderNumber = safeString(formData.get("order_number"));
   const customerName = safeString(formData.get("customer_name"));
 
-  if (!orderNumber) return { ok: false, error: "Order number is required." };
-  if (!customerName) return { ok: false, error: "Customer name is required." };
+  if (!orderNumber) return { ok: false, error: "Please enter an order number." };
+  if (!customerName) return { ok: false, error: "Please enter a customer name." };
 
   let organizationId: string;
   try { organizationId = await requireOrgId(); }
-  catch { return { ok: false, error: "Unauthorized." }; }
+  catch { return { ok: false, error: "You don't have permission to perform this action." }; }
 
   const supabase = await getSupabaseServerClient();
 
@@ -102,8 +102,8 @@ export async function createOrder(formData: FormData): Promise<OrderCreateResult
     .single();
 
   if (insertError) {
-    if (insertError.code === "23505") return { ok: false, error: "That order number is already in use." };
-    return { ok: false, error: insertError.message };
+    if (insertError.code === "23505") return { ok: false, error: "This order number is already taken." };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   const orderId = orderData.id;
@@ -114,7 +114,7 @@ export async function createOrder(formData: FormData): Promise<OrderCreateResult
     const { error: itemsError } = await supabase.from("order_items").insert(itemsWithOrder);
     if (itemsError) {
       await supabase.from("orders").delete().eq("id", orderId);
-      return { ok: false, error: "Failed to save items: " + itemsError.message };
+      return { ok: false, error: "Something went wrong saving the items. Please try again." };
     }
   }
 
@@ -135,11 +135,11 @@ export async function createOrder(formData: FormData): Promise<OrderCreateResult
 
 export async function updateOrder(formData: FormData): Promise<OrderActionResult> {
   const id = safeString(formData.get("id"));
-  if (!id) return { ok: false, error: "Missing order id." };
+  if (!id) return { ok: false, error: "Something went wrong. Please try again." };
 
   const orderNumber = safeString(formData.get("order_number"));
   const customerName = safeString(formData.get("customer_name"));
-  if (!orderNumber) return { ok: false, error: "Order number is required." };
+  if (!orderNumber) return { ok: false, error: "Please enter an order number." };
 
   const supabase = await getSupabaseServerClient();
 
@@ -184,8 +184,8 @@ export async function updateOrder(formData: FormData): Promise<OrderActionResult
 
   const { error: updateError } = await supabase.from("orders").update(patch).eq("id", id);
   if (updateError) {
-    if (updateError.code === "23505") return { ok: false, error: "That order number is already in use." };
-    return { ok: false, error: updateError.message };
+    if (updateError.code === "23505") return { ok: false, error: "This order number is already taken." };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   // Replace items
@@ -194,7 +194,7 @@ export async function updateOrder(formData: FormData): Promise<OrderActionResult
     const itemsWithOrder = items.map((item) => ({ ...item, order_id: id }));
     const { error: itemsError } = await supabase.from("order_items").insert(itemsWithOrder);
     if (itemsError) {
-      return { ok: false, error: "Failed to save items: " + itemsError.message };
+      return { ok: false, error: "Something went wrong saving the items. Please try again." };
     }
   }
 
@@ -219,9 +219,9 @@ export async function updateOrderStatus(
   status: string,
   note?: string,
 ): Promise<OrderActionResult> {
-  if (!id?.trim()) return { ok: false, error: "Missing order id." };
+  if (!id?.trim()) return { ok: false, error: "Something went wrong. Please try again." };
   const s = status.trim().toLowerCase();
-  if (!isOrderStatus(s)) return { ok: false, error: "Invalid status." };
+  if (!isOrderStatus(s)) return { ok: false, error: "Please select a valid status." };
 
   const now = new Date().toISOString();
   const supabase = await getSupabaseServerClient();
@@ -231,7 +231,7 @@ export async function updateOrderStatus(
     .update({ status: s, updated_at: now })
     .eq("id", id);
 
-  if (error) return { ok: false, error: error.message };
+  if (error) return { ok: false, error: "Something went wrong. Please try again." };
 
   await supabase.from("order_timeline").insert({
     order_id: id,
@@ -248,12 +248,12 @@ export async function updateOrderStatus(
 }
 
 export async function deleteOrder(id: string): Promise<OrderActionResult> {
-  if (!id?.trim()) return { ok: false, error: "Missing order id." };
+  if (!id?.trim()) return { ok: false, error: "Something went wrong. Please try again." };
 
   const supabase = await getSupabaseServerClient();
   const { error } = await supabase.from("orders").delete().eq("id", id);
 
-  if (error) return { ok: false, error: error.message };
+  if (error) return { ok: false, error: "Something went wrong. Please try again." };
 
   revalidatePath("/orders");
   revalidatePath("/analytics");
@@ -261,7 +261,7 @@ export async function deleteOrder(id: string): Promise<OrderActionResult> {
 }
 
 export async function duplicateOrder(id: string): Promise<OrderCreateResult> {
-  if (!id?.trim()) return { ok: false, error: "Missing order id." };
+  if (!id?.trim()) return { ok: false, error: "Something went wrong. Please try again." };
 
   const supabase = await getSupabaseServerClient();
 
@@ -271,7 +271,7 @@ export async function duplicateOrder(id: string): Promise<OrderCreateResult> {
     .eq("id", id)
     .single();
 
-  if (fetchError || !original) return { ok: false, error: "Original order not found." };
+  if (fetchError || !original) return { ok: false, error: "Order not found." };
 
   const { data: originalItems } = await supabase
     .from("order_items")
@@ -308,7 +308,7 @@ export async function duplicateOrder(id: string): Promise<OrderCreateResult> {
     .select("id")
     .single();
 
-  if (insertError) return { ok: false, error: insertError.message };
+  if (insertError) return { ok: false, error: "Something went wrong. Please try again." };
 
   if (originalItems && originalItems.length > 0) {
     const dupeItems = originalItems.map((item) => ({
@@ -338,12 +338,12 @@ export async function duplicateOrder(id: string): Promise<OrderCreateResult> {
 }
 
 export async function bulkDeleteOrders(ids: string[]): Promise<OrderBulkActionResult> {
-  if (!ids.length) return { ok: false, error: "No orders selected." };
+  if (!ids.length) return { ok: false, error: "Please select at least one order." };
 
   const supabase = await getSupabaseServerClient();
   const { count, error } = await supabase.from("orders").delete().in("id", ids);
 
-  if (error) return { ok: false, error: error.message };
+  if (error) return { ok: false, error: "Something went wrong. Please try again." };
 
   revalidatePath("/orders");
   revalidatePath("/analytics");
@@ -354,9 +354,9 @@ export async function bulkUpdateOrderStatus(
   ids: string[],
   status: string,
 ): Promise<OrderBulkActionResult> {
-  if (!ids.length) return { ok: false, error: "No orders selected." };
+  if (!ids.length) return { ok: false, error: "Please select at least one order." };
   const s = status.trim().toLowerCase();
-  if (!isOrderStatus(s)) return { ok: false, error: "Invalid status." };
+  if (!isOrderStatus(s)) return { ok: false, error: "Please select a valid status." };
 
   const now = new Date().toISOString();
   const supabase = await getSupabaseServerClient();
@@ -366,7 +366,7 @@ export async function bulkUpdateOrderStatus(
     .update({ status: s, updated_at: now })
     .in("id", ids);
 
-  if (error) return { ok: false, error: error.message };
+  if (error) return { ok: false, error: "Something went wrong. Please try again." };
 
   // Add timeline entries
   const timelineEntries = ids.map((orderId) => ({
@@ -390,8 +390,8 @@ export async function exportOrdersCsv(): Promise<OrderExportResult> {
     .select("*, order_items(*)")
     .order("created_at", { ascending: false });
 
-  if (error) return { ok: false, error: error.message };
-  if (!data || data.length === 0) return { ok: false, error: "No orders to export." };
+  if (error) return { ok: false, error: "Something went wrong. Please try again." };
+  if (!data || data.length === 0) return { ok: false, error: "No orders available to export." };
 
   const headers = [
     "Order #", "Customer", "Phone", "Status", "Payment Status",
@@ -431,8 +431,8 @@ export async function addOrderComment(
   content: string,
   isInternal: boolean,
 ): Promise<OrderActionResult> {
-  if (!orderId) return { ok: false, error: "Missing order id." };
-  if (!content.trim()) return { ok: false, error: "Comment cannot be empty." };
+  if (!orderId) return { ok: false, error: "Something went wrong. Please try again." };
+  if (!content.trim()) return { ok: false, error: "Please enter a comment." };
 
   const supabase = await getSupabaseServerClient();
   const { error } = await supabase.from("order_comments").insert({
@@ -442,7 +442,7 @@ export async function addOrderComment(
     is_internal: isInternal,
   });
 
-  if (error) return { ok: false, error: error.message };
+  if (error) return { ok: false, error: "Something went wrong. Please try again." };
 
   revalidatePath(`/orders/${orderId}`);
   return { ok: true };
@@ -459,7 +459,7 @@ export async function bookCourierParcel(
   weight: number,
   deliveryZone: string,
 ): Promise<CourierBookingResult> {
-  if (!orderId) return { ok: false, error: "Missing order ID." };
+  if (!orderId) return { ok: false, error: "Something went wrong. Please try again." };
 
   const supabase = await getSupabaseServerClient();
 
@@ -473,7 +473,7 @@ export async function bookCourierParcel(
 
   const order = orderData as any;
   if (order.status === "shipped" || order.tracking_code) {
-    return { ok: false, error: "This order has already been booked to courier." };
+    return { ok: false, error: "This order has already been dispatched to a courier." };
   }
 
   const trackingCode = `${courierName === "Steadfast" ? "STF" : "PTH"}-${Date.now().toString().slice(-6)}-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -484,7 +484,7 @@ export async function bookCourierParcel(
     .update({ status: "shipped", courier_name: courierName, tracking_code: trackingCode, shipping_cost_bdt: Math.round(shippingCost), updated_at: now })
     .eq("id", orderId);
 
-  if (updateError) return { ok: false, error: "Failed to update order: " + updateError.message };
+  if (updateError) return { ok: false, error: "Something went wrong. Please try again." };
 
   await supabase.from("order_timeline").insert({
     order_id: orderId,

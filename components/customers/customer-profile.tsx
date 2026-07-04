@@ -45,7 +45,7 @@ export function CustomerProfile({ customer, orders, role }: CustomerProfileProps
   };
 
   const handleDelete = () => {
-    if (!window.confirm(`"${customer.name}" মুছবেন? এটি পূর্বাবস্থায় ফেরানো যাবে না।`)) return;
+    if (!window.confirm(`Delete "${customer.name}"? This cannot be undone.`)) return;
     startTransition(async () => {
       const result = await deleteCustomer(customer.id);
       if (!result.ok) { setFormError(result.error); return; }
@@ -111,8 +111,8 @@ export function CustomerProfile({ customer, orders, role }: CustomerProfileProps
           </div>
           {!isViewer && (
             <div className="flex gap-2">
-              <button type="button" onClick={() => { setFormError(null); setEditOpen(true); }} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Edit</button>
-              <button type="button" onClick={handleDelete} className="rounded-lg border border-rose-300 px-4 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-400 dark:hover:bg-rose-950">Delete</button>
+              <button type="button" onClick={() => { setFormError(null); setEditOpen(true); }} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Edit Customer</button>
+              <button type="button" onClick={handleDelete} className="rounded-lg border border-rose-300 px-4 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-400 dark:hover:bg-rose-950">Delete Customer</button>
             </div>
           )}
         </div>
@@ -155,7 +155,7 @@ export function CustomerProfile({ customer, orders, role }: CustomerProfileProps
           <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
             <h3 className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-card-foreground"><MapPin className="h-4 w-4" /> Addresses</h3>
             {addresses.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No addresses saved.</p>
+              <p className="text-sm text-muted-foreground">No addresses saved yet.</p>
             ) : (
               <ul className="space-y-2">
                 {addresses.map((a, i) => (
@@ -182,7 +182,7 @@ export function CustomerProfile({ customer, orders, role }: CustomerProfileProps
           {orders.length === 0 ? (
             <div className="flex flex-col items-center py-12 text-center">
               <Package className="mb-2 h-8 w-8 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">No orders yet.</p>
+              <p className="text-sm text-muted-foreground">No orders yet</p>
             </div>
           ) : (
             <div className="overflow-x-auto">

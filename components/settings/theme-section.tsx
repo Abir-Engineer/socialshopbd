@@ -24,7 +24,7 @@ export function ThemeSection({ orgId, initialTheme, initialLocale }: Props) {
     const supabase = getSupabaseBrowserClient();
     await updateOrgTheme(supabase, orgId, theme, locale);
     setSaving(false);
-    toast.success("Theme & language settings saved.");
+    toast.success("Theme & language settings have been saved successfully.");
   };
 
   return (
@@ -40,7 +40,7 @@ export function ThemeSection({ orgId, initialTheme, initialLocale }: Props) {
           onClick={handleSave}
           className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60 transition cursor-pointer"
         >
-          {saving ? "Saving..." : "Save"}
+          {saving ? "Saving..." : "Save Theme & Language"}
         </button>
       </div>
       <div className="grid gap-6 sm:grid-cols-2">
@@ -87,7 +87,7 @@ export function ThemeSection({ orgId, initialTheme, initialLocale }: Props) {
                   : "border-border hover:border-muted-foreground/30"
               }`}
             >
-              <span className="text-sm font-medium text-foreground">বাংলা</span>
+              <span className="text-sm font-medium text-foreground">Bangla</span>
             </button>
           </div>
         </div>

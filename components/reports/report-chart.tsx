@@ -35,7 +35,7 @@ export function ReportChart({ data, period }: ReportChartProps) {
   }
 
   if (data.length === 0) {
-    return <div className="flex h-72 items-center justify-center rounded-xl border border-dashed border-border text-sm text-muted-foreground">No data available</div>;
+    return <div className="flex h-72 items-center justify-center rounded-xl border border-dashed border-border text-sm text-muted-foreground">No data</div>;
   }
 
   if (period === "daily" || period === "weekly") {

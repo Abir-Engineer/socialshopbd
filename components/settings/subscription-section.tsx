@@ -13,8 +13,8 @@ interface Props {
 
 const TIERS = [
   { name: "Starter", price: "Free", limit: "100 orders/month", desc: "For small businesses getting started.", popular: false, color: "slate" },
-  { name: "Growth", price: "৳1,500/mo", limit: "1,000 orders/month", desc: "For scaling social shops.", popular: true, color: "indigo" },
-  { name: "Enterprise", price: "৳4,500/mo", limit: "Unlimited orders", desc: "For full commerce automation.", popular: false, color: "blue" },
+  { name: "Growth", price: "BDT 1,500/mo", limit: "1,000 orders/month", desc: "For scaling social shops.", popular: true, color: "indigo" },
+  { name: "Enterprise", price: "BDT 4,500/mo", limit: "Unlimited orders", desc: "For full commerce automation.", popular: false, color: "blue" },
 ] as const;
 
 export function SubscriptionSection({ currentPlan, currentExpiry, userId }: Props) {
@@ -40,11 +40,11 @@ export function SubscriptionSection({ currentPlan, currentExpiry, userId }: Prop
 
     setUpgrading(false);
     if (error) {
-      toast.error("Upgrade failed: " + error.message);
+      toast.error("Upgrade failed. Please try again.");
       return;
     }
     setShowUpgrade(false);
-    toast.success(`Upgraded to ${selected} plan!`);
+    toast.success(`You've been upgraded to the ${selected} plan!`);
   };
 
   return (

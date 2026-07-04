@@ -3,21 +3,21 @@ import Link from "next/link";
 const plans = [
   {
     name: "Starter",
-    price: "৳499",
+    price: "BDT 499",
     period: "/month",
-    description: "Perfect for small shops getting started.",
+    description: "Perfect for new & small shops.",
     features: ["Products", "Orders", "CRM", "Analytics"],
     href: "/signup",
     highlighted: false,
   },
   {
     name: "Business",
-    price: "৳999",
+    price: "BDT 999",
     period: "/month",
-    description: "For growing teams that need more power.",
+    description: "For growing businesses that need more.",
     features: [
       "Everything in Starter",
-      "Staff Management",
+      "Team Management",
       "Advanced Analytics",
       "Priority Support",
     ],
@@ -107,7 +107,7 @@ export function PricingSection() {
                   : "border border-slate-700 bg-slate-800/50 text-slate-200 hover:border-slate-500 hover:text-white"
               }`}
             >
-              {plan.name === "Enterprise" ? "Contact Us" : "Get Started"}
+              {plan.name === "Enterprise" ? "Contact Sales" : "Get Started →"}
             </Link>
           </div>
         ))}

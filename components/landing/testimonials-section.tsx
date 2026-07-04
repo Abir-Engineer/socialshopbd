@@ -3,21 +3,21 @@ const testimonials = [
     name: "Fatima Begum",
     role: "Facebook Shop Owner, Dhaka",
     quote:
-      "Social Shop BD transformed how I manage my Facebook shop. Orders, customers, everything in one place. I can finally focus on growing my business instead of juggling spreadsheets.",
+      "SocialShopBD transformed how I manage my Facebook shop. Orders, customers, everything in one place. I can finally focus on growing my business instead of juggling spreadsheets.",
     initials: "FB",
   },
   {
     name: "Rafiq Hasan",
     role: "E-commerce Store Manager, Chattogram",
     quote:
-      "The analytics dashboard alone is worth it. I can see exactly what&apos;s selling, track revenue trends, and make data-driven decisions. My team loves how simple it is.",
+      "The analytics dashboard alone is worth it. I can see exactly what's selling, track revenue trends, and make data-driven decisions. My team loves how simple it is.",
     initials: "RH",
   },
   {
     name: "Nusrat Jahan",
     role: "Small Business Owner, Sylhet",
     quote:
-      "I tried several platforms before Social Shop BD. Nothing comes close to the ease of use and the support team is incredibly responsive. Highly recommended for any growing business.",
+      "I tried several platforms before SocialShopBD. Nothing comes close to the ease of use and the support team is incredibly responsive. Highly recommended for any growing business.",
     initials: "NJ",
   },
 ];
@@ -30,10 +30,10 @@ export function TestimonialsSection() {
           Testimonials
         </p>
         <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-          Trusted by business owners
+          Trusted by Bangladeshi Business Owners
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-base text-slate-400">
-          Hear from the entrepreneurs who use Social Shop BD every day.
+          Hear from real entrepreneurs using SocialShopBD every day.
         </p>
       </div>
 

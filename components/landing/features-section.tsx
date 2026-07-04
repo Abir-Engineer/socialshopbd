@@ -1,7 +1,7 @@
 const features = [
   {
     title: "Product Management",
-    description: "Track inventory, pricing and stock.",
+    description: "Track inventory, pricing, and stock.",
     icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
   },
   {
@@ -16,11 +16,11 @@ const features = [
   },
   {
     title: "Analytics Dashboard",
-    description: "Revenue, sales and business insights.",
+    description: "Revenue, sales, and business insights.",
     icon: "M4 19V5m6 14V9m6 10V3m4 16H2",
   },
   {
-    title: "Staff Management",
+    title: "Team Management",
     description: "Manage teams and permissions.",
     icon: "M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m8-10a4 4 0 100-8 4 4 0 000 8z",
   },
@@ -63,10 +63,10 @@ export function FeaturesSection() {
           Features
         </p>
         <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-          Everything you need to grow
+          Everything You Need to Scale
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-base text-slate-400">
-          Powerful tools designed for Facebook sellers and growing businesses.
+          Built for Facebook sellers, Instagram shops, and growing brands in Bangladesh.
         </p>
       </div>
 

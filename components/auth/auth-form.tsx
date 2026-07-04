@@ -32,8 +32,8 @@ function isEmailNotConfirmedError(err: { message?: string; code?: string } | nul
 }
 
 const oauthProviders = [
-  { provider: "google", label: "Continue with Google" },
-  { provider: "github", label: "Continue with GitHub" },
+  { provider: "google", label: "Sign in with Google" },
+  { provider: "github", label: "Sign in with GitHub" },
 ] as const;
 
 type OAuthProvider = (typeof oauthProviders)[number]["provider"];
@@ -60,10 +60,10 @@ export function AuthForm({ mode }: AuthFormProps) {
   }, []);
 
   const isLogin = mode === "login";
-  const title = isLogin ? "Welcome back" : "Create your account";
+  const title = isLogin ? "Welcome Back" : "Create Account";
   const subtitle = isLogin
-    ? "Sign in to continue managing your Social Shop BD business."
-    : "Start managing your Facebook commerce operations from one place.";
+    ? "Sign in to your SocialShopBD account."
+    : "Start your business with SocialShopBD.";
 
   const redirectTo = useMemo(() => {
     const nextParam = searchParams.get("next");
@@ -97,10 +97,10 @@ export function AuthForm({ mode }: AuthFormProps) {
         if (isEmailNotConfirmedError(signInError)) {
           setPendingConfirmEmail(email.trim());
           setError(
-            "Confirm your email before signing in. Check your inbox and spam for the link from Supabase. You can resend it below.",
+            "Please confirm your email before signing in. Check your inbox and spam. You can resend below.",
           );
         } else {
-          setError(signInError.message);
+          setError("Invalid email or password. Please try again.");
         }
         return;
       }
@@ -124,7 +124,7 @@ export function AuthForm({ mode }: AuthFormProps) {
     setIsLoading(false);
 
     if (signUpError) {
-      setError(signUpError.message);
+      setError("Something went wrong. Please try again.");
       return;
     }
 
@@ -136,7 +136,7 @@ export function AuthForm({ mode }: AuthFormProps) {
 
     setPendingConfirmEmail(email.trim());
     setInfo(
-      "We sent a confirmation email. Open the link, then return here and sign in. If you don’t see it, check spam.",
+      "We've sent a confirmation email. Click the link and sign in again. Please also check your spam folder.",
     );
   };
 
@@ -155,7 +155,7 @@ export function AuthForm({ mode }: AuthFormProps) {
 
     setIsLoading(false);
     if (error) {
-      setError(error.message);
+      setError("Something went wrong. Please try again.");
     }
   };
 
@@ -177,11 +177,11 @@ export function AuthForm({ mode }: AuthFormProps) {
     setIsLoading(false);
 
     if (resendError) {
-      setError(resendError.message);
+      setError("Something went wrong. Please try again.");
       return;
     }
 
-    setInfo("Confirmation email sent again. Check inbox and spam.");
+    setInfo("Confirmation email resent. Check your inbox and spam.");
   };
 
   return (
@@ -194,14 +194,14 @@ export function AuthForm({ mode }: AuthFormProps) {
             </div>
             <p className="text-lg font-semibold text-white">Signing you in…</p>
             <p className="max-w-xs text-sm leading-6 text-slate-400">
-              Finishing secure login and redirecting you to your dashboard.
+              Secure login in progress. Redirecting to Dashboard…
             </p>
           </div>
         </div>
       ) : null}
 
       <div className="mb-6">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">Social Shop BD</p>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground">SocialShopBD</p>
         <h1 className="mt-2 text-2xl font-semibold text-card-foreground">{title}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
       </div>
@@ -220,7 +220,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         ))}
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
           <span className="h-px flex-1 bg-border" />
-          <span>Or sign up with email and password</span>
+          <span>Or use email and password</span>
           <span className="h-px flex-1 bg-border" />
         </div>
       </div>
@@ -232,7 +232,7 @@ export function AuthForm({ mode }: AuthFormProps) {
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="you@company.com"
+            placeholder="you@example.com"
             className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500"
             required
           />
@@ -260,7 +260,7 @@ export function AuthForm({ mode }: AuthFormProps) {
             onClick={handleResendConfirmation}
             className="w-full rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-70"
           >
-            Resend confirmation email
+            Resend Confirmation Email
           </button>
         )}
 
@@ -274,9 +274,9 @@ export function AuthForm({ mode }: AuthFormProps) {
       </form>
 
       <p className="mt-4 text-sm text-muted-foreground">
-        {isLogin ? "No account yet?" : "Already have an account?"}{" "}
+        {isLogin ? "No account?" : "Already have an account?"}{" "}
         <Link href={isLogin ? "/signup" : "/login"} className="font-medium text-blue-600 hover:underline">
-          {isLogin ? "Sign up" : "Sign in"}
+          {isLogin ? "Sign Up" : "Sign In"}
         </Link>
       </p>
     </div>

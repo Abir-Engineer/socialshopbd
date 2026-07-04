@@ -16,7 +16,7 @@ type ReportTableProps<T> = {
   emptyMessage?: string;
 };
 
-export function ReportTable<T extends { [key: string]: any }>({ columns, data, emptyMessage = "No data" }: ReportTableProps<T>) {
+export function ReportTable<T extends { [key: string]: any }>({ columns, data, emptyMessage = "No data available" }: ReportTableProps<T>) {
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortAsc, setSortAsc] = useState(true);
 

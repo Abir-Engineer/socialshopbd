@@ -18,10 +18,10 @@ export function DangerSection() {
       const response = await fetch("/api/delete-account", { method: "POST" });
       const result = await response.json();
       if (!response.ok) {
-        toast.error(result.error || "Unable to delete account.");
+        toast.error(result.error || "Unable to delete your account. Please try again.");
         return;
       }
-      toast.success("Account deleted.");
+      toast.success("Account has been deleted successfully.");
       const supabase = getSupabaseBrowserClient();
       await supabase.auth.signOut();
       router.replace("/login");

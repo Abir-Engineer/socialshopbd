@@ -21,10 +21,10 @@ export default function NotFound() {
             Error 404
           </span>
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-            Page Not Found
+            Page not found
           </h1>
           <p className="mx-auto max-w-sm text-sm text-muted-foreground">
-            Sorry, we couldn&apos;t find the page you&apos;re looking for. It might have been moved or deleted.
+            The page you are looking for has been moved or doesn't exist.
           </p>
         </div>
 

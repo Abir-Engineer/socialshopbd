@@ -13,18 +13,18 @@ export async function updateStock(
   newStock: number,
 ): Promise<InventoryActionResult> {
   if (!productId?.trim()) {
-    return { ok: false, error: "Missing product id." };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   if (!Number.isFinite(newStock) || newStock < 0) {
-    return { ok: false, error: "Stock must be a whole number zero or greater." };
+    return { ok: false, error: "Stock must be zero or a positive whole number." };
   }
 
   let organizationId: string;
   try {
     organizationId = await requireOrgId();
   } catch {
-    return { ok: false, error: "Unauthorized. Your workspace could not be found." };
+    return { ok: false, error: "You don't have permission to perform this action." };
   }
 
   const supabase = await getSupabaseServerClient();
@@ -36,7 +36,7 @@ export async function updateStock(
     .eq("organization_id", organizationId);
 
   if (error) {
-    return { ok: false, error: error.message };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   revalidatePath("/inventory");

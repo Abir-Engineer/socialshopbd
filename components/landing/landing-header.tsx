@@ -31,7 +31,7 @@ export function LandingHeader() {
             S
           </div>
           <span className="text-lg font-bold tracking-tight text-white">
-            Social Shop BD
+            SocialShopBD
           </span>
         </Link>
 
@@ -52,13 +52,13 @@ export function LandingHeader() {
             href="/login"
             className="hidden rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500 hover:text-white sm:inline-block"
           >
-            Login
+            Sign In
           </Link>
           <Link
             href={dashboardHref}
             className="rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-violet-500/25 transition hover:opacity-90"
           >
-            Get Started
+            Get Started →
           </Link>
           <button
             onClick={() => setMenuOpen(!menuOpen)}
@@ -94,7 +94,7 @@ export function LandingHeader() {
               onClick={() => setMenuOpen(false)}
               className="rounded-lg px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-900 hover:text-white sm:hidden"
             >
-              Login
+              Sign In
             </Link>
           </nav>
         </div>

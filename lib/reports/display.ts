@@ -11,10 +11,10 @@ export function periodLabel(period: ReportPeriod): string {
 
 export function periodLabelBn(period: ReportPeriod): string {
   switch (period) {
-    case "daily": return "দৈনিক";
-    case "weekly": return "সাপ্তাহিক";
-    case "monthly": return "মাসিক";
-    case "yearly": return "বার্ষিক";
+    case "daily": return "Daily";
+    case "weekly": return "Weekly";
+    case "monthly": return "Monthly";
+    case "yearly": return "Yearly";
   }
 }
 

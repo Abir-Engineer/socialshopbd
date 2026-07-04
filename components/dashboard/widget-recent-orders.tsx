@@ -26,13 +26,14 @@ export function WidgetRecentOrders({ data }: Props) {
           <ShoppingCart className="h-4 w-4 text-blue-500" />
           Recent Orders
         </h3>
-        <span className="text-xs text-muted-foreground">Last 10</span>
+        <span className="text-xs text-muted-foreground">Last 10 orders</span>
       </div>
       <div className="divide-y divide-border/50">
         {data.length === 0 ? (
           <div className="flex flex-col items-center gap-2 px-5 py-8 text-center">
             <ShoppingCart className="h-8 w-8 text-muted-foreground/40" />
             <p className="text-sm text-muted-foreground">No orders yet</p>
+            <p className="text-xs text-muted-foreground/60">Start by creating your first order.</p>
           </div>
         ) : (
           data.map((order) => (

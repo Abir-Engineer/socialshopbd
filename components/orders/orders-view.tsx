@@ -187,7 +187,7 @@ export function OrdersView({ initialOrders, totalCount, totalPages, currentPage,
         {!isViewer && (
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={handleExport} disabled={exportLoading} className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-50">
-              <Download className="h-4 w-4" /> Export
+              <Download className="h-4 w-4" /> Export CSV
             </button>
             <button type="button" onClick={() => { setFormError(null); setAddOpen(true); }} className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700">
               <Package className="h-4 w-4" /> New Order
@@ -228,7 +228,7 @@ export function OrdersView({ initialOrders, totalCount, totalPages, currentPage,
           <span className="font-medium text-blue-800 dark:text-blue-200">{selectedIds.size} selected</span>
           <button type="button" onClick={toggleSelectAll} className="text-blue-700 underline hover:no-underline dark:text-blue-300">Deselect all</button>
           <button type="button" onClick={() => setBulkStatusOpen(true)} className="ml-auto rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700">Change Status</button>
-          <button type="button" onClick={handleBulkDelete} className="rounded bg-rose-600 px-3 py-1 text-xs font-medium text-white hover:bg-rose-700">Delete</button>
+          <button type="button" onClick={handleBulkDelete} className="rounded bg-rose-600 px-3 py-1 text-xs font-medium text-white hover:bg-rose-700">Delete Orders</button>
         </div>
       )}
 
@@ -333,11 +333,18 @@ export function OrdersView({ initialOrders, totalCount, totalPages, currentPage,
   );
 }
 
+const ORDERS_STAT_TOOLTIPS: Record<string, string> = {
+  "Total Orders": "All orders placed in store",
+  "Pending": "Orders awaiting confirmation",
+  "Delivered": "Orders delivered successfully",
+  "Revenue": "Total income from orders",
+};
+
 function StatCard({ label, value, accent }: { label: string; value: string; accent?: "amber" | "emerald" | "blue" }) {
   const valClass = accent === "amber" ? "text-amber-600 dark:text-amber-400" : accent === "emerald" ? "text-emerald-600 dark:text-emerald-400" : accent === "blue" ? "text-blue-600 dark:text-blue-400" : "text-card-foreground";
   return (
     <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className="text-sm text-muted-foreground" title={ORDERS_STAT_TOOLTIPS[label] ?? label}>{label}</p>
       <h2 className={`mt-2 text-3xl font-bold tracking-tight ${valClass}`}>{value}</h2>
     </div>
   );
@@ -367,9 +374,9 @@ function EmptyState({ query, statusFilter, isViewer, onAdd }: { query: string; s
   return (
     <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
       <Package className="mb-3 h-10 w-10 text-muted-foreground" />
-      <p className="text-sm text-muted-foreground">{query || statusFilter ? "No orders match your search." : "No orders yet."}</p>
+      <p className="text-sm text-muted-foreground">{query || statusFilter ? "No orders match your search." : "No orders yet"}</p>
       {!isViewer && !query && !statusFilter && (
-        <button type="button" onClick={onAdd} className="mt-3 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">New Order</button>
+        <button type="button" onClick={onAdd} className="mt-3 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Start by creating your first order.</button>
       )}
     </div>
   );
@@ -519,7 +526,7 @@ export function OrderFormModal({ title, initial, onClose, onSubmit, error, disab
 
           <div className="flex justify-end gap-2 pt-2">
             <button type="button" onClick={onClose} className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-muted">Cancel</button>
-            <button type="submit" disabled={disabled} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">Save</button>
+            <button type="submit" disabled={disabled} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">{initial ? "Update Order" : "Create Order"}</button>
           </div>
         </form>
       </div>
@@ -541,7 +548,7 @@ function BulkStatusModal({ onConfirm, onCancel, disabled }: { onConfirm: (status
           </select>
           <div className="flex justify-end gap-2">
             <button type="button" onClick={onCancel} className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-muted">Cancel</button>
-            <button type="button" disabled={disabled} onClick={() => onConfirm(status)} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">Update</button>
+            <button type="button" disabled={disabled} onClick={() => onConfirm(status)} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">Update Status</button>
           </div>
         </div>
       </div>

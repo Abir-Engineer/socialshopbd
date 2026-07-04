@@ -37,7 +37,7 @@ export function BusinessInfoSection({ orgId, initial }: Props) {
     await supabase.from("business_info").upsert({ organization_id: orgId, ...bizData }, { onConflict: "organization_id" });
     await upsertOrgSetting(supabase, orgId, "business_info", { owner_name: ownerName, business_type: businessType, website, facebook } as never);
     setSaving(false);
-    toast.success("Business information saved.");
+    toast.success("Business information has been saved successfully.");
   };
 
   return (
@@ -53,7 +53,7 @@ export function BusinessInfoSection({ orgId, initial }: Props) {
           onClick={handleSave}
           className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60 transition cursor-pointer"
         >
-          {saving ? "Saving..." : "Save"}
+          {saving ? "Saving..." : "Save Business Info"}
         </button>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">

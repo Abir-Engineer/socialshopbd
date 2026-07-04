@@ -24,7 +24,7 @@ export function InvoiceList({ invoices, orgName }: InvoiceListProps) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-12 text-center">
         <p className="text-sm font-medium text-foreground">No invoices yet</p>
-        <p className="mt-1 text-xs text-muted-foreground">Invoices will be generated after each successful payment.</p>
+        <p className="mt-1 text-xs text-muted-foreground">Invoices will be generated automatically after each payment.</p>
       </div>
     );
   }

@@ -16,7 +16,7 @@ const ITEMS: SearchItem[] = [
   { label: "Orders", href: "/orders", icon: ShoppingCart, keywords: ["sales", "transactions", "selling"] },
   { label: "Products", href: "/products", icon: Package, keywords: ["items", "inventory", "goods"] },
   { label: "Customers", href: "/customers", icon: Users, keywords: ["clients", "people", "leads"] },
-  { label: "Analytics", href: "/analytics", icon: BarChart3, keywords: ["reports", "stats", "metrics"] },
+  { label: "Reports", href: "/analytics", icon: BarChart3, keywords: ["analytics", "stats", "metrics"] },
   { label: "Staff", href: "/staff", icon: Shield, keywords: ["team", "members", "employees"] },
   { label: "Settings", href: "/settings", icon: Settings, keywords: ["preferences", "config", "profile"] },
 ];
@@ -79,7 +79,7 @@ export function GlobalSearch() {
         className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-muted-foreground hover:border-muted-foreground/30 transition w-full max-w-[280px]"
       >
         <Search className="h-4 w-4 shrink-0" />
-        <span className="flex-1 text-left">Search...</span>
+        <span className="flex-1 text-left">Search orders, products or customers...</span>
         <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
           <Command className="h-3 w-3" />K
         </kbd>
@@ -127,7 +127,7 @@ export function GlobalSearch() {
             </div>
             <div className="max-h-72 overflow-y-auto p-2">
               {filtered.length === 0 ? (
-                <p className="p-4 text-center text-sm text-muted-foreground">No results found.</p>
+                <p className="p-4 text-center text-sm text-muted-foreground">No results found. Try a different search term.</p>
               ) : (
                 filtered.map((item, i) => {
                   const Icon = item.icon;

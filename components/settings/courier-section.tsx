@@ -29,7 +29,7 @@ export function CourierSection({ orgId, userId, initial }: Props) {
     await upsertShop(supabase, userId, { default_courier: settings.default_courier || null });
     await upsertOrgSetting(supabase, orgId, "courier", settings as never);
     setSaving(false);
-    toast.success("Courier settings saved.");
+    toast.success("Courier settings have been saved successfully.");
   };
 
   return (
@@ -45,7 +45,7 @@ export function CourierSection({ orgId, userId, initial }: Props) {
           onClick={handleSave}
           className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60 transition cursor-pointer"
         >
-          {saving ? "Saving..." : "Save"}
+          {saving ? "Saving..." : "Save Courier Settings"}
         </button>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">

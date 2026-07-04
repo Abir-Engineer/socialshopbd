@@ -33,12 +33,11 @@ export function LandingFooter() {
                 S
               </div>
               <span className="text-lg font-bold tracking-tight text-white">
-                Social Shop BD
+                SocialShopBD
               </span>
             </div>
             <p className="mt-4 text-sm leading-6 text-slate-400">
-              Smart Commerce Management Platform for Facebook Sellers, Online
-              Shops &amp; Growing Businesses.
+              The All-in-One Commerce OS for Facebook sellers, online shops & growing businesses in Bangladesh.
             </p>
           </div>
 
@@ -91,7 +90,7 @@ export function LandingFooter() {
         </div>
 
         <div className="mt-10 border-t border-slate-800/40 pt-6 text-center text-sm text-slate-500">
-          &copy; {new Date().getFullYear()} Social Shop BD. All rights reserved.
+          &copy; {new Date().getFullYear()} SocialShopBD. All rights reserved.
         </div>
       </div>
     </footer>

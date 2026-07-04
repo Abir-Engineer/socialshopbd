@@ -30,7 +30,7 @@ export function BusinessLogoSection({ userId, initialLogoUrl, initialShopName }:
       .upload(path, file, { upsert: true });
 
     if (uploadError) {
-      toast.error("Upload failed: " + uploadError.message);
+      toast.error("Upload failed. Please try again.");
       return;
     }
 
@@ -40,11 +40,11 @@ export function BusinessLogoSection({ userId, initialLogoUrl, initialShopName }:
     if (publicUrl) {
       const { error } = await upsertShop(supabase, userId, { logo_url: publicUrl });
       if (error) {
-        toast.error("Failed to save logo URL.");
+        toast.error("Could not save the logo. Please try again.");
         return;
       }
       setLogoUrl(publicUrl);
-      toast.success("Logo updated.");
+      toast.success("Logo has been updated successfully.");
     }
   };
 
@@ -52,11 +52,11 @@ export function BusinessLogoSection({ userId, initialLogoUrl, initialShopName }:
     const supabase = getSupabaseBrowserClient();
     const { error } = await upsertShop(supabase, userId, { logo_url: null });
     if (error) {
-      toast.error("Failed to remove logo.");
+      toast.error("Could not remove the logo. Please try again.");
       return;
     }
     setLogoUrl(null);
-    toast.success("Logo removed.");
+    toast.success("Logo has been removed successfully.");
   };
 
   return (

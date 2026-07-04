@@ -37,10 +37,10 @@ export const ROLE_ICON_COLORS: Record<string, string> = {
 };
 
 export const ROLE_OPTIONS = [
-  { value: "admin",   label: "Admin",    desc: "Full access to all modules", descBn: "সমস্ত মডিউলে পূর্ণ অ্যাক্সেস" },
-  { value: "manager", label: "Manager",  desc: "Orders, products, customers, analytics", descBn: "অর্ডার, পণ্য, গ্রাহক ও বিশ্লেষণ" },
-  { value: "staff",   label: "Staff",    desc: "Dashboard only (limited)", descBn: "শুধু ড্যাশবোর্ড (সীমিত)" },
-  { value: "viewer",  label: "Viewer",   desc: "Read-only dashboard", descBn: "শুধু-পঠনযোগ্য ড্যাশবোর্ড" },
+  { value: "admin",   label: "Admin",    desc: "Full access to all modules", descBn: "Full access to all modules" },
+  { value: "manager", label: "Manager",  desc: "Orders, products, customers, analytics", descBn: "Orders, products, customers, analytics" },
+  { value: "staff",   label: "Staff",    desc: "Dashboard only (limited)", descBn: "Dashboard only (limited)" },
+  { value: "viewer",  label: "Viewer",   desc: "Read-only dashboard", descBn: "Read-only dashboard" },
 ] as const;
 
 export function formatLastLogin(lastLogin: string | null): string {

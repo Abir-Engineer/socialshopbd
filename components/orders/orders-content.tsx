@@ -50,12 +50,12 @@ export async function OrdersContent({ searchParams }: Props) {
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-semibold text-foreground">Orders</h1>
-            <p className="text-sm text-muted-foreground">Manage orders, shipping, and payments.</p>
+            <p className="text-sm text-muted-foreground">Track and manage all customer orders.</p>
           </div>
         </header>
         <div className="rounded-xl border border-rose-200 bg-card p-5 text-sm text-rose-700 shadow-sm dark:border-rose-900 dark:text-rose-300">
-          <p className="font-medium">Failed to load orders</p>
-          <p className="mt-1">{error.message}</p>
+          <p className="font-medium">Could not load orders. Please try again.</p>
+          <p className="mt-1">Something went wrong. Please refresh the page.</p>
         </div>
       </section>
     );

@@ -2,12 +2,12 @@ import type { PlanDetails } from "@/lib/subscription/plans";
 import { formatLimit } from "@/lib/subscription/plans";
 
 const FEATURE_LIST: { key: keyof PlanDetails["features"]; label: string }[] = [
-  { key: "courier_dispatch",    label: "কুরিয়ার ডিসপ্যাচ (Steadfast, Pathao)" },
-  { key: "advanced_analytics",  label: "উন্নত বিশ্লেষণ" },
-  { key: "ai_features",         label: "এআই ফিচার" },
-  { key: "multi_staff",         label: "একাধিক স্টাফ সদস্য" },
-  { key: "export_data",         label: "ডেটা এক্সপোর্ট (CSV/Excel)" },
-  { key: "priority_support",    label: "অগ্রাধিকার সাপোর্ট" },
+  { key: "courier_dispatch",    label: "Courier Dispatch (Steadfast, Pathao)" },
+  { key: "advanced_analytics",  label: "Advanced Analytics" },
+  { key: "ai_features",         label: "AI Features" },
+  { key: "multi_staff",         label: "Multi-Staff Access" },
+  { key: "export_data",         label: "Data Export (CSV/Excel)" },
+  { key: "priority_support",    label: "Priority Support" },
 ];
 
 interface PlanCardProps {
@@ -29,7 +29,7 @@ export function PlanCard({ plan, isCurrent, isUpgrade }: PlanCardProps) {
       {plan.is_popular && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
           <span className="rounded-full bg-blue-600 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
-            সবচেয়ে জনপ্রিয়
+            Most Popular
           </span>
         </div>
       )}
@@ -42,7 +42,7 @@ export function PlanCard({ plan, isCurrent, isUpgrade }: PlanCardProps) {
         </div>
         {isCurrent && (
           <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
-            বর্তমান
+            Current
           </span>
         )}
       </div>
@@ -50,11 +50,11 @@ export function PlanCard({ plan, isCurrent, isUpgrade }: PlanCardProps) {
       {/* Price */}
       <div className="mt-4">
         {plan.price_bdt === null ? (
-          <p className="text-2xl font-bold text-card-foreground">ফ্রি</p>
+          <p className="text-2xl font-bold text-card-foreground">Free</p>
         ) : (
           <>
             <p className="text-2xl font-bold text-card-foreground">৳{plan.price_bdt.toLocaleString("en-BD")}</p>
-            <p className="text-xs text-muted-foreground">প্রতি মাসে</p>
+            <p className="text-xs text-muted-foreground">per month</p>
           </>
         )}
       </div>
@@ -63,19 +63,19 @@ export function PlanCard({ plan, isCurrent, isUpgrade }: PlanCardProps) {
       <ul className="mt-4 space-y-1.5 text-sm">
         <li className="flex items-center gap-2 text-muted-foreground">
           <CheckIcon />
-          {formatLimit(plan.limits.orders_per_month)} অর্ডার/মাস
+          {formatLimit(plan.limits.orders_per_month)} orders/month
         </li>
         <li className="flex items-center gap-2 text-muted-foreground">
           <CheckIcon />
-          {formatLimit(plan.limits.products_total)} পণ্য
+          {formatLimit(plan.limits.products_total)} products
         </li>
         <li className="flex items-center gap-2 text-muted-foreground">
           <CheckIcon />
-          {formatLimit(plan.limits.customers_total)} গ্রাহক
+          {formatLimit(plan.limits.customers_total)} customers
         </li>
         <li className="flex items-center gap-2 text-muted-foreground">
           <CheckIcon />
-          {formatLimit(plan.limits.staff_members)} স্টাফ সদস্য
+          {formatLimit(plan.limits.staff_members)} team members
         </li>
       </ul>
 

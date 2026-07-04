@@ -69,7 +69,7 @@ export function OrderDetailPage({ order, items, timeline, comments, role }: Orde
                 <Copy className="h-3.5 w-3.5" /> Duplicate
               </button>
               <button type="button" onClick={handleDelete} className="flex items-center gap-1 rounded-lg border border-rose-300 px-3 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-400">
-                <Trash2 className="h-3.5 w-3.5" /> Delete
+                <Trash2 className="h-3.5 w-3.5" /> Delete Order
               </button>
             </>
           )}

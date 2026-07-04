@@ -100,7 +100,7 @@ export function ImageUpload({ value, onChange, onUpload, disabled, className = "
         >
           <ImageIcon className="h-8 w-8" />
           <span className="text-xs font-medium">
-            {isUploading ? "Uploading..." : "Click to upload"}
+            {isUploading ? "Uploading…" : "Click to upload"}
           </span>
           <span className="text-[10px]">PNG, JPG, WebP (max 5MB)</span>
         </label>

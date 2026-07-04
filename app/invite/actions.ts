@@ -30,7 +30,7 @@ export type InviteActionResult = { ok: true } | { ok: false; error: string };
 
 export async function acceptInvitation(token: string): Promise<InviteActionResult> {
   if (!token?.trim()) {
-    return { ok: false, error: "Invalid invitation token." };
+    return { ok: false, error: "This invitation link is invalid." };
   }
 
   // 1. Get current logged in user
@@ -38,7 +38,7 @@ export async function acceptInvitation(token: string): Promise<InviteActionResul
   const { data: { user }, error: authError } = await userSupabase.auth.getUser();
 
   if (authError || !user) {
-    return { ok: false, error: "You must be logged in to accept an invitation." };
+    return { ok: false, error: "Please log in to accept this invitation." };
   }
 
   // 2. Fetch invitation details using service role (to ensure read access and write permissions)
@@ -53,14 +53,14 @@ export async function acceptInvitation(token: string): Promise<InviteActionResul
     .maybeSingle();
 
   if (inviteError || !invite) {
-    return { ok: false, error: "Invitation not found or has already expired." };
+    return { ok: false, error: "This invitation has expired or is no longer valid." };
   }
 
   // 3. Security: ensure the user's email matches the invited email
   if (user.email?.toLowerCase() !== invite.email.toLowerCase()) {
     return { 
       ok: false, 
-      error: `This invitation was sent to ${invite.email}, but you are signed in as ${user.email}.` 
+      error: `This invitation was sent to ${invite.email}, but you are logged in as ${user.email}.` 
     };
   }
 
@@ -82,7 +82,7 @@ export async function acceptInvitation(token: string): Promise<InviteActionResul
     });
 
   if (insertError) {
-    return { ok: false, error: insertError.message };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   // Mark invitation as accepted
@@ -92,7 +92,7 @@ export async function acceptInvitation(token: string): Promise<InviteActionResul
     .eq("id", invite.id);
 
   if (updateError) {
-    return { ok: false, error: updateError.message };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   return { ok: true };

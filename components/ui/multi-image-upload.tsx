@@ -39,11 +39,11 @@ export function MultiImageUpload({
 
     for (const file of toUpload) {
       if (!file.type.startsWith("image/")) {
-        setError(`${file.name} is not an image`);
+        setError(`${file.name} is not a supported image file`);
         continue;
       }
       if (file.size > 5 * 1024 * 1024) {
-        setError(`${file.name} is over 5MB`);
+        setError(`${file.name} exceeds the 5MB size limit`);
         continue;
       }
 

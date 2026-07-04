@@ -53,11 +53,20 @@ export function ReportsView({ initialData }: ReportsViewProps) {
 
   const { metrics, chart, topCustomers, topProducts, topCategories } = data;
 
+  const METRIC_TOOLTIPS: Record<string, string> = {
+    "Revenue": "Total income from all orders",
+    "Profit": "Earnings after all expenses",
+    "Expenses": "Total business costs incurred",
+    "Courier Cost": "Total delivery charges paid",
+    "Orders": "Total number of orders placed",
+    "AOV": "Average amount per order",
+  };
+
   const MetricCard = ({ metric, icon: Icon, color }: { metric: typeof metrics.revenue; icon: any; color: string }) => (
     <article className="relative overflow-hidden rounded-xl border border-border bg-card p-4 shadow-sm transition hover:shadow-md">
       <div className={`absolute top-0 right-0 h-20 w-20 -mr-4 -mt-4 rounded-full ${color}/5`} />
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{metric.label}</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground" title={METRIC_TOOLTIPS[metric.label] ?? metric.label}>{metric.label}</span>
         <div className={`rounded-lg ${color}/10 p-2 ${color === "bg-blue-500" ? "text-blue-600" : color === "bg-emerald-500" ? "text-emerald-600" : color === "bg-amber-500" ? "text-amber-600" : color === "bg-purple-500" ? "text-purple-600" : color === "bg-rose-500" ? "text-rose-600" : "text-muted-foreground"}`}>
           <Icon className="h-4 w-4" />
         </div>
@@ -76,7 +85,7 @@ export function ReportsView({ initialData }: ReportsViewProps) {
           ) : (
             <span className="text-muted-foreground">—</span>
           )}
-          <span className="text-muted-foreground">vs previous</span>
+          <span className="text-muted-foreground">vs previous period</span>
         </p>
       </div>
     </article>
@@ -125,7 +134,7 @@ export function ReportsView({ initialData }: ReportsViewProps) {
               { key: "spent", label: "Spent", render: (r) => formatBdt(r.totalSpent), sortable: true, sortValue: (r) => r.totalSpent },
             ]}
             data={topCustomers}
-            emptyMessage="No customer data"
+            emptyMessage="No customer data yet"
           />
         </div>
 
@@ -139,7 +148,7 @@ export function ReportsView({ initialData }: ReportsViewProps) {
               { key: "profit", label: "Profit", render: (r) => <span className={r.profit >= 0 ? "text-emerald-600" : "text-rose-600"}>{formatBdt(r.profit)}</span>, sortable: true, sortValue: (r) => r.profit },
             ]}
             data={topProducts}
-            emptyMessage="No product data"
+            emptyMessage="No product data yet"
           />
         </div>
 
@@ -152,7 +161,7 @@ export function ReportsView({ initialData }: ReportsViewProps) {
               { key: "revenue", label: "Revenue", render: (r) => formatBdt(r.revenue), sortable: true, sortValue: (r) => r.revenue },
             ]}
             data={topCategories}
-            emptyMessage="No category data"
+            emptyMessage="No category data yet"
           />
         </div>
       </div>

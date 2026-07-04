@@ -21,7 +21,7 @@ export default async function OrderInvoicePage({ params }: Props) {
     <OrderInvoice
       order={order}
       items={items ?? []}
-      shopName="SocialShop BD"
+      shopName="SocialShopBD"
       shopAddress="Dhaka, Bangladesh"
     />
   );

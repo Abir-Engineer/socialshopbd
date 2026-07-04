@@ -34,7 +34,7 @@ export function CustomerForm({ initial, error, disabled, onSubmit }: CustomerFor
     const { error } = await supabase.storage.from("customer-avatars").upload(path, file, {
       cacheControl: "3600", upsert: false, contentType: file.type,
     });
-    if (error) return { ok: false as const, error: error.message };
+    if (error) return { ok: false as const, error: "Upload failed. Please try again." };
     const { data } = supabase.storage.from("customer-avatars").getPublicUrl(path);
     return { ok: true as const, url: data.publicUrl };
   };
@@ -116,14 +116,14 @@ export function CustomerForm({ initial, error, disabled, onSubmit }: CustomerFor
         </div>
         <div className="flex gap-2">
           <input value={tagsInput} onChange={(e) => setTagsInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }} placeholder="Add a tag..." className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500" />
-          <button type="button" onClick={addTag} disabled={!tagsInput.trim()} className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50">Add</button>
+          <button type="button" onClick={addTag} disabled={!tagsInput.trim()} className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50">Add Tag</button>
         </div>
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-card-foreground">Phone Numbers</span>
-          <button type="button" onClick={addPhone} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"><Plus className="h-3 w-3" /> Add</button>
+          <button type="button" onClick={addPhone} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"><Plus className="h-3 w-3" /> Add Phone</button>
         </div>
         {phones.map((p, i) => (
           <div key={i} className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-muted/20 p-3">
@@ -149,7 +149,7 @@ export function CustomerForm({ initial, error, disabled, onSubmit }: CustomerFor
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-card-foreground">Addresses</span>
-          <button type="button" onClick={addAddress} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"><Plus className="h-3 w-3" /> Add</button>
+          <button type="button" onClick={addAddress} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"><Plus className="h-3 w-3" /> Add Address</button>
         </div>
         {addresses.map((a, i) => (
           <div key={i} className="space-y-2 rounded-lg border border-border bg-muted/20 p-3">
@@ -180,7 +180,7 @@ export function CustomerForm({ initial, error, disabled, onSubmit }: CustomerFor
       {error && <p className="rounded-lg bg-rose-100 px-3 py-2 text-sm text-rose-700">{error}</p>}
 
       <div className="flex flex-wrap justify-end gap-2 pt-2">
-        <button type="submit" disabled={disabled} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70">Save</button>
+        <button type="submit" disabled={disabled} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70">Save Customer</button>
       </div>
     </form>
   );

@@ -52,13 +52,13 @@ export async function ProductsContent({ searchParams }: Props) {
       <section className="space-y-6">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">পণ্য</h1>
-            <p className="text-sm text-muted-foreground">পণ্যের ইনভেন্টরি ও লিস্টিং স্বাস্থ্য পর্যবেক্ষণ করুন।</p>
+            <h1 className="text-2xl font-semibold text-foreground">Products</h1>
+            <p className="text-sm text-muted-foreground">Monitor product inventory and listing health.</p>
           </div>
         </header>
         <div className="rounded-xl border border-rose-200 bg-card p-5 text-sm text-rose-700 shadow-sm dark:border-rose-900 dark:text-rose-300">
-          <p className="font-medium">পণ্য লোড করা যায়নি</p>
-          <p className="mt-1 text-rose-600/90 dark:text-rose-400/90">{error.message}</p>
+          <p className="font-medium">Could not load products. Please try again.</p>
+          <p className="mt-1 text-rose-600/90 dark:text-rose-400/90">Something went wrong. Please refresh the page.</p>
         </div>
       </section>
     );

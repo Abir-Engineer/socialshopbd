@@ -18,8 +18,8 @@ export async function inviteStaffMember(formData: FormData): Promise<StaffAction
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const role = String(formData.get("role") ?? "").trim().toLowerCase();
 
-  if (!email) return { ok: false, error: "Email is required." };
-  if (!isValidRole(role)) return { ok: false, error: "Role must be admin, manager, staff, or viewer." };
+  if (!email) return { ok: false, error: "Please enter an email address." };
+  if (!isValidRole(role)) return { ok: false, error: "Please select a valid role." };
 
   let orgId: string;
   let callerRole: OrgRole;
@@ -28,16 +28,16 @@ export async function inviteStaffMember(formData: FormData): Promise<StaffAction
     orgId = context.orgId;
     callerRole = context.role;
   } catch {
-    return { ok: false, error: "Unauthorized. Workspace not found." };
+    return { ok: false, error: "You don't have permission to perform this action." };
   }
 
   if (callerRole !== "owner" && callerRole !== "admin") {
-    return { ok: false, error: "Unauthorized. Only owners and admins can invite members." };
+    return { ok: false, error: "Only owners and admins can invite team members." };
   }
 
   const supabase = await getSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Unauthorized. Please log in again." };
+  if (!user) return { ok: false, error: "Please log in and try again." };
 
   const { data: invitation, error } = await supabase
     .from("organization_invitations")
@@ -53,9 +53,9 @@ export async function inviteStaffMember(formData: FormData): Promise<StaffAction
 
   if (error) {
     if (error.code === "23505") {
-      return { ok: false, error: "A pending invitation for this email already exists." };
+      return { ok: false, error: "An invitation has already been sent to this email." };
     }
-    return { ok: false, error: error.message };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   // Audit log
@@ -73,7 +73,7 @@ export async function inviteStaffMember(formData: FormData): Promise<StaffAction
 }
 
 export async function cancelInvitation(id: string): Promise<StaffActionResult> {
-  if (!id?.trim()) return { ok: false, error: "Missing invitation ID." };
+  if (!id?.trim()) return { ok: false, error: "Something went wrong. Please try again." };
 
   let callerRole: OrgRole;
   let orgId: string;
@@ -82,11 +82,11 @@ export async function cancelInvitation(id: string): Promise<StaffActionResult> {
     orgId = context.orgId;
     callerRole = context.role;
   } catch {
-    return { ok: false, error: "Unauthorized. Workspace not found." };
+    return { ok: false, error: "You don't have permission to perform this action." };
   }
 
   if (callerRole !== "owner" && callerRole !== "admin") {
-    return { ok: false, error: "Unauthorized. Only owners and admins can cancel invitations." };
+    return { ok: false, error: "Only owners and admins can cancel invitations." };
   }
 
   const supabase = await getSupabaseServerClient();
@@ -100,7 +100,7 @@ export async function cancelInvitation(id: string): Promise<StaffActionResult> {
 
   const { error } = await supabase.from("organization_invitations").delete().eq("id", id);
 
-  if (error) return { ok: false, error: error.message };
+  if (error) return { ok: false, error: "Something went wrong. Please try again." };
 
   const { data: { user } } = await supabase.auth.getUser();
   if (user && inv) {
@@ -122,8 +122,8 @@ export async function updateStaffMember(formData: FormData): Promise<StaffAction
   const id = String(formData.get("id") ?? "").trim();
   const role = String(formData.get("role") ?? "").trim().toLowerCase();
 
-  if (!id) return { ok: false, error: "Missing membership ID." };
-  if (!isValidRole(role)) return { ok: false, error: "Role must be admin, manager, staff, or viewer." };
+  if (!id) return { ok: false, error: "Something went wrong. Please try again." };
+  if (!isValidRole(role)) return { ok: false, error: "Please select a valid role." };
 
   let callerRole: OrgRole;
   let orgId: string;
@@ -132,11 +132,11 @@ export async function updateStaffMember(formData: FormData): Promise<StaffAction
     orgId = context.orgId;
     callerRole = context.role;
   } catch {
-    return { ok: false, error: "Unauthorized. Workspace not found." };
+    return { ok: false, error: "You don't have permission to perform this action." };
   }
 
   if (callerRole !== "owner" && callerRole !== "admin") {
-    return { ok: false, error: "Unauthorized. Only owners and admins can change roles." };
+    return { ok: false, error: "Only owners and admins can change member roles." };
   }
 
   const supabase = await getSupabaseServerClient();
@@ -147,20 +147,20 @@ export async function updateStaffMember(formData: FormData): Promise<StaffAction
     .eq("id", id)
     .single();
 
-  if (fetchError || !target) return { ok: false, error: "Target team member not found." };
+  if (fetchError || !target) return { ok: false, error: "Team member not found." };
 
-  if (target.role === "owner") return { ok: false, error: "Cannot change the organization owner's role." };
+  if (target.role === "owner") return { ok: false, error: "The organization owner's role cannot be changed." };
 
   if (callerRole === "admin" && target.role === "admin") {
     const { data: { user } } = await supabase.auth.getUser();
     if (user && user.id !== target.user_id) {
-      return { ok: false, error: "Admins cannot change roles of other admins." };
+      return { ok: false, error: "Admins cannot change other admins' roles." };
     }
   }
 
   const { error } = await supabase.from("organization_members").update({ role }).eq("id", id);
 
-  if (error) return { ok: false, error: error.message };
+  if (error) return { ok: false, error: "Something went wrong. Please try again." };
 
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
@@ -179,7 +179,7 @@ export async function updateStaffMember(formData: FormData): Promise<StaffAction
 }
 
 export async function deleteStaffMember(id: string): Promise<StaffActionResult> {
-  if (!id?.trim()) return { ok: false, error: "Missing membership ID." };
+  if (!id?.trim()) return { ok: false, error: "Something went wrong. Please try again." };
 
   let callerRole: OrgRole;
   let orgId: string;
@@ -188,11 +188,11 @@ export async function deleteStaffMember(id: string): Promise<StaffActionResult> 
     orgId = context.orgId;
     callerRole = context.role;
   } catch {
-    return { ok: false, error: "Unauthorized. Workspace not found." };
+    return { ok: false, error: "You don't have permission to perform this action." };
   }
 
   if (callerRole !== "owner" && callerRole !== "admin") {
-    return { ok: false, error: "Unauthorized. Only owners and admins can remove members." };
+    return { ok: false, error: "Only owners and admins can remove team members." };
   }
 
   const supabase = await getSupabaseServerClient();
@@ -203,9 +203,9 @@ export async function deleteStaffMember(id: string): Promise<StaffActionResult> 
     .eq("id", id)
     .single();
 
-  if (fetchError || !target) return { ok: false, error: "Target team member not found." };
+  if (fetchError || !target) return { ok: false, error: "Team member not found." };
 
-  if (target.role === "owner") return { ok: false, error: "Cannot remove the organization owner." };
+  if (target.role === "owner") return { ok: false, error: "The organization owner cannot be removed." };
 
   const { data: { user } } = await supabase.auth.getUser();
   if (user && user.id === target.user_id) {
@@ -218,7 +218,7 @@ export async function deleteStaffMember(id: string): Promise<StaffActionResult> 
 
   const { error } = await supabase.from("organization_members").delete().eq("id", id);
 
-  if (error) return { ok: false, error: error.message };
+  if (error) return { ok: false, error: "Something went wrong. Please try again." };
 
   if (user) {
     await insertAuditLog(supabase, {
@@ -239,9 +239,9 @@ export async function updateMemberStatus(
   memberId: string,
   status: "active" | "inactive" | "suspended",
 ): Promise<StaffActionResult> {
-  if (!memberId?.trim()) return { ok: false, error: "Missing member ID." };
+  if (!memberId?.trim()) return { ok: false, error: "Something went wrong. Please try again." };
   if (!["active", "inactive", "suspended"].includes(status)) {
-    return { ok: false, error: "Status must be active, inactive, or suspended." };
+    return { ok: false, error: "Please select a valid status." };
   }
 
   let callerRole: OrgRole;
@@ -251,11 +251,11 @@ export async function updateMemberStatus(
     orgId = context.orgId;
     callerRole = context.role;
   } catch {
-    return { ok: false, error: "Unauthorized. Workspace not found." };
+    return { ok: false, error: "You don't have permission to perform this action." };
   }
 
   if (callerRole !== "owner" && callerRole !== "admin") {
-    return { ok: false, error: "Unauthorized. Only owners and admins can change member status." };
+    return { ok: false, error: "Only owners and admins can change member status." };
   }
 
   const supabase = await getSupabaseServerClient();
@@ -266,15 +266,15 @@ export async function updateMemberStatus(
     .eq("id", memberId)
     .single();
 
-  if (!target) return { ok: false, error: "Member not found." };
-  if (target.role === "owner") return { ok: false, error: "Cannot change the owner's status." };
+  if (!target) return { ok: false, error: "Team member not found." };
+  if (target.role === "owner") return { ok: false, error: "The owner's status cannot be changed." };
 
   const { error } = await supabase
     .from("organization_members")
     .update({ status })
     .eq("id", memberId);
 
-  if (error) return { ok: false, error: error.message };
+  if (error) return { ok: false, error: "Something went wrong. Please try again." };
 
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {

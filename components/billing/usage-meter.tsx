@@ -31,7 +31,7 @@ export function UsageMeter({ label, current, limit, unit }: UsageMeterProps) {
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
         {atLimit && (
           <span className="rounded-full bg-rose-100 px-1.5 py-0.5 text-[10px] font-semibold text-rose-700 dark:bg-rose-950/50 dark:text-rose-300">
-            সীমা পৌঁছেছে
+            Limit Reached
           </span>
         )}
       </div>
@@ -46,7 +46,7 @@ export function UsageMeter({ label, current, limit, unit }: UsageMeterProps) {
           )}
         </p>
         {isUnlimited && (
-          <p className="text-xs text-muted-foreground mt-0.5">আনলিমিটেড {unit}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Unlimited {unit}</p>
         )}
       </div>
 
@@ -62,7 +62,7 @@ export function UsageMeter({ label, current, limit, unit }: UsageMeterProps) {
               aria-label={label}
             />
           </div>
-          <p className="text-right text-[10px] text-muted-foreground">{Math.round(pct)}% ব্যবহৃত</p>
+          <p className="text-right text-[10px] text-muted-foreground">{Math.round(pct)}% used</p>
         </div>
       )}
     </div>

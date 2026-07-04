@@ -28,13 +28,13 @@ export function SecuritySection() {
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     setSaving(false);
     if (error) {
-      toast.error(error.message);
+      toast.error("Something went wrong. Please try again.");
       return;
     }
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
-    toast.success("Password updated successfully.");
+    toast.success("Password has been updated successfully.");
   };
 
   const handleLogoutAll = async () => {

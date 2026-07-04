@@ -82,7 +82,7 @@ export function StaffView({
       const result = await inviteStaffMember(formData);
       if (!result.ok) { setFormError(result.error); return; }
       setCreateOpen(false);
-      toast.success("Invitation sent successfully.");
+      toast.success("Invitation has been sent successfully.");
       router.refresh();
     });
   };
@@ -93,7 +93,7 @@ export function StaffView({
       const result = await updateStaffMember(formData);
       if (!result.ok) { setFormError(result.error); return; }
       setEditMember(null);
-      toast.success("Member role updated.");
+      toast.success("Member role has been updated successfully.");
       router.refresh();
     });
   };
@@ -104,7 +104,7 @@ export function StaffView({
       const result = await deleteStaffMember(deleteConfirm.id);
       setDeleteConfirm(null);
       if (!result.ok) { toast.error(result.error); return; }
-      toast.success("Member removed from workspace.");
+      toast.success("Member has been removed from workspace successfully.");
       router.refresh();
     });
   };
@@ -115,7 +115,7 @@ export function StaffView({
       const result = await cancelInvitation(cancelInviteConfirm.id);
       setCancelInviteConfirm(null);
       if (!result.ok) { toast.error(result.error); return; }
-      toast.success("Invitation cancelled.");
+      toast.success("Invitation has been cancelled.");
       router.refresh();
     });
   };

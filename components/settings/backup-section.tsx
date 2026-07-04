@@ -29,7 +29,7 @@ export function BackupSection({ orgId, initial }: Props) {
     const supabase = getSupabaseBrowserClient();
     await upsertOrgSetting(supabase, orgId, "backup", settings as never);
     setSaving(false);
-    toast.success("Backup settings saved.");
+    toast.success("Backup settings have been saved successfully.");
   };
 
   const handleExport = async () => {
@@ -56,9 +56,9 @@ export function BackupSection({ orgId, initial }: Props) {
       a.download = `backup-${new Date().toISOString().split("T")[0]}.json`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.success("Data exported successfully.");
+      toast.success("Data has been exported successfully.");
     } catch {
-      toast.error("Export failed.");
+      toast.error("Data export failed. Please try again.");
     } finally {
       setExporting(false);
     }
@@ -79,7 +79,7 @@ export function BackupSection({ orgId, initial }: Props) {
             className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-60 transition cursor-pointer"
           >
             <Download className="h-4 w-4" />
-            {exporting ? "Exporting..." : "Export now"}
+            {exporting ? "Exporting..." : "Export Now"}
           </button>
           <button
             type="button"
@@ -87,7 +87,7 @@ export function BackupSection({ orgId, initial }: Props) {
             onClick={handleSave}
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60 transition cursor-pointer"
           >
-            {saving ? "Saving..." : "Save"}
+            {saving ? "Saving..." : "Save Backup Settings"}
           </button>
         </div>
       </div>

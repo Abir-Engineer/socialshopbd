@@ -77,7 +77,7 @@ export function CouponForm({ plan, onCouponApplied, onCouponRemoved }: CouponFor
             disabled={isPending || !code.trim()}
             className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition"
           >
-            {isPending ? "..." : "Apply"}
+            {isPending ? "..." : "Apply Coupon"}
           </button>
         </div>
       )}

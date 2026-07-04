@@ -29,7 +29,7 @@ export function InvoiceSection({ orgId, userId, initial }: Props) {
     await upsertShop(supabase, userId, { invoice_prefix: settings.prefix });
     await upsertOrgSetting(supabase, orgId, "invoice", settings as never);
     setSaving(false);
-    toast.success("Invoice settings saved.");
+    toast.success("Invoice settings have been saved successfully.");
   };
 
   return (
@@ -45,7 +45,7 @@ export function InvoiceSection({ orgId, userId, initial }: Props) {
           onClick={handleSave}
           className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60 transition cursor-pointer"
         >
-          {saving ? "Saving..." : "Save"}
+          {saving ? "Saving..." : "Save Invoice Settings"}
         </button>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">

@@ -48,14 +48,14 @@ export function OwnerSection() {
 
             <div className="mt-6 space-y-4 rounded-2xl border border-slate-800/50 bg-slate-950/80 p-6">
               <p className="text-base leading-8 text-slate-300">
-                I built Social Shop BD to help small businesses manage products,
-                orders and customers from one place without complicated software.
+                I built SocialShopBD to help small businesses manage products,
+                orders, and customers from one place without complicated software.
               </p>
             </div>
 
             <div className="mt-6 rounded-2xl border border-slate-800/40 bg-slate-950/50 p-5">
               <p className="text-lg italic leading-relaxed text-slate-400">
-                &ldquo;Success comes from systems, consistency and execution.&rdquo;
+                &ldquo;Success comes from systems, consistency, and execution.&rdquo;
               </p>
             </div>
 

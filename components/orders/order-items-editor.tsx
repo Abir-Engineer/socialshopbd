@@ -41,7 +41,7 @@ export function OrderItemsEditor({ items, onChange, disabled }: OrderItemsEditor
 
       {items.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border py-6 text-center text-sm text-muted-foreground">
-          No items yet. Click "Add Item" to add products.
+          No items added yet. Click "Add Item" to add products.
         </p>
       ) : (
         <div className="space-y-2">

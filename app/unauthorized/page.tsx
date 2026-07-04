@@ -24,7 +24,7 @@ export default function UnauthorizedPage() {
             Unauthorized
           </h1>
           <p className="mx-auto max-w-sm text-sm text-muted-foreground">
-            You do not have permission to view this resource. Please sign in with an authorized account or contact your administrator.
+            You don't have permission to view this resource. Sign in with an authorized account or contact your admin.
           </p>
         </div>
 

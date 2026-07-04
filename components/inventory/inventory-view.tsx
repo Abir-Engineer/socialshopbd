@@ -36,13 +36,13 @@ export function InventoryView({ initialItems, role }: InventoryViewProps) {
       const quantity = Number.parseInt(quantityRaw, 10);
 
       if (!Number.isFinite(quantity) || quantity < 1) {
-        setFormError("পরিমাণ ১ বা তার বেশি হতে হবে।");
+        setFormError("Quantity must be at least 1.");
         return;
       }
 
       const currentItem = items.find((i) => i.id === productId);
       if (!currentItem) {
-        setFormError("পণ্য পাওয়া যায়নি।");
+        setFormError("Product not found. Please try again.");
         return;
       }
 
@@ -62,31 +62,31 @@ export function InventoryView({ initialItems, role }: InventoryViewProps) {
     <section className={`space-y-6 ${isPending ? "pointer-events-none opacity-60" : ""}`} aria-busy={isPending}>
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">ইনভেন্টরি ম্যানেজমেন্ট</h1>
-          <p className="text-sm text-muted-foreground">স্টক লেভেল ও ইনভেন্টরি স্বাস্থ্য পর্যবেক্ষণ করুন।</p>
-          {isPending && <p className="mt-1 text-xs text-muted-foreground">সংরক্ষণ করা হচ্ছে…</p>}
+          <h1 className="text-2xl font-semibold text-foreground">Inventory</h1>
+          <p className="text-sm text-muted-foreground">Monitor stock levels and inventory health.</p>
+          {isPending && <p className="mt-1 text-xs text-muted-foreground">Saving…</p>}
         </div>
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <article className="rounded-xl border border-border bg-card p-5 shadow-sm">
-          <p className="text-sm text-muted-foreground">মোট পণ্য</p>
+          <p className="text-sm text-muted-foreground">Total Products</p>
           <h2 className="mt-2 text-2xl font-semibold text-card-foreground">{stats.total.toLocaleString("en-BD")}</h2>
         </article>
         <article className="rounded-xl border border-border bg-card p-5 shadow-sm">
-          <p className="text-sm text-muted-foreground">স্টকে আছে</p>
+          <p className="text-sm text-muted-foreground">In Stock</p>
           <h2 className="mt-2 text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
             {stats.inStock.toLocaleString("en-BD")}
           </h2>
         </article>
         <article className="rounded-xl border border-border bg-card p-5 shadow-sm">
-          <p className="text-sm text-muted-foreground">স্বল্প স্টক</p>
+          <p className="text-sm text-muted-foreground">Low Stock</p>
           <h2 className="mt-2 text-2xl font-semibold text-amber-600 dark:text-amber-400">
             {stats.lowStock.toLocaleString("en-BD")}
           </h2>
         </article>
         <article className="rounded-xl border border-border bg-card p-5 shadow-sm">
-          <p className="text-sm text-muted-foreground">স্টকআউট</p>
+          <p className="text-sm text-muted-foreground">Out of Stock</p>
           <h2 className="mt-2 text-2xl font-semibold text-rose-600 dark:text-rose-400">
             {stats.outOfStock.toLocaleString("en-BD")}
           </h2>
@@ -95,25 +95,25 @@ export function InventoryView({ initialItems, role }: InventoryViewProps) {
 
       <div className="rounded-xl border border-border bg-card shadow-sm">
         <div className="border-b border-border px-5 py-4">
-          <p className="text-sm text-muted-foreground">স্টক তালিকা (স্বল্প স্টক প্রথমে)</p>
+          <p className="text-sm text-muted-foreground">Stock List (Low Stock First)</p>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
             <thead className="text-muted-foreground">
               <tr className="border-b border-border">
-                <th className="px-5 py-3 font-medium">পণ্যের নাম</th>
-                <th className="px-5 py-3 font-medium">এসকেইউ</th>
-                <th className="px-5 py-3 font-medium">বর্তমান স্টক</th>
-                <th className="px-5 py-3 font-medium">অবস্থা</th>
-                <th className="px-5 py-3 font-medium">সর্বশেষ আপডেট</th>
-                {role !== "viewer" && <th className="px-5 py-3 font-medium">কার্যক্রম</th>}
+                <th className="px-5 py-3 font-medium">Product Name</th>
+                <th className="px-5 py-3 font-medium">SKU</th>
+                <th className="px-5 py-3 font-medium">Current Stock</th>
+                <th className="px-5 py-3 font-medium">Status</th>
+                <th className="px-5 py-3 font-medium">Last Updated</th>
+                {role !== "viewer" && <th className="px-5 py-3 font-medium">Actions</th>}
               </tr>
             </thead>
             <tbody>
               {items.length === 0 ? (
                 <tr>
                   <td colSpan={role !== "viewer" ? 6 : 5} className="px-5 py-12 text-center text-muted-foreground">
-                    ইনভেন্টরিতে এখনো কোনো পণ্য নেই।
+                    No products found in inventory.
                   </td>
                 </tr>
               ) : (
@@ -145,7 +145,7 @@ export function InventoryView({ initialItems, role }: InventoryViewProps) {
                             }}
                             className="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
                           >
-                            স্টক সামঞ্জস্য
+                            Adjust
                           </button>
                         </td>
                       )}
@@ -201,10 +201,10 @@ function StockAdjustModal({ item, onClose, onSubmit, error, disabled }: StockAdj
     >
       <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl border border-border bg-card p-6 shadow-lg">
         <h2 id="stock-modal-title" className="text-lg font-semibold text-card-foreground">
-          স্টক সামঞ্জস্য
+          Adjust Stock
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {item.name} — বর্তমান স্টক: <span className="font-medium text-card-foreground">{item.stock}</span>
+          {item.name} — Current Stock: <span className="font-medium text-card-foreground">{item.stock}</span>
         </p>
         <form
           className="mt-4 space-y-4"
@@ -225,7 +225,7 @@ function StockAdjustModal({ item, onClose, onSubmit, error, disabled }: StockAdj
                 onChange={() => setType("add")}
                 className="accent-blue-600"
               />
-              যোগ করুন
+              Add Stock
             </label>
             <label className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium has-[:checked]:border-rose-500 has-[:checked]:bg-rose-50 dark:has-[:checked]:bg-rose-950/30">
               <input
@@ -236,19 +236,19 @@ function StockAdjustModal({ item, onClose, onSubmit, error, disabled }: StockAdj
                 onChange={() => setType("remove")}
                 className="accent-rose-600"
               />
-              বাদ দিন
+              Remove Stock
             </label>
           </div>
 
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-card-foreground">পরিমাণ</span>
+            <span className="text-sm font-medium text-card-foreground">Quantity</span>
             <input
               name="quantity"
               type="number"
               min={1}
               step={1}
               required
-              placeholder="যেমন ৫"
+              placeholder="e.g. 5"
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue-500"
             />
           </label>
@@ -261,14 +261,14 @@ function StockAdjustModal({ item, onClose, onSubmit, error, disabled }: StockAdj
               onClick={onClose}
               className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
             >
-              বাতিল
+              Cancel
             </button>
             <button
               type="submit"
               disabled={disabled}
               className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {disabled ? "সংরক্ষণ করা হচ্ছে…" : "সংরক্ষণ করুন"}
+              {disabled ? "Updating…" : "Update Stock"}
             </button>
           </div>
         </form>

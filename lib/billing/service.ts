@@ -87,17 +87,17 @@ export async function validateCoupon(
   const allCoupons = [...(globalCoupons ?? []), ...(orgCoupons ?? [])] as Coupon[];
 
   if (allCoupons.length === 0) {
-    return { valid: false, error: "Invalid or expired coupon code." };
+    return { valid: false, error: "This coupon code is invalid or has expired." };
   }
 
   const coupon = allCoupons[0];
 
   if (coupon.current_uses >= coupon.max_uses) {
-    return { valid: false, error: "This coupon has reached its usage limit." };
+    return { valid: false, error: "This coupon has reached its usage limit and is no longer available." };
   }
 
   if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) {
-    return { valid: false, error: "This coupon has expired." };
+    return { valid: false, error: "This coupon code has expired." };
   }
 
   if (coupon.min_plan) {
@@ -105,7 +105,7 @@ export async function validateCoupon(
     const minRank = planOrder[coupon.min_plan] ?? 0;
     const planRank = planOrder[plan] ?? 0;
     if (planRank < minRank) {
-      return { valid: false, error: `This coupon requires at least ${coupon.min_plan} plan.` };
+      return { valid: false, error: `This coupon requires a ${coupon.min_plan} plan or higher.` };
     }
   }
 

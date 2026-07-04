@@ -22,6 +22,7 @@ export function WidgetActivityTimeline({ orders }: Props) {
         <div className="flex flex-col items-center gap-2 py-6 text-center">
           <Clock className="h-8 w-8 text-muted-foreground/40" />
           <p className="text-sm text-muted-foreground">No activity yet</p>
+          <p className="text-xs text-muted-foreground/60">Activity will appear here as you manage your store.</p>
         </div>
       </div>
     );

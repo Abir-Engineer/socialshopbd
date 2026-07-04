@@ -23,10 +23,10 @@ export function paymentStatusLabel(status: PaymentStatus): string {
 
 export function paymentStatusLabelBn(status: PaymentStatus): string {
   switch (status) {
-    case "succeeded": return "সফল";
-    case "pending":   return "অপেক্ষমাণ";
-    case "failed":    return "ব্যর্থ";
-    case "refunded":  return "ফেরত";
+    case "succeeded": return "Succeeded";
+    case "pending":   return "Pending";
+    case "failed":    return "Failed";
+    case "refunded":  return "Refunded";
     default:          return status;
   }
 }

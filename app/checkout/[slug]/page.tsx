@@ -44,7 +44,7 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
         {/* Shop Branding Header */}
         <div className="mb-8 text-center sm:mb-12">
           <Link href={`/checkout/${slug}`} className="inline-block">
-            <span className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">Welcome to checkout of</span>
+            <span className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">Welcome to Checkout of</span>
             <h1 className="mt-2 text-3xl font-extrabold text-foreground sm:text-4xl">
               {shop.shop_name}
             </h1>
@@ -60,7 +60,7 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
         <CheckoutForm shop={shop} products={products ?? []} />
 
         <div className="mt-12 text-center text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} {shop.shop_name}. Powered by SocialShop BD.</p>
+          <p>© {new Date().getFullYear()} {shop.shop_name}. Powered by SocialShopBD.</p>
         </div>
       </div>
     </main>

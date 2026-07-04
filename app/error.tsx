@@ -16,7 +16,6 @@ export default function ErrorBoundary({
   const parsed = parseError(error);
 
   useEffect(() => {
-    // Log the error to console or error logging service
     console.error("Global boundary caught error:", error);
   }, [error]);
 
@@ -27,12 +26,10 @@ export default function ErrorBoundary({
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-6 text-center">
-        {/* Error Icon */}
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose-500/10 text-rose-500 dark:bg-rose-500/20">
           <AlertCircle className="h-9 w-9 animate-pulse" />
         </div>
 
-        {/* Header */}
         <div className="space-y-2">
           <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             {parsed.isSessionExpired ? "Session Expired" : "Something went wrong"}
@@ -42,7 +39,6 @@ export default function ErrorBoundary({
           </p>
         </div>
 
-        {/* Expanded developer info */}
         {(parsed.code || parsed.details || parsed.hint) && (
           <details className="group mx-auto rounded-lg border border-border bg-card p-3 text-left transition-all">
             <summary className="flex cursor-pointer items-center justify-between text-xs font-semibold text-muted-foreground select-none">
@@ -58,7 +54,6 @@ export default function ErrorBoundary({
           </details>
         )}
 
-        {/* Actions */}
         <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
           {parsed.isSessionExpired ? (
             <button

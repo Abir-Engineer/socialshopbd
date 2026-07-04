@@ -14,12 +14,12 @@ export async function submitCheckoutOrder(formData: FormData): Promise<CheckoutR
   const productId = String(formData.get("product_id") ?? "").trim();
   const quantity = Number(formData.get("quantity") ?? 1);
 
-  if (!shopSlug) return { ok: false, error: "Invalid shop slug." };
-  if (!customerName) return { ok: false, error: "Full name is required." };
-  if (!phone) return { ok: false, error: "Phone number is required." };
-  if (!address) return { ok: false, error: "Shipping address is required." };
+  if (!shopSlug) return { ok: false, error: "Something went wrong. Please try again." };
+  if (!customerName) return { ok: false, error: "Please enter your full name." };
+  if (!phone) return { ok: false, error: "Please enter your phone number." };
+  if (!address) return { ok: false, error: "Please enter your shipping address." };
   if (!productId) return { ok: false, error: "Please select a product." };
-  if (Number.isNaN(quantity) || quantity <= 0) return { ok: false, error: "Quantity must be greater than 0." };
+  if (Number.isNaN(quantity) || quantity <= 0) return { ok: false, error: "Quantity must be at least 1." };
 
   const supabase = await getSupabaseServerClient();
 
@@ -31,7 +31,7 @@ export async function submitCheckoutOrder(formData: FormData): Promise<CheckoutR
     .single();
 
   if (shopError || !shop) {
-    return { ok: false, error: "Shop not found." };
+    return { ok: false, error: "Shop not found. Please check the link." };
   }
 
   const shopOwnerId = shop.user_id;
@@ -45,7 +45,7 @@ export async function submitCheckoutOrder(formData: FormData): Promise<CheckoutR
     .single();
 
   if (productError || !product) {
-    return { ok: false, error: "Product not found." };
+    return { ok: false, error: "Product not found. Please try again." };
   }
 
   if (product.stock < quantity) {
@@ -77,7 +77,7 @@ export async function submitCheckoutOrder(formData: FormData): Promise<CheckoutR
       .single();
 
     if (insertCustError || !newCustomer) {
-      return { ok: false, error: "Failed to process customer profile: " + insertCustError?.message };
+      return { ok: false, error: "Something went wrong. Please try again." };
     }
     customerId = newCustomer.id;
   }
@@ -100,7 +100,7 @@ export async function submitCheckoutOrder(formData: FormData): Promise<CheckoutR
     .single();
 
   if (insertOrderError || !newOrder) {
-    return { ok: false, error: "Failed to place order: " + insertOrderError?.message };
+    return { ok: false, error: "Something went wrong placing your order. Please try again." };
   }
 
   // 5. Add Order Item
@@ -114,7 +114,7 @@ export async function submitCheckoutOrder(formData: FormData): Promise<CheckoutR
     });
 
   if (insertItemError) {
-    return { ok: false, error: "Failed to associate products to order." };
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 
   // 6. Deduct stock
